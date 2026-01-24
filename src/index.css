@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-black text-zinc-300 antialiased selection:bg-lime-500/30 selection:text-lime-200;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-black;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-800 rounded-full border-2 border-black hover:bg-zinc-700;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-zinc-900/50 backdrop-blur-xl border border-white/5 shadow-2xl;
+  }
+
+  /* Syntax Highlighting - Neon Style */
+  .token-tag {
+    @apply text-lime-400;
+  }
+
+  .token-attr {
+    @apply text-cyan-400;
+  }
+
+  .token-val {
+    @apply text-emerald-300;
+  }
+
+  .token-comment {
+    @apply text-zinc-500;
+  }
+
+  .token-plain {
+    @apply text-zinc-300;
+  }
+}

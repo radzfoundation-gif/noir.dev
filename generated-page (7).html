@@ -1,0 +1,316 @@
+<html lang="en" class="scroll-smooth"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Code - Photo to Code</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712; /* gray-950 */
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+
+        /* Syntax Highlighting Colors */
+        .token-tag { color: #f472b6; } /* pink-400 */
+        .token-attr { color: #a78bfa; } /* violet-400 */
+        .token-val { color: #86efac; } /* green-300 */
+        .token-comment { color: #64748b; } /* slate-500 */
+        .token-plain { color: #cbd5e1; } /* slate-300 */
+        
+        /* Line Numbers */
+        .line-numbers {
+            counter-reset: line;
+        }
+        .code-line::before {
+            counter-increment: line;
+            content: counter(line);
+            display: inline-block;
+            width: 2rem;
+            margin-right: 1rem;
+            text-align: right;
+            color: #4b5563;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="text-slate-300 antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white">
+                    <iconify-icon icon="solar:code-scan-linear" width="20" stroke-width="1.5"></iconify-icon>
+                </div>
+                <span class="text-lg font-medium tracking-tight text-white">Nexus Code</span>
+            </div>
+
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+                <a href="#" class="hover:text-white transition-colors">How it works</a>
+                <a href="#" class="hover:text-white transition-colors">Pricing</a>
+                <a href="#" class="hover:text-white transition-colors">Documentation</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="#" class="hidden md:block text-sm font-medium text-slate-400 hover:text-white transition-colors">Log in</a>
+                <a href="#" class="group relative px-4 py-2 text-sm font-medium text-white bg-white/10 rounded-full border border-white/10 hover:bg-white/15 transition-all overflow-hidden">
+                    <span class="relative z-10 flex items-center gap-2">
+                        Dashboard
+                        <iconify-icon icon="solar:arrow-right-linear" width="16" stroke-width="1.5" class="group-hover:translate-x-0.5 transition-transform"></iconify-icon>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero / Input Section -->
+    <section class="relative pt-32 pb-12 md:pt-40 overflow-hidden">
+        <!-- Background Gradients -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none opacity-50"></div>
+        
+        <div class="max-w-4xl mx-auto px-6 relative z-10 text-center">
+            
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-medium mb-8">
+                <iconify-icon icon="solar:magic-stick-3-linear"></iconify-icon>
+                V 2.0 Now Supporting Gemini 3 &amp; Claude 4.5
+            </div>
+
+            <h1 class="text-4xl md:text-6xl font-medium text-white tracking-tight mb-4 leading-[1.1]">
+                Turn Screenshots into <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">Clean Code</span>
+            </h1>
+
+            <p class="text-lg text-slate-400 max-w-xl mx-auto mb-10 leading-relaxed font-light">
+                Upload a design mock or screenshot. Our AI architect builds the frontend for you instantly.
+            </p>
+
+            <!-- Main Input Area -->
+            <div class="w-full max-w-2xl mx-auto">
+                <div class="bg-slate-950/80 border border-white/10 rounded-2xl p-2 shadow-2xl ring-1 ring-white/5 backdrop-blur-sm relative group hover:border-white/20 transition-colors">
+                    
+                    <!-- Text Input -->
+                    <div class="relative flex items-start gap-3 p-2">
+                        <div class="pt-2 pl-1">
+                            <button class="text-slate-500 hover:text-white transition-colors" title="Upload Image">
+                                <iconify-icon icon="solar:gallery-add-linear" width="24" stroke-width="1.5"></iconify-icon>
+                            </button>
+                        </div>
+                        <textarea placeholder="Paste an image or describe your requirements..." class="w-full bg-transparent text-white pt-2.5 pb-2 focus:outline-none text-sm placeholder:text-slate-600 resize-none h-14"></textarea>
+                    </div>
+
+                    <!-- Controls Bar -->
+                    <div class="flex items-center justify-between px-3 pb-2 pt-2 border-t border-white/5">
+                        <div class="flex items-center gap-3">
+                            <!-- Model Selector Dropdown -->
+                            <div class="relative group/dropdown">
+                                <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-xs text-slate-300 hover:text-white hover:border-indigo-500/50 cursor-pointer transition-all">
+                                    <iconify-icon icon="solar:cpu-linear" class="text-indigo-400"></iconify-icon>
+                                    <select class="appearance-none bg-transparent focus:outline-none cursor-pointer pr-4 font-medium">
+                                        <option value="gemini-3-pro">Gemini 3 Pro</option>
+                                        <option value="gemini-3-flash">Gemini 3 Flash</option>
+                                        <option value="claude-sonnet-4.5">Claude Sonnet 4.5</option>
+                                    </select>
+                                    <iconify-icon icon="solar:alt-arrow-down-linear" class="absolute right-2 text-slate-500 pointer-events-none"></iconify-icon>
+                                </div>
+                            </div>
+                            
+                            <!-- Tech Stack Toggle (Visual) -->
+                            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-white/10 text-xs text-slate-400">
+                                <iconify-icon icon="solar:code-file-linear"></iconify-icon>
+                                <span>Tailwind + HTML</span>
+                            </div>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <button class="bg-white text-slate-950 px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-indigo-50 transition-colors flex items-center gap-2">
+                            Generate Code
+                            <iconify-icon icon="solar:arrow-right-linear" stroke-width="2"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-3 flex justify-center gap-4 text-[10px] text-slate-500 font-mono">
+                    <span class="flex items-center gap-1"><iconify-icon icon="solar:clock-circle-linear"></iconify-icon> ~4s latency</span>
+                    <span class="flex items-center gap-1"><iconify-icon icon="solar:shield-check-linear"></iconify-icon> Private mode</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workbench Section -->
+    <section class="py-8 px-4 md:px-6 h-auto">
+        <div class="max-w-7xl mx-auto">
+            <!-- Workbench Header -->
+            <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-sm font-medium text-white">Workbench</h2>
+                    <div class="h-4 w-[1px] bg-white/10"></div>
+                    <span class="text-xs text-slate-500 font-mono">landing-page-v1.html</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] bg-green-500/10 text-green-400 border border-green-500/20">Generated</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-white/5 transition-colors flex items-center gap-2">
+                        <iconify-icon icon="solar:eye-linear"></iconify-icon> Preview
+                    </button>
+                    <button class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-white/5 transition-colors flex items-center gap-2">
+                        <iconify-icon icon="solar:copy-linear"></iconify-icon> Copy
+                    </button>
+                    <button class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition-colors flex items-center gap-2 shadow-lg shadow-indigo-900/20">
+                        <iconify-icon icon="solar:download-linear"></iconify-icon> Download
+                    </button>
+                </div>
+            </div>
+
+            <!-- Workbench Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-white/10 rounded-xl overflow-hidden bg-[#0d1117] shadow-2xl h-[600px]">
+                
+                <!-- Code Editor Column -->
+                <div class="flex flex-col border-b lg:border-b-0 lg:border-r border-white/5 relative">
+                    <!-- Editor Tabs -->
+                    <div class="flex items-center px-4 border-b border-white/5 bg-slate-950/50">
+                        <div class="px-4 py-3 text-xs text-indigo-400 border-b border-indigo-500 flex items-center gap-2 bg-white/[0.02]">
+                            <iconify-icon icon="solar:code-linear"></iconify-icon> index.html
+                        </div>
+                        <div class="px-4 py-3 text-xs text-slate-500 hover:text-slate-300 cursor-pointer flex items-center gap-2 transition-colors">
+                            <iconify-icon icon="solar:palette-linear"></iconify-icon> styles.css
+                        </div>
+                    </div>
+
+                    <!-- Editor Content -->
+                    <div class="flex-1 overflow-y-auto font-mono text-xs p-4 leading-6 scroll-smooth bg-[#0B0F19]">
+                        <div class="line-numbers text-slate-300">
+                            <!-- Simulated Code -->
+                            <div class="code-line"><span class="token-comment">&lt;!-- Generated by Nexus AI using Claude Sonnet 4.5 --&gt;</span></div>
+                            <div class="code-line"><span class="token-tag">&lt;div</span> <span class="token-attr">class</span>=<span class="token-val">"min-h-screen bg-slate-50"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">  <span class="token-tag">&lt;header</span> <span class="token-attr">class</span>=<span class="token-val">"bg-white border-b"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">    <span class="token-tag">&lt;nav</span> <span class="token-attr">class</span>=<span class="token-val">"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">      <span class="token-tag">&lt;div</span> <span class="token-attr">class</span>=<span class="token-val">"flex justify-between h-16"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">        <span class="token-tag">&lt;div</span> <span class="token-attr">class</span>=<span class="token-val">"flex"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">          <span class="token-tag">&lt;div</span> <span class="token-attr">class</span>=<span class="token-val">"flex-shrink-0 flex items-center"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">             <span class="token-tag">&lt;img</span> <span class="token-attr">class</span>=<span class="token-val">"h-8 w-auto"</span> <span class="token-attr">src</span>=<span class="token-val">"/logo.svg"</span> <span class="token-attr">alt</span>=<span class="token-val">"Logo"</span><span class="token-tag">/&gt;</span></div>
+                            <div class="code-line">          <span class="token-tag">&lt;/div&gt;</span></div>
+                            <div class="code-line">          <span class="token-tag">&lt;div</span> <span class="token-attr">class</span>=<span class="token-val">"hidden sm:ml-6 sm:flex sm:space-x-8"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">            <span class="token-tag">&lt;a</span> <span class="token-attr">href</span>=<span class="token-val">"#"</span> <span class="token-attr">class</span>=<span class="token-val">"border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">              Dashboard</div>
+                            <div class="code-line">            <span class="token-tag">&lt;/a&gt;</span></div>
+                            <div class="code-line">            <span class="token-tag">&lt;a</span> <span class="token-attr">href</span>=<span class="token-val">"#"</span> <span class="token-attr">class</span>=<span class="token-val">"border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">              Team</div>
+                            <div class="code-line">            <span class="token-tag">&lt;/a&gt;</span></div>
+                            <div class="code-line">          <span class="token-tag">&lt;/div&gt;</span></div>
+                            <div class="code-line">        <span class="token-tag">&lt;/div&gt;</span></div>
+                            <div class="code-line">      <span class="token-tag">&lt;/div&gt;</span></div>
+                            <div class="code-line">    <span class="token-tag">&lt;/nav&gt;</span></div>
+                            <div class="code-line">  <span class="token-tag">&lt;/header&gt;</span></div>
+                            <div class="code-line">  <span class="token-tag">&lt;main&gt;</span></div>
+                            <div class="code-line">    <span class="token-tag">&lt;div</span> <span class="token-attr">class</span>=<span class="token-val">"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">      <span class="token-comment">&lt;!-- Replace with your content --&gt;</span></div>
+                            <div class="code-line">      <span class="token-tag">&lt;div</span> <span class="token-attr">class</span>=<span class="token-val">"px-4 py-6 sm:px-0"</span><span class="token-tag">&gt;</span></div>
+                            <div class="code-line">        <span class="token-tag">&lt;div</span> <span class="token-attr">class</span>=<span class="token-val">"border-4 border-dashed border-gray-200 rounded-lg h-96"</span><span class="token-tag">&gt;&lt;/div&gt;</span></div>
+                            <div class="code-line">      <span class="token-tag">&lt;/div&gt;</span></div>
+                            <div class="code-line">    <span class="token-tag">&lt;/div&gt;</span></div>
+                            <div class="code-line">  <span class="token-tag">&lt;/main&gt;</span></div>
+                            <div class="code-line"><span class="token-tag">&lt;/div&gt;</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Floating Edit Action -->
+                    <div class="absolute bottom-6 right-6">
+                        <button class="bg-indigo-600 hover:bg-indigo-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-transform hover:scale-105">
+                            <iconify-icon icon="solar:pen-new-square-linear" width="24" stroke-width="1.5"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview Column -->
+                <div class="bg-white relative flex flex-col">
+                    <!-- Browser Bar -->
+                    <div class="h-10 bg-slate-100 border-b border-slate-200 flex items-center px-4 gap-2">
+                        <div class="flex gap-1.5">
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                        </div>
+                        <div class="flex-1 text-center">
+                            <div class="bg-white rounded-md mx-auto w-1/2 h-6 flex items-center justify-center text-[10px] text-slate-400 border border-slate-200 shadow-sm">
+                                <iconify-icon icon="solar:lock-keyhole-minimalistic-linear" class="mr-1"></iconify-icon> localhost:3000
+                            </div>
+                        </div>
+                        <iconify-icon icon="solar:restart-linear" class="text-slate-400 cursor-pointer hover:text-slate-600"></iconify-icon>
+                    </div>
+
+                    <!-- Rendered Content (Mockup) -->
+                    <div class="flex-1 bg-slate-50 p-6 overflow-y-auto">
+                        <!-- Mocked Render of the Code -->
+                        <div class="bg-white border-b shadow-sm mb-6 -mx-6 -mt-6">
+                            <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+                                <div class="flex gap-8 items-center">
+                                    <div class="w-8 h-8 bg-indigo-600 rounded-lg"></div>
+                                    <div class="flex gap-6 text-sm font-medium text-slate-600">
+                                        <span class="text-slate-900 border-b-2 border-indigo-600 py-5">Dashboard</span>
+                                        <span class="py-5">Team</span>
+                                        <span class="py-5">Projects</span>
+                                    </div>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-slate-200"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="max-w-5xl mx-auto">
+                            <div class="h-8 w-48 bg-slate-200 rounded mb-6"></div>
+                            <div class="border-4 border-dashed border-slate-200 rounded-lg h-64 w-full flex items-center justify-center">
+                                <span class="text-slate-400 text-sm">Content Placeholder</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resizer Handle (Visual) -->
+                    <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-slate-900 rounded-full border border-white/10 flex items-center justify-center cursor-col-resize z-10 lg:flex hidden">
+                        <iconify-icon icon="solar:code-scan-linear" class="text-white text-xs"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 bg-black pt-16 pb-8 mt-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-md bg-indigo-600 flex items-center justify-center text-white">
+                        <iconify-icon icon="solar:code-scan-linear" width="14"></iconify-icon>
+                    </div>
+                    <span class="text-sm font-medium text-white">Nexus Code</span>
+                    <span class="text-xs text-slate-500 ml-2">© 2024</span>
+                </div>
+                <div class="flex gap-6 text-xs text-slate-500">
+                    <a href="#" class="hover:text-white">Privacy</a>
+                    <a href="#" class="hover:text-white">Terms</a>
+                    <a href="#" class="hover:text-white">Status</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body></html>
