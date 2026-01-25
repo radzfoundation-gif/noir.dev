@@ -108,7 +108,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                         {/* Prompt Builder */}
                         <button className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-lime-500/30 text-[10px] font-medium text-zinc-400 hover:text-white transition-all">
                             <Wand2 size={10} className="text-lime-400" />
-                            <span>Prompt</span>
+                            <span className="hidden md:inline">Prompt</span>
                         </button>
 
                         {/* Model Selector */}

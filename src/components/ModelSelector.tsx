@@ -72,13 +72,13 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSele
             <div className="relative group/dropdown">
                 <div
                     onClick={() => setIsOpen(!isOpen)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 hover:text-white hover:border-lime-500/50 cursor-pointer transition-all min-w-[140px] justify-between"
+                    className="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 hover:text-white hover:border-lime-500/50 cursor-pointer transition-all min-w-0 md:min-w-[140px] justify-between"
                 >
                     <div className="flex items-center gap-2">
                         <div className="w-3.5 h-3.5 flex items-center justify-center overflow-hidden">
                             {renderLogo(selectedModel.logo, "w-full h-full")}
                         </div>
-                        <span className="font-medium whitespace-nowrap">{selectedModel.name}</span>
+                        <span className="font-medium whitespace-nowrap hidden md:inline">{selectedModel.name}</span>
                     </div>
                     <ChevronDown size={12} className={clsx("text-zinc-500 transition-transform flex-shrink-0", isOpen && "rotate-180")} />
                 </div>
