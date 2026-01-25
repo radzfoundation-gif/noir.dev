@@ -1,23 +1,36 @@
-import { useState } from 'react';
-import { Layout } from './Layout';
-import { Hero } from './Hero';
-import { EditorLayout } from './EditorLayout';
-import { ChatInput } from './ChatInput';
-import { Workspace } from './Workspace';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { EditorLayout } from '../components/EditorLayout';
+import { ChatInput } from '../components/ChatInput';
+import { Workspace } from '../components/Workspace';
 
-export const Generator = () => {
-    const [view, setView] = useState<'landing' | 'editor'>('landing');
+export const EditorPage = () => {
+    const location = useLocation();
     const [image, setImage] = useState<string | null>(null);
     const [model, setModel] = useState('google/gemini-2.0-flash-exp');
     const [prompt, setPrompt] = useState('');
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleGenerate = async () => {
-        // Switch to editor view immediately
-        setView('editor');
+    const [context, setContext] = useState<string | null>(null);
+
+    // Initial load from navigation state
+    useEffect(() => {
+        if (location.state) {
+            const { prompt: navPrompt, image: navImage, model: navModel, autoGenerate } = location.state;
+            if (navPrompt) setPrompt(navPrompt);
+            if (navImage) setImage(navImage);
+            if (navModel) setModel(navModel);
+
+            if (autoGenerate) {
+                generateCode();
+            }
+        }
+    }, [location.state]);
+
+    const generateCode = () => {
         setLoading(true);
-        setCode('');
+        setCode(''); // Clear existing
 
         // Simulate AI Generation
         setTimeout(() => {
@@ -132,22 +145,13 @@ export const Generator = () => {
         }, 2500);
     };
 
-    if (view === 'landing') {
-        return (
-            <Layout>
-                <Hero
-                    onGenerate={handleGenerate}
-                    loading={loading}
-                    image={image}
-                    setImage={setImage}
-                    model={model}
-                    setModel={setModel}
-                    prompt={prompt}
-                    setPrompt={setPrompt}
-                />
-            </Layout>
-        );
-    }
+    const handleCodeChange = (newCode: string) => {
+        setCode(newCode);
+    };
+
+    const handleAddToChat = (selectedCode: string) => {
+        setContext(selectedCode);
+    };
 
     return (
         <EditorLayout
@@ -167,7 +171,7 @@ export const Generator = () => {
             }
             sidebarBottom={
                 <ChatInput
-                    onGenerate={handleGenerate}
+                    onGenerate={generateCode}
                     loading={loading}
                     image={image}
                     setImage={setImage}
@@ -175,10 +179,12 @@ export const Generator = () => {
                     setModel={setModel}
                     prompt={prompt}
                     setPrompt={setPrompt}
+                    context={context}
+                    onClearContext={() => setContext(null)}
                 />
             }
             workspaceContent={
-                <Workspace code={code} loading={loading} />
+                <Workspace code={code} loading={loading} onChange={handleCodeChange} onAddToChat={handleAddToChat} />
             }
         />
     );

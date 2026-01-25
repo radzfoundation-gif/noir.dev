@@ -1,7 +1,8 @@
-import React from 'react';
-import { Wand2, Image as ImageIcon, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Wand2, Image as ImageIcon, ArrowRight, X, FileCode } from 'lucide-react';
 import { ModelSelector } from './ModelSelector';
 import { ImageUpload } from './ImageUpload';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface ChatInputProps {
     onGenerate: () => void;
@@ -12,6 +13,8 @@ interface ChatInputProps {
     setModel: (m: string) => void;
     prompt: string;
     setPrompt: (p: string) => void;
+    context?: string | null;
+    onClearContext?: () => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
@@ -22,11 +25,59 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     model,
     setModel,
     prompt,
-    setPrompt
+    setPrompt,
+    context,
+    onClearContext
 }) => {
+    const [showContext, setShowContext] = useState(false);
+
     return (
-        <div className="w-full">
+        <div className="w-full relative">
+            {/* Context Viewer Overlay */}
+            <AnimatePresence>
+                {showContext && context && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute bottom-[calc(100%+8px)] left-0 w-full bg-zinc-900 border border-zinc-700/50 rounded-lg shadow-2xl z-50 overflow-hidden"
+                    >
+                        <div className="flex items-center justify-between px-3 py-2 bg-zinc-900 border-b border-zinc-800">
+                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">CODE CONTEXT</span>
+                            <button onClick={() => setShowContext(false)} className="text-zinc-500 hover:text-white">
+                                <X size={12} />
+                            </button>
+                        </div>
+                        <div className="max-h-[300px] overflow-auto p-3 bg-black/50">
+                            <pre className="text-[10px] font-mono text-zinc-300 whitespace-pre-wrap">{context}</pre>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="bg-black border border-zinc-800 rounded-xl p-2.5 shadow-lg relative group focus-within:border-lime-500/50 focus-within:shadow-[0_0_10px_rgba(163,230,53,0.05)] transition-all duration-300">
+
+                {/* Active Context Badge */}
+                {context && (
+                    <div className="flex items-center gap-2 mb-2 px-1">
+                        <button
+                            onClick={() => setShowContext(!showContext)}
+                            className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-lime-500/10 border border-lime-500/20 hover:bg-lime-500/20 transition-all group/badge max-w-full"
+                        >
+                            <FileCode size={12} className="text-lime-400 flex-shrink-0" />
+                            <span className="text-[11px] font-medium text-lime-100 truncate">
+                                {context.substring(0, 40).replace(/\n/g, ' ')}...
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => onClearContext && onClearContext()}
+                            className="text-zinc-600 hover:text-red-400 transition-colors p-1 rounded hover:bg-white/5"
+                            title="Remove Context"
+                        >
+                            <X size={12} />
+                        </button>
+                    </div>
+                )}
 
                 {/* Prompt Input */}
                 <div className="relative">

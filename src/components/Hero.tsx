@@ -1,6 +1,7 @@
 import { Wand2, Image as ImageIcon, ArrowRight, Clock, ShieldCheck as ShieldIcon } from 'lucide-react';
 import { ModelSelector } from './ModelSelector';
 import { ImageUpload } from './ImageUpload';
+import { FlipWords } from './FlipWords';
 
 interface HeroProps {
     onGenerate: () => void;
@@ -35,7 +36,7 @@ export const Hero: React.FC<HeroProps> = ({
                 </div>
 
                 <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-6 leading-[1.1]">
-                    Turn Screenshots into <br />
+                    Turn <FlipWords words={["Screenshots", "Wireframes", "Mockups", "Designs"]} className="text-white" /> into <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-emerald-300">Clean Code</span>
                 </h1>
 
@@ -109,7 +110,7 @@ export const Hero: React.FC<HeroProps> = ({
                             {/* Generate Button (Icon Only when small, full when large) */}
                             <button
                                 onClick={onGenerate}
-                                disabled={!image || loading}
+                                disabled={(!image && !prompt.trim()) || loading}
                                 className="w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-lg md:rounded-full bg-zinc-100 hover:bg-white text-black text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/5"
                             >
                                 <span className="hidden md:inline">Generate</span>
@@ -127,8 +128,53 @@ export const Hero: React.FC<HeroProps> = ({
                             <ShieldIcon size={12} /> Private mode
                         </span>
                     </div>
+
+                    {/* Mac-style Video Demo Embed */}
+
+                    <div className="mt-32 md:mt-48 relative group">
+
+
+
+
+                        {/* Glow Effect specific to video */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-lime-500/20 via-emerald-500/20 to-lime-500/20 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-700"></div>
+
+                        <div className="relative rounded-xl border border-white/10 bg-black/50 backdrop-blur-sm shadow-2xl overflow-hidden">
+                            {/* Window Header */}
+                            <div className="h-8 bg-zinc-900/80 border-b border-white/5 flex items-center px-4 gap-2">
+                                <div className="flex gap-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57] shadow-sm"></div>
+                                    <div className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E] shadow-sm"></div>
+                                    <div className="w-2.5 h-2.5 rounded-full bg-[#28C840] shadow-sm"></div>
+                                </div>
+                                <div className="flex-1 text-center">
+                                    <span className="text-[10px] font-medium text-zinc-500">demo_preview.mp4</span>
+                                </div>
+                                <div className="w-10"></div> {/* Spacer for centering */}
+                            </div>
+
+                            {/* Video Placeholder Container */}
+                            <div className="aspect-video bg-zinc-900 relative flex items-center justify-center overflow-hidden">
+                                {/* Placeholder Content - User will replace source */}
+                                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50">
+                                    <p className="text-zinc-600 text-sm">Demo Video Placeholder</p>
+                                </div>
+                                <video
+                                    className="w-full h-full object-cover opacity-50"
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                    poster="https://placehold.co/1920x1080/1a1a1a/333333?text=Demo+Video"
+                                >
+                                    <source src="" type="video/mp4" />
+                                </video>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </section >
     );
 };

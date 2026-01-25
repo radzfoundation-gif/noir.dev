@@ -10,7 +10,7 @@ export const Footer: React.FC = () => {
                         <div className="w-6 h-6 rounded-md bg-lime-500 flex items-center justify-center text-black shadow-lg shadow-lime-500/20">
                             <Code2 size={14} strokeWidth={2.5} />
                         </div>
-                        <span className="text-sm font-bold text-white tracking-tight">Nexus Code</span>
+                        <span className="text-sm font-bold text-white tracking-tight">Noir Code</span>
                         <span className="text-xs text-zinc-600 ml-2">© 2026</span>
                     </div>
                     <div className="flex gap-6 text-xs text-zinc-500">

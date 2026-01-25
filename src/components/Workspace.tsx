@@ -1,19 +1,26 @@
-import { useState } from 'react';
-import { Eye, Code, Smartphone, Tablet, Monitor, Download, RotateCw, Copy } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Eye, Code, Smartphone, Tablet, Monitor, Download, Copy, Plus } from 'lucide-react';
 import clsx from 'clsx';
+import { ModernLoader } from './ModernLoader';
+import { IPhoneMockup } from './IPhoneMockup';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface WorkspaceProps {
     code: string;
     loading: boolean;
+    onChange: (code: string) => void;
+    onAddToChat: (text: string) => void;
 }
 
-export const Workspace: React.FC<WorkspaceProps> = ({ code, loading }) => {
+export const Workspace: React.FC<WorkspaceProps> = ({ code, loading, onChange, onAddToChat }) => {
     const [activeView, setActiveView] = useState<'preview' | 'code'>('preview');
     const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+    const [selectedText, setSelectedText] = useState('');
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const getViewportWidth = () => {
         switch (viewport) {
-            case 'mobile': return '375px';
+            case 'mobile': return '100%'; // Handled by Mockup
             case 'tablet': return '768px';
             default: return '100%';
         }
@@ -27,26 +34,94 @@ export const Workspace: React.FC<WorkspaceProps> = ({ code, loading }) => {
         const element = document.createElement("a");
         const file = new Blob([code], { type: 'text/html' });
         element.href = URL.createObjectURL(file);
-        element.download = "nexus-output.html";
+        element.download = "noir-output.html";
         document.body.appendChild(element);
         element.click();
     };
 
-    // Simple line number and highlighting simulation
-    const renderCode = (text: string) => {
-        if (!text) return <div className="text-zinc-500 italic p-4">No code generated yet...</div>;
+    const handleTextSelect = () => {
+        if (textareaRef.current) {
+            const start = textareaRef.current.selectionStart;
+            const end = textareaRef.current.selectionEnd;
+            if (start !== end) {
+                const text = textareaRef.current.value.substring(start, end);
+                setSelectedText(text);
+            } else {
+                setSelectedText('');
+            }
+        }
+    };
 
-        return text.split('\n').map((line, i) => (
-            <div key={i} className="code-line relative group hover:bg-white/5 px-4">
-                <span className="token-plain">{line || ' '}</span>
+    const handleImportToChat = () => {
+        if (selectedText) {
+            onAddToChat(selectedText);
+            setSelectedText('');
+        }
+    };
+
+    const renderPreviewContent = () => {
+        if (!code) {
+            return (
+                <div className="flex items-center justify-center h-full bg-zinc-950">
+                    <div className="text-center text-zinc-500">
+                        <Monitor size={48} className="mx-auto mb-4 opacity-20" />
+                        <p>Ready to build</p>
+                    </div>
+                </div>
+            );
+        }
+
+        const iframe = (
+            <iframe
+                srcDoc={code}
+                title="Preview"
+                className="w-full h-full border-none bg-white"
+                sandbox="allow-scripts allow-modals"
+            />
+        );
+
+        return (
+            <div className="w-full h-full flex items-center justify-center p-4 overflow-hidden">
+                <AnimatePresence mode="wait">
+                    {viewport === 'mobile' ? (
+                        <motion.div
+                            key="mobile"
+                            initial={{ opacity: 0, scale: 0.9, rotateY: 15 }}
+                            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, rotateY: -15 }}
+                            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                            className="perspective-1000"
+                        >
+                            <IPhoneMockup className="shadow-2xl">
+                                {iframe}
+                            </IPhoneMockup>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="standard"
+                            initial={{ opacity: 0, width: getViewportWidth(), height: '85%' }}
+                            animate={{
+                                opacity: 1,
+                                width: getViewportWidth(),
+                                height: viewport === 'desktop' ? '100%' : '85%',
+                                borderRadius: viewport === 'desktop' ? 0 : 16
+                            }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                            className="overflow-hidden relative shadow-2xl bg-white border border-white/5"
+                        >
+                            {iframe}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
-        ));
+        );
     };
 
     return (
-        <div className="flex flex-col h-full bg-zinc-950">
+        <div className="flex flex-col h-full bg-zinc-950 relative">
             {/* Workspace Toolbar */}
-            <div className="h-14 border-b border-white/5 flex items-center justify-between px-4 bg-black/50 backdrop-blur-sm">
+            <div className="h-14 border-b border-white/5 flex items-center justify-between px-4 bg-black/50 backdrop-blur-sm z-20 relative">
 
                 {/* Left: View Toggles */}
                 <div className="flex items-center bg-zinc-900 p-1 rounded-lg border border-white/5">
@@ -73,7 +148,10 @@ export const Workspace: React.FC<WorkspaceProps> = ({ code, loading }) => {
                 {/* Center: Device Toggles (Only for Preview) */}
                 {activeView === 'preview' && (
                     <div className="flex items-center gap-4 text-zinc-500">
-                        <button onClick={() => setViewport('mobile')} className={clsx("hover:text-lime-400 transition-colors", viewport === 'mobile' && "text-lime-400")}><Smartphone size={18} /></button>
+                        <button onClick={() => setViewport('mobile')} className={clsx("hover:text-lime-400 transition-colors flex items-center gap-1", viewport === 'mobile' && "text-lime-400")}>
+                            <Smartphone size={18} />
+                            {viewport === 'mobile' && <span className="text-[10px] font-bold">17 Pro Max</span>}
+                        </button>
                         <button onClick={() => setViewport('tablet')} className={clsx("hover:text-lime-400 transition-colors", viewport === 'tablet' && "text-lime-400")}><Tablet size={18} /></button>
                         <button onClick={() => setViewport('desktop')} className={clsx("hover:text-lime-400 transition-colors", viewport === 'desktop' && "text-lime-400")}><Monitor size={18} /></button>
                     </div>
@@ -92,46 +170,35 @@ export const Workspace: React.FC<WorkspaceProps> = ({ code, loading }) => {
 
             {/* Main Content Area */}
             <div className="flex-1 overflow-hidden relative flex items-center justify-center bg-zinc-900/50">
-                {loading && (
-                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                        <div className="flex flex-col items-center gap-4">
-                            <RotateCw className="animate-spin text-lime-400" size={32} />
-                            <span className="text-lime-400 font-mono text-sm">Generating application...</span>
-                        </div>
-                    </div>
-                )}
+                {loading && <ModernLoader />}
 
-                {activeView === 'preview' ? (
-                    <div
-                        className="transition-all duration-500 ease-in-out border border-white/5 shadow-2xl bg-white overflow-hidden relative"
-                        style={{
-                            width: getViewportWidth(),
-                            height: viewport === 'desktop' ? '100%' : '85%',
-                            borderRadius: viewport === 'desktop' ? '0' : '16px'
-                        }}
-                    >
-                        {code ? (
-                            <iframe
-                                srcDoc={code}
-                                title="Preview"
-                                className="w-full h-full border-none"
-                                sandbox="allow-scripts allow-modals"
-                            />
-                        ) : (
-                            <div className="flex items-center justify-center h-full bg-zinc-950">
-                                <div className="text-center text-zinc-500">
-                                    <Monitor size={48} className="mx-auto mb-4 opacity-20" />
-                                    <p>Ready to build</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <div className="w-full h-full overflow-auto bg-[#0a0a0a] font-mono text-xs leading-6">
-                        {renderCode(code)}
+                {activeView === 'preview' ? renderPreviewContent() : (
+                    <div className="w-full h-full bg-[#0a0a0a]">
+                        <textarea
+                            ref={textareaRef}
+                            value={code}
+                            onChange={(e) => onChange(e.target.value)}
+                            onSelect={handleTextSelect}
+                            className="w-full h-full bg-transparent text-zinc-300 font-mono text-xs p-6 resize-none focus:outline-none leading-relaxed"
+                            spellCheck={false}
+                            placeholder="// Code will appear here..."
+                        />
                     </div>
                 )}
             </div>
+
+            {/* Import Selection Button */}
+            {selectedText && (
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 animate-in fade-in slide-in-from-bottom-2">
+                    <button
+                        onClick={handleImportToChat}
+                        className="flex items-center gap-2 bg-lime-400 hover:bg-lime-300 text-black px-4 py-2 rounded-full font-bold shadow-lg shadow-lime-900/40 transition-all hover:scale-105"
+                    >
+                        <Plus size={16} strokeWidth={2.5} />
+                        Import Selection to Chat
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

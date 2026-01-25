@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, Cpu } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 
@@ -8,21 +8,48 @@ import googleLogo from '../assets/models/google.png';
 import openaiLogo from '../assets/models/openai.jpg';
 import anthropicLogo from '../assets/models/anthropic.jpg';
 
+export type ModelCategory = 'HTML GENERATION'; // Removed IMAGE GENERATION
+
 export interface Model {
     id: string;
     name: string;
-    logo: string;
-    description: string;
-    premium?: boolean;
+    logo?: string;
+    category: ModelCategory;
+    badge?: string;
+    description?: string; // Kept for backward compatibility
+    premium?: boolean;    // Kept for backward compatibility
 }
 
 const MODELS: Model[] = [
-    { id: 'anthropic/claude-3.5-sonnet', name: 'Claude Sonnet 4.5', logo: anthropicLogo, description: 'Fast and intelligent' },
-    { id: 'anthropic/claude-3-opus', name: 'Claude Opus 4.5', logo: anthropicLogo, description: 'Maximum reasoning', premium: true },
-    { id: 'google/gemini-2.0-flash-exp', name: 'Gemini 3 Flash', logo: googleLogo, description: 'Ultra-fast multimodal' },
-    { id: 'google/gemini-1.5-pro', name: 'Gemini 3 Pro', logo: googleLogo, description: 'Complex reasoning', premium: true },
-    // Added OpenAI as a placeholder since an icon was provided, though not in original list
-    { id: 'openai/gpt-5-turbo', name: 'GPT-5 Turbo', logo: openaiLogo, description: 'Reasoning model', premium: true },
+    {
+        id: 'google/gemini-2.0-pro-exp',
+        name: 'Gemini 3 Pro',
+        logo: googleLogo,
+        category: 'HTML GENERATION',
+        badge: 'Best For UI'
+    },
+    {
+        id: 'google/gemini-2.0-flash-exp',
+        name: 'Gemini 3 Flash',
+        logo: googleLogo,
+        category: 'HTML GENERATION',
+        badge: 'Quick iterations'
+    },
+    {
+        id: 'openai/gpt-5.2',
+        name: 'GPT-5.2',
+        logo: openaiLogo,
+        category: 'HTML GENERATION',
+        badge: 'Fastest'
+    },
+    // Adding Claude models back as they are valid "text/html" models and we have the logo
+    {
+        id: 'anthropic/claude-3.5-sonnet',
+        name: 'Claude 3.5 Sonnet',
+        logo: anthropicLogo,
+        category: 'HTML GENERATION',
+        badge: 'Smartest'
+    }
 ];
 
 interface ModelSelectorProps {
@@ -35,8 +62,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSele
     const [isOpen, setIsOpen] = useState(false);
     const selectedModel = MODELS.find(m => m.id === selectedId) || MODELS[0];
 
-    const renderLogo = (logo: string, className?: string) => (
-        <img src={logo} alt="Model Logo" className={clsx("object-contain rounded-sm", className)} />
+    // Helper for rendering logos
+    const renderLogo = (logo: string | undefined, className?: string) => (
+        logo ? <img src={logo} alt="Model Logo" className={clsx("object-contain rounded-sm", className)} /> : null
     );
 
     if (variant === 'pill') {
@@ -44,96 +72,72 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSele
             <div className="relative group/dropdown">
                 <div
                     onClick={() => setIsOpen(!isOpen)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800 border border-zinc-700 text-xs text-zinc-300 hover:text-white hover:border-lime-500/50 cursor-pointer transition-all"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 hover:text-white hover:border-lime-500/50 cursor-pointer transition-all min-w-[140px] justify-between"
                 >
-                    <div className="w-3.5 h-3.5 flex items-center justify-center overflow-hidden">
-                        {renderLogo(selectedModel.logo, "w-full h-full")}
+                    <div className="flex items-center gap-2">
+                        <div className="w-3.5 h-3.5 flex items-center justify-center overflow-hidden">
+                            {renderLogo(selectedModel.logo, "w-full h-full")}
+                        </div>
+                        <span className="font-medium whitespace-nowrap">{selectedModel.name}</span>
                     </div>
-                    <span className="font-medium">{selectedModel.name}</span>
-                    <ChevronDown size={12} className={clsx("text-zinc-500 transition-transform", isOpen && "rotate-180")} />
+                    <ChevronDown size={12} className={clsx("text-zinc-500 transition-transform flex-shrink-0", isOpen && "rotate-180")} />
                 </div>
 
                 <AnimatePresence>
                     {isOpen && (
                         <motion.div
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 8 }}
-                            className="absolute bottom-10 left-0 w-56 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50 p-1"
+                            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                            className="absolute bottom-12 left-0 w-[220px] bg-white text-black rounded-xl shadow-2xl overflow-hidden z-50 py-1 border border-zinc-200 origin-bottom-left"
                         >
-                            {MODELS.map((model) => (
-                                <button
-                                    key={model.id}
-                                    onClick={() => {
-                                        onSelect(model.id);
-                                        setIsOpen(false);
-                                    }}
-                                    className={clsx(
-                                        "w-full flex items-center gap-3 p-2.5 rounded-lg transition-colors text-left",
-                                        model.id === selectedId ? "bg-white/5" : "hover:bg-white/5"
-                                    )}
-                                >
-                                    <div className={clsx("p-1.5 rounded-lg w-7 h-7 flex items-center justify-center", model.premium ? "bg-lime-500/10" : "bg-zinc-800")}>
-                                        {renderLogo(model.logo, "w-4 h-4")}
-                                    </div>
-                                    <div className="text-xs font-medium text-white">{model.name}</div>
-                                </button>
-                            ))}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
-        )
-    }
+                            <div className="px-3 py-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wider bg-zinc-50/50 border-b border-zinc-100 mb-1">
+                                HTML GENERATION
+                            </div>
 
-    if (variant === 'minimal') {
-        return (
-            <div className="relative group/dropdown">
-                <div
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900 border border-white/10 text-xs text-zinc-300 hover:text-white hover:border-lime-500/50 cursor-pointer transition-all"
-                >
-                    <div className="w-3.5 h-3.5 flex items-center justify-center overflow-hidden">
-                        {renderLogo(selectedModel.logo, "w-full h-full")}
-                    </div>
-                    <span className="font-medium">{selectedModel.name}</span>
-                    <ChevronDown size={14} className={clsx("text-zinc-500 transition-transform", isOpen && "rotate-180")} />
-                </div>
+                            <div className="space-y-0.5 p-1">
+                                {MODELS.map((model) => (
+                                    <button
+                                        key={model.id}
+                                        onClick={() => {
+                                            onSelect(model.id);
+                                            setIsOpen(false);
+                                        }}
+                                        className={clsx(
+                                            "w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-zinc-100 transition-colors group",
+                                            model.id === selectedId && "bg-zinc-50"
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 flex items-center justify-center">
+                                                {renderLogo(model.logo, "w-full h-full")}
+                                            </div>
+                                            <span className="text-xs font-medium text-zinc-800 group-hover:text-black">
+                                                {model.name}
+                                            </span>
+                                        </div>
 
-                <AnimatePresence>
-                    {isOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 8 }}
-                            className="absolute bottom-10 left-0 w-64 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 p-1"
-                        >
-                            {MODELS.map((model) => (
-                                <button
-                                    key={model.id}
-                                    onClick={() => {
-                                        onSelect(model.id);
-                                        setIsOpen(false);
-                                    }}
-                                    className={clsx(
-                                        "w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left",
-                                        model.id === selectedId ? "bg-white/10" : "hover:bg-white/5"
-                                    )}
-                                >
-                                    <div className={clsx("p-1.5 rounded-lg w-8 h-8 flex items-center justify-center", model.premium ? "bg-gradient-to-r from-lime-500/20 to-emerald-500/20" : "bg-zinc-800")}>
-                                        {renderLogo(model.logo, "w-5 h-5")}
-                                    </div>
-                                    <div>
-                                        <div className="text-sm font-medium text-white">{model.name}</div>
-                                        <div className="text-xs text-zinc-400">{model.description}</div>
-                                    </div>
-                                </button>
-                            ))}
+                                        {model.badge && (
+                                            <span className="px-1.5 py-0.5 rounded-full bg-zinc-100 text-[9px] font-medium text-zinc-500 border border-zinc-200 whitespace-nowrap">
+                                                {model.badge}
+                                            </span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="h-px bg-zinc-100 mx-2 my-1"></div>
+                            <button className="w-full text-left px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-black transition-colors flex items-center gap-2">
+                                <ChevronDown size={12} />
+                                Show more
+                            </button>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
         );
     }
+
+    // Fallback/Minimal (Simplified for now to prevent breaking, but focused on pill usage)
     return null;
 };

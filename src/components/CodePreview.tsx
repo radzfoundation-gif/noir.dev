@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Copy, Eye, Code, Check } from 'lucide-react';
-import { motion } from 'framer-motion';
+
 import clsx from 'clsx';
 
 interface CodePreviewProps {

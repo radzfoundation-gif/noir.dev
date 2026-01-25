@@ -18,7 +18,7 @@ export const EditorLayout: React.FC<EditorLayoutProps> = ({ sidebarContent, side
                         <div className="w-6 h-6 rounded bg-lime-400 flex items-center justify-center text-black">
                             <Code2 size={16} strokeWidth={2.5} />
                         </div>
-                        <span>Nexus Editor</span>
+                        <span>Noir Editor</span>
                     </div>
                     <button className="text-zinc-500 hover:text-white transition-colors">
                         <Settings size={16} />

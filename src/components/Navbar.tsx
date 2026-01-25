@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 import { Code2, ArrowRight } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -9,7 +9,7 @@ export const Navbar: React.FC = () => {
                     <div className="w-8 h-8 rounded-lg bg-lime-400 flex items-center justify-center text-black shadow-lg shadow-lime-400/20">
                         <Code2 size={20} strokeWidth={2} />
                     </div>
-                    <span className="text-lg font-bold tracking-tight text-white leading-none">Nexus Code</span>
+                    <span className="text-lg font-bold tracking-tight text-white leading-none">Noir Code</span>
                 </div>
 
                 <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
@@ -19,13 +19,12 @@ export const Navbar: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <a href="#" className="hidden md:block text-sm font-medium text-zinc-400 hover:text-white transition-colors">Log in</a>
-                    <a href="#" className="group relative px-4 py-2 text-sm font-semibold text-black bg-lime-400 rounded-full hover:bg-lime-300 transition-all overflow-hidden shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:shadow-[0_0_30px_rgba(163,230,53,0.5)]">
+                    <Link to="/waitlist" className="group relative px-4 py-2 text-sm font-semibold text-black bg-lime-400 rounded-full hover:bg-lime-300 transition-all overflow-hidden shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:shadow-[0_0_30px_rgba(163,230,53,0.5)]">
                         <span className="relative z-10 flex items-center gap-2">
-                            Dashboard
+                            Join Waitlist
                             <ArrowRight size={16} strokeWidth={2} className="group-hover:translate-x-0.5 transition-transform" />
                         </span>
-                    </a>
+                    </Link>
                 </div>
             </div>
         </nav>
