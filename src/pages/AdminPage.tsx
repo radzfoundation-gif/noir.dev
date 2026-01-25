@@ -29,6 +29,7 @@ export const AdminPage = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
     const [activeTab, setActiveTab] = useState('waitlist');
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Simple Auth Protection
     const handleLogin = (e: React.FormEvent) => {
@@ -297,27 +298,41 @@ export const AdminPage = () => {
     return (
         <div className="bg-black text-neutral-400 font-sans antialiased h-screen flex overflow-hidden selection:bg-neutral-800 selection:text-white">
 
+            {/* Mobile Overlay */}
+            {isMobileMenuOpen && (
+                <div
+                    className="fixed inset-0 bg-black/80 z-30 md:hidden backdrop-blur-sm"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="w-64 border-r border-neutral-900 bg-[#0a0a0a] flex-col justify-between hidden md:flex">
+            <aside className={`
+                fixed inset-y-0 left-0 z-40 w-64 border-r border-neutral-900 bg-[#0a0a0a] flex flex-col justify-between transition-transform duration-300 md:translate-x-0 md:static
+                ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+            `}>
                 <div>
-                    <div className="h-16 flex items-center px-6 border-b border-neutral-900">
+                    <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-900">
                         <span className="text-white font-semibold tracking-tighter text-lg">WAITLST</span>
+                        <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden text-neutral-500 hover:text-white">
+                            <ChevronRight size={20} className="rotate-180" />
+                        </button>
                     </div>
 
                     <nav className="p-4 space-y-1">
-                        <button onClick={() => setActiveTab('waitlist')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium ${activeTab === 'waitlist' ? 'bg-neutral-900 border border-neutral-800 text-white' : 'hover:bg-neutral-900/50 hover:text-neutral-200'}`}>
+                        <button onClick={() => { setActiveTab('waitlist'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium ${activeTab === 'waitlist' ? 'bg-neutral-900 border border-neutral-800 text-white' : 'hover:bg-neutral-900/50 hover:text-neutral-200'}`}>
                             <Users size={18} />
                             Waitlist
                         </button>
-                        <button onClick={() => setActiveTab('analytics')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium ${activeTab === 'analytics' ? 'bg-neutral-900 border border-neutral-800 text-white' : 'hover:bg-neutral-900/50 hover:text-neutral-200'}`}>
+                        <button onClick={() => { setActiveTab('analytics'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium ${activeTab === 'analytics' ? 'bg-neutral-900 border border-neutral-800 text-white' : 'hover:bg-neutral-900/50 hover:text-neutral-200'}`}>
                             <BarChart2 size={18} />
                             Analytics
                         </button>
-                        <button onClick={() => setActiveTab('campaigns')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium ${activeTab === 'campaigns' ? 'bg-neutral-900 border border-neutral-800 text-white' : 'hover:bg-neutral-900/50 hover:text-neutral-200'}`}>
+                        <button onClick={() => { setActiveTab('campaigns'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium ${activeTab === 'campaigns' ? 'bg-neutral-900 border border-neutral-800 text-white' : 'hover:bg-neutral-900/50 hover:text-neutral-200'}`}>
                             <Mail size={18} />
                             Campaigns
                         </button>
-                        <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium ${activeTab === 'settings' ? 'bg-neutral-900 border border-neutral-800 text-white' : 'hover:bg-neutral-900/50 hover:text-neutral-200'}`}>
+                        <button onClick={() => { setActiveTab('settings'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium ${activeTab === 'settings' ? 'bg-neutral-900 border border-neutral-800 text-white' : 'hover:bg-neutral-900/50 hover:text-neutral-200'}`}>
                             <Settings size={18} />
                             Settings
                         </button>
@@ -343,6 +358,12 @@ export const AdminPage = () => {
                 {/* Top Bar */}
                 <header className="h-16 border-b border-neutral-900 flex items-center justify-between px-4 sm:px-8 bg-black/50 backdrop-blur-sm sticky top-0 z-20">
                     <div className="flex items-center gap-4">
+                        <button
+                            className="md:hidden text-neutral-400 hover:text-white"
+                            onClick={() => setIsMobileMenuOpen(true)}
+                        >
+                            <Filter size={20} className="rotate-90" />
+                        </button>
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-medium text-white capitalize">{activeTab}</span>
                             <ChevronRight size={14} className="text-neutral-600" />

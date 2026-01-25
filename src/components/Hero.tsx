@@ -72,10 +72,10 @@ export const Hero: React.FC<HeroProps> = ({
                         </div>
 
                         {/* Bottom Toolbar */}
-                        <div className="flex items-center justify-between mt-4 md:mt-6">
-                            <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center justify-between gap-y-4 mt-4 md:mt-6">
+                            <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar w-full md:w-auto">
                                 {/* Prompt Builder */}
-                                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-lime-500/30 text-xs font-medium text-zinc-400 hover:text-white transition-all">
+                                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-lime-500/30 text-xs font-medium text-zinc-400 hover:text-white transition-all whitespace-nowrap">
                                     <Wand2 size={12} className="text-lime-400" />
                                     <span>Prompt Builder</span>
                                 </button>
@@ -83,11 +83,11 @@ export const Hero: React.FC<HeroProps> = ({
                                 {/* Model Selector */}
                                 <ModelSelector selectedId={model} onSelect={setModel} variant="pill" />
 
-                                <div className="h-4 w-[1px] bg-zinc-800 mx-1"></div>
+                                <div className="h-4 w-[1px] bg-zinc-800 mx-1 flex-shrink-0"></div>
 
                                 {/* Actions */}
                                 <button
-                                    className="p-2 text-zinc-500 hover:text-lime-400 transition-colors rounded-full hover:bg-zinc-900"
+                                    className="p-2 text-zinc-500 hover:text-lime-400 transition-colors rounded-full hover:bg-zinc-900 flex-shrink-0"
                                     title="Add Context (@)"
                                 >
                                     <span className="text-sm font-bold">@</span>
@@ -95,7 +95,7 @@ export const Hero: React.FC<HeroProps> = ({
 
                                 <button
                                     onClick={() => document.getElementById('hero-image-upload')?.click()}
-                                    className="p-2 text-zinc-500 hover:text-lime-400 transition-colors rounded-full hover:bg-zinc-900"
+                                    className="p-2 text-zinc-500 hover:text-lime-400 transition-colors rounded-full hover:bg-zinc-900 flex-shrink-0"
                                     title="Attach Image"
                                 >
                                     <ImageIcon size={16} strokeWidth={1.5} />
@@ -107,13 +107,13 @@ export const Hero: React.FC<HeroProps> = ({
                                 </div>
                             </div>
 
-                            {/* Generate Button (Icon Only when small, full when large) */}
+                            {/* Generate Button (Full width on mobile/tablet if needed, or just standard) */}
                             <button
                                 onClick={onGenerate}
                                 disabled={(!image && !prompt.trim()) || loading}
-                                className="w-8 h-8 md:w-auto md:h-auto md:px-4 md:py-2 rounded-lg md:rounded-full bg-zinc-100 hover:bg-white text-black text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/5"
+                                className="w-full md:w-auto px-4 py-2 rounded-lg md:rounded-full bg-zinc-100 hover:bg-white text-black text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/5"
                             >
-                                <span className="hidden md:inline">Generate</span>
+                                <span>Generate</span>
                                 <ArrowRight size={14} strokeWidth={2.5} />
                             </button>
                         </div>

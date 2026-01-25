@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wand2, Image as ImageIcon, ArrowRight, X, FileCode } from 'lucide-react';
+import { Wand2, Image as ImageIcon, ArrowUp, X, FileCode, ArrowRight } from 'lucide-react';
 import { ModelSelector } from './ModelSelector';
 import { ImageUpload } from './ImageUpload';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -136,7 +136,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                         disabled={!image && !prompt.trim() || loading}
                         className="p-1.5 rounded-lg bg-lime-400 hover:bg-lime-300 text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_10px_rgba(163,230,53,0.2)]"
                     >
-                        <ArrowRight size={14} strokeWidth={2.5} />
+                        <ArrowUp size={14} strokeWidth={2.5} />
                     </button>
                 </div>
             </div>
