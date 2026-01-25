@@ -155,20 +155,12 @@ export const Hero: React.FC<HeroProps> = ({
 
                             {/* Video Placeholder Container */}
                             <div className="aspect-video bg-zinc-900 relative flex items-center justify-center overflow-hidden">
-                                {/* Placeholder Content - User will replace source */}
-                                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50">
-                                    <p className="text-zinc-600 text-sm">Demo Video Placeholder</p>
-                                </div>
-                                <video
-                                    className="w-full h-full object-cover opacity-50"
-                                    autoPlay
-                                    muted
-                                    loop
-                                    playsInline
-                                    poster="https://placehold.co/1920x1080/1a1a1a/333333?text=Demo+Video"
-                                >
-                                    <source src="" type="video/mp4" />
-                                </video>
+                                <iframe
+                                    src="https://drive.google.com/file/d/12UDZVp9ize7lQY6zXGzOYOCK0Rjf6tva/preview"
+                                    className="w-full h-full"
+                                    allow="autoplay"
+                                    title="Demo Video"
+                                ></iframe>
                             </div>
 
                         </div>
