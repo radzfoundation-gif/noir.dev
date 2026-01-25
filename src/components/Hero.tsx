@@ -73,7 +73,7 @@ export const Hero: React.FC<HeroProps> = ({
 
                         {/* Bottom Toolbar */}
                         <div className="flex flex-wrap items-center justify-between gap-y-4 mt-4 md:mt-6">
-                            <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar w-full md:w-auto">
+                            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                                 {/* Prompt Builder */}
                                 <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-lime-500/30 text-xs font-medium text-zinc-400 hover:text-white transition-all whitespace-nowrap">
                                     <Wand2 size={12} className="text-lime-400" />
