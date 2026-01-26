@@ -7,7 +7,7 @@ export default {
     theme: {
         extend: {
             colors: {
-                "primary": "#2b8cee",
+                "primary": "#a3e635", // Neon Green to match localhost
                 "background-light": "#f6f7f8", // from code.html
                 "background-dark": "#101922", // from code.html
                 background: '#000000',
