@@ -1,48 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ModelSelector } from './ModelSelector';
-import { ImageUpload } from './ImageUpload';
 
 // --- Types ---
 type ViewMode = 'design' | 'editor' | 'preview';
 type Viewport = 'desktop' | 'tablet' | 'mobile';
-
-// ==========================================
-// UTILITIES
-// ==========================================
-
-const highlightHTML = (code: string) => {
-    if (!code) return '';
-
-    let html = code
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-
-    html = html.replace(/(&lt;!--.*?--&gt;|\/\*.*?\*\/|\/\/.*?\n)/gs, '<span style="color: #6a9955;">$1</span>');
-
-    html = html.replace(/(&lt;[\/]?[a-z1-6]+|&gt;)/gi, (match) => {
-        if (match === '&gt;') return `<span style="color: #808080;">${match}</span>`;
-        const bracket = match.startsWith('&lt;/') ? '&lt;/' : '&lt;';
-        const tagName = match.replace(bracket, '');
-        return `<span style="color: #808080;">${bracket}</span><span style="color: #569cd6;">${tagName}</span>`;
-    });
-
-    const keywords = ['function', 'const', 'let', 'var', 'if', 'else', 'return', 'import', 'export', 'default', 'async', 'await', 'from', 'body', 'background', 'font-family', 'display', 'flex', 'margin', 'padding', 'width', 'height', 'border', 'color'];
-    keywords.forEach(word => {
-        const regex = new RegExp(`\\b(${word})\\b`, 'g');
-        html = html.replace(regex, '<span style="color: #c586c0;">$1</span>');
-    });
-
-    html = html.replace(/([a-z-]+)(?==|:)/gi, '<span style="color: #9cdcfe;">$1</span>');
-    html = html.replace(/(".*?"|'.*?')/g, '<span style="color: #ce9178;">$1</span>');
-    html = html.replace(/\b(\d+px|\d+rem|\d+%|\d+)\b/g, '<span style="color: #b5cea8;">$1</span>');
-
-    return html;
-};
-
 // ==========================================
 // COMPONENT INTERFACES
 // ==========================================
@@ -359,7 +323,7 @@ const CanvasArea: React.FC<{
                 Pan
             </button>
             <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
-            {['format_paint', 'add_box'].map((icon, i) => (
+            {['format_paint', 'add_box'].map((icon) => (
                 <button key={icon} className="p-2.5 hover:bg-white/5 rounded-full text-slate-500 hover:text-white transition-colors">
                     <span className="material-symbols-outlined text-[15px]">{icon}</span>
                 </button>
@@ -379,11 +343,9 @@ const SidebarRight: React.FC<{
     code: string;
     context: string | null;
     setContext: (c: string | null) => void;
-    image: string | null;
-    setImage: (i: string | null) => void;
     model: string;
     setModel: (m: string) => void;
-}> = ({ prompt, setPrompt, loading, generateCode, code, context, setContext, image, setImage, model, setModel }) => (
+}> = ({ prompt, setPrompt, loading, generateCode, code, context, setContext, model, setModel }) => (
     <aside className="w-[280px] border-l border-white/10 flex flex-col glass-panel z-20">
         <div className="p-3 border-b border-white/5 flex items-center justify-between bg-slate-900/40">
             <div className="flex items-center gap-3">
@@ -456,10 +418,8 @@ const SidebarRight: React.FC<{
 // ==========================================
 
 export const Workbench: React.FC = () => {
-    const location = useLocation();
 
     // Editor Logic State
-    const [image, setImage] = useState<string | null>(null);
     const [model, setModel] = useState('google/gemini-2.0-flash-exp');
     const [prompt, setPrompt] = useState('');
     const [code, setCode] = useState(`<html lang="en" class="dark"><head>
@@ -954,8 +914,6 @@ export const Workbench: React.FC = () => {
                     code={code}
                     context={context}
                     setContext={setContext}
-                    image={image}
-                    setImage={setImage}
                     model={model}
                     setModel={setModel}
                 />
