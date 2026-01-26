@@ -86,13 +86,13 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSele
                 <AnimatePresence>
                     {isOpen && (
                         <motion.div
-                            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                            className="absolute bottom-12 left-0 w-[220px] bg-white text-black rounded-xl shadow-2xl overflow-hidden z-50 py-1 border border-zinc-200 origin-bottom-left"
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute bottom-[calc(100%+12px)] left-0 w-[240px] bg-slate-900 text-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden z-[100] py-1 border border-white/10 origin-bottom-left"
                         >
-                            <div className="px-3 py-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wider bg-zinc-50/50 border-b border-zinc-100 mb-1">
-                                HTML GENERATION
+                            <div className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-white/5 border-b border-white/5 mb-1">
+                                AI Architecture Models
                             </div>
 
                             <div className="space-y-0.5 p-1">
@@ -104,21 +104,21 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSele
                                             setIsOpen(false);
                                         }}
                                         className={clsx(
-                                            "w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-zinc-100 transition-colors group",
-                                            model.id === selectedId && "bg-zinc-50"
+                                            "w-full flex items-center justify-between px-2 py-2 rounded-lg hover:bg-white/5 transition-colors group",
+                                            model.id === selectedId && "bg-primary/10 border border-primary/20"
                                         )}
                                     >
                                         <div className="flex items-center gap-2">
-                                            <div className="w-4 h-4 flex items-center justify-center">
+                                            <div className="w-4 h-4 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all">
                                                 {renderLogo(model.logo, "w-full h-full")}
                                             </div>
-                                            <span className="text-xs font-medium text-zinc-800 group-hover:text-black">
+                                            <span className={clsx("text-xs font-medium transition-colors", model.id === selectedId ? "text-primary" : "text-slate-300 group-hover:text-white")}>
                                                 {model.name}
                                             </span>
                                         </div>
 
                                         {model.badge && (
-                                            <span className="px-1.5 py-0.5 rounded-full bg-zinc-100 text-[9px] font-medium text-zinc-500 border border-zinc-200 whitespace-nowrap">
+                                            <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[9px] font-medium text-slate-500 border border-white/5 whitespace-nowrap group-hover:text-slate-300">
                                                 {model.badge}
                                             </span>
                                         )}
@@ -126,10 +126,10 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSele
                                 ))}
                             </div>
 
-                            <div className="h-px bg-zinc-100 mx-2 my-1"></div>
-                            <button className="w-full text-left px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-black transition-colors flex items-center gap-2">
-                                <ChevronDown size={12} />
-                                Show more
+                            <div className="h-px bg-white/5 mx-2 my-1"></div>
+                            <button className="w-full text-left px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-white transition-colors flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">settings</span>
+                                Advanced Settings
                             </button>
                         </motion.div>
                     )}

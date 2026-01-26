@@ -7,12 +7,15 @@ export default {
     theme: {
         extend: {
             colors: {
+                "primary": "#2b8cee",
+                "background-light": "#f6f7f8", // from code.html
+                "background-dark": "#101922", // from code.html
                 background: '#000000',
                 surface: '#0f0f0f',
-                primary: {
+                // Keeping old palette for compatibility if needed, but primary is overridden
+                lime: {
                     DEFAULT: '#a3e635', // Lime 400
                     hover: '#84cc16',   // Lime 500
-                    foreground: '#000000',
                 },
                 secondary: {
                     DEFAULT: '#3f3f46', // Zinc 700
@@ -22,6 +25,7 @@ export default {
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
+                display: ['Space Grotesk', 'sans-serif'],
             },
             animation: {
                 'fade-in': 'fadeIn 0.5s ease-out forwards',

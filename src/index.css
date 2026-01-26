@@ -6,27 +6,44 @@
 
 @layer base {
   body {
-    @apply bg-black text-zinc-300 antialiased selection:bg-lime-500/30 selection:text-lime-200;
-    font-family: 'Inter', sans-serif;
+    background-color: #101922;
+    /* bg-background-dark */
+    font-family: 'Space Grotesk', sans-serif;
+    /* font-display */
+    @apply text-slate-900 dark:text-white overflow-hidden h-screen flex flex-col;
   }
 
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
-    @apply w-2 h-2;
+    @apply w-1.5 h-1.5;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-black;
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-zinc-800 rounded-full border-2 border-black hover:bg-zinc-700;
+    @apply bg-slate-700/50 rounded-full hover:bg-slate-600/80;
   }
 }
 
 @layer utilities {
   .glass-panel {
-    @apply bg-zinc-900/50 backdrop-blur-xl border border-white/5 shadow-2xl;
+    @apply backdrop-blur-xl bg-[#101922]/70;
+  }
+
+  .scanline-effect {
+    background: linear-gradient(to bottom, transparent 50%, rgba(43, 140, 238, 0.05) 50%);
+    background-size: 100% 4px;
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(43, 140, 238, 0.1), transparent);
+    background-size: 200% 100%;
+  }
+
+  .font-display {
+    font-family: 'Space Grotesk', sans-serif;
   }
 
   /* Syntax Highlighting - Neon Style */
