@@ -262,14 +262,7 @@ const CanvasArea: React.FC<{
                             </div>
                         )}
 
-                        <div className="flex-1 relative bg-white">
-                            {/* Watermark */}
-                            <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center overflow-hidden">
-                                <div className="text-[120px] font-black text-slate-900/5 -rotate-12 select-none whitespace-nowrap">
-                                    DEMO PREVIEW
-                                </div>
-                            </div>
-
+                        <div className="flex-1 relative bg-[#0a0c10]">
                             <iframe
                                 srcDoc={activeView === 'design' ? code + `
                                     <style>
@@ -302,6 +295,13 @@ const CanvasArea: React.FC<{
                                 title="Preview"
                                 sandbox="allow-scripts"
                             />
+
+                            {/* Watermark Overlay */}
+                            <div className="absolute inset-0 pointer-events-none z-50 flex items-center justify-center overflow-hidden mix-blend-overlay">
+                                <div className="text-[100px] font-black text-white/5 -rotate-12 select-none whitespace-nowrap blur-[2px]">
+                                    DEMO PREVIEW
+                                </div>
+                            </div>
 
                             {loading && (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/40 backdrop-blur-sm z-30">
