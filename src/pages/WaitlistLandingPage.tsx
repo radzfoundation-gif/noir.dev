@@ -27,252 +27,299 @@ export const WaitlistLandingPage = () => {
     const handleJoinClick = () => navigate('/join');
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-background-dark text-white selection:bg-primary/30 font-display min-h-screen"
-        >
-            <header className="fixed top-0 w-full z-50 border-b border-white/5 bg-black/70 backdrop-blur-xl">
-                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <NoirLogo />
-                        <h2 className="text-xl font-bold tracking-tight">Noir</h2>
+        <div className="bg-background-dark font-display text-white transition-colors duration-300 min-h-screen">
+            {/* Top Navigation Bar */}
+            <header className="fixed top-0 w-full z-50 glass border-b border-white/10 px-6 lg:px-20 py-4">
+                <div className="max-w-[1200px] mx-auto flex items-center justify-between">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+                        <div className="text-primary">
+                            <NoirLogo className="size-8" />
+                        </div>
+                        <h2 className="text-xl font-semibold tracking-tight glow-text">NOIR AI</h2>
                     </div>
-                    <nav className="hidden md:flex items-center gap-8">
-                        <a className="text-sm font-medium text-zinc-400 hover:text-white transition-colors" href="#features">Features</a>
-                        <a className="text-sm font-medium text-zinc-400 hover:text-white transition-colors" href="#">Docs</a>
-                        <a className="text-sm font-medium text-zinc-400 hover:text-white transition-colors" href="#">Pricing</a>
-                        <button onClick={handleJoinClick} className="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-[0_0_20px_-5px_rgba(163,230,53,0.4)]">
+                    <nav className="hidden md:flex items-center gap-10">
+                        <a className="text-sm font-medium hover:text-primary transition-colors" href="#features">Features</a>
+                        <a className="text-sm font-medium hover:text-primary transition-colors" href="#flow">Flow</a>
+                        <a className="text-sm font-medium hover:text-primary transition-colors" href="#">Docs</a>
+                    </nav>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={handleJoinClick}
+                            className="px-5 py-2 rounded-lg bg-primary hover:bg-blue-600 text-white text-sm font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95"
+                        >
                             Join Waitlist
                         </button>
-                    </nav>
+                    </div>
                 </div>
             </header>
 
-            <main className="pt-32 pb-20">
-                <section className="max-w-5xl mx-auto px-6 text-center">
+            {/* Hero Section */}
+            <section className="relative pt-40 pb-24 px-6 lg:px-20 overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,98,255,0.08),transparent_50%)]"></div>
+                <div className="max-w-[1200px] mx-auto text-center relative z-10">
                     <motion.div
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-8"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold mb-6 uppercase tracking-widest"
                     >
                         <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                         </span>
-                        NEXT-GEN AI GENERATOR
+                        Next-Gen Engine v2.0
                     </motion.div>
                     <motion.h1
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                        className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 bg-gradient-to-b from-white to-zinc-500 bg-clip-text text-transparent"
+                        transition={{ duration: 0.8, delay: 0.1 }}
+                        className="text-5xl md:text-7xl font-bold leading-tight tracking-tighter mb-8 max-w-4xl mx-auto"
                     >
-                        Build Production Websites <br /> With AI. Instantly.
+                        Turn <span className="text-primary font-bold">Screenshots</span> into Production Code
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ duration: 1, delay: 0.6 }}
-                        className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
+                        transition={{ delay: 0.3 }}
+                        className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light"
                     >
-                        The intelligent workbench for developers. Move from prompt to production in seconds, not hours.
+                        NOIR AI bridges the gap between vision and reality. Join our waitlist to generate clean, accessible React and Tailwind code from mockups in seconds.
                     </motion.p>
-                    <div className="flex flex-wrap justify-center gap-4 mb-20">
-                        <button onClick={handleJoinClick} className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-lg font-bold transition-all shadow-[0_0_20px_-5px_rgba(163,230,53,0.4)] text-lg">
-                            Join Waitlist
-                        </button>
-                        <button className="bg-transparent border border-white/10 hover:bg-white/5 text-white px-8 py-4 rounded-lg font-bold transition-all text-lg">
-                            View Demo
-                        </button>
-                    </div>
-
-                    <div className="relative group">
-                        {/* Animated Background Blobs */}
-                        <motion.div
-                            animate={{
-                                x: [-20, 20, -20],
-                                y: [-20, 30, -20],
-                                scale: [1, 1.1, 1],
-                            }}
-                            transition={{
-                                duration: 8,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute -top-20 -left-20 w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none"
-                        />
-                        <motion.div
-                            animate={{
-                                x: [20, -20, 20],
-                                y: [20, -30, 20],
-                                scale: [1, 1.2, 1],
-                            }}
-                            transition={{
-                                duration: 10,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute -bottom-20 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"
-                        />
-
-                        <motion.div
-                            initial={{ y: 20, opacity: 0 }}
-                            whileInView={{ y: 0, opacity: 1 }}
-                            whileHover={{ rotateX: 2, rotateY: -2, scale: 1.01 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.8 }}
-                            className="relative border border-white/10 rounded-xl bg-black overflow-hidden shadow-2xl perspective-1000"
-                        >
-                            {/* Scanning Line */}
-                            <motion.div
-                                animate={{ top: ["0%", "100%", "0%"] }}
-                                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                                className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent z-50 pointer-events-none"
-                            />
-                            <div className="border-b border-white/10 px-4 py-3 flex items-center justify-between bg-zinc-900/50">
-                                <div className="flex gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
-                                    <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
-                                    <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
-                                </div>
-                                <div className="flex gap-4">
-                                    <span className="material-symbols-outlined text-zinc-500 text-sm">code</span>
-                                    <span className="material-symbols-outlined text-zinc-500 text-sm">visibility</span>
-                                    <span className="material-symbols-outlined text-zinc-500 text-sm">share</span>
-                                </div>
-                            </div>
-                            <div className="flex flex-col md:flex-row h-[500px]">
-                                <div className="w-full md:w-1/3 border-r border-white/10 p-6 flex flex-col gap-4">
-                                    <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Input Prompt</div>
-                                    <div className="bg-zinc-950 border border-white/10 rounded-lg p-4 h-full text-left font-mono text-sm text-zinc-300">
-                                        <span className="text-primary">&gt;</span> Create a minimalist dashboard for a SaaS platform with a dark theme, neon blue accents, and responsive charts...
-                                        <span className="animate-pulse">|</span>
-                                    </div>
-                                    <div className="mt-12 flex flex-col items-center gap-4">
-                                        <div className="flex -space-x-3">
-                                            {[1, 2, 3].map(i => (
-                                                <div key={i} className="w-8 h-8 rounded-full border border-black bg-neutral-800 flex items-center justify-center overflow-hidden">
-                                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`} alt="avatar" className="w-full h-full opacity-80 grayscale" />
-                                                </div>
-                                            ))}
-                                            <div className="w-8 h-8 rounded-full border border-black bg-neutral-900 flex items-center justify-center text-[10px] font-medium text-white">
-                                                +{stats.total > 0 ? stats.total : '2k'}
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-neutral-500 font-medium">Join {stats.total > 0 ? stats.total.toLocaleString() : '2,000'}+ other creators</p>
-                                    </div>
-                                </div>
-                                <div className="flex-1 bg-[#050505] p-6 flex items-center justify-center overflow-hidden">
-                                    <div className="w-full h-full border border-white/10 rounded-lg bg-black p-4 flex flex-col gap-4">
-                                        <div className="flex justify-between items-center border-b border-white/10 pb-4">
-                                            <div className="flex gap-2">
-                                                <div className="h-4 w-20 bg-zinc-800 rounded"></div>
-                                                <div className="h-4 w-12 bg-zinc-800 rounded"></div>
-                                            </div>
-                                            <div className="h-4 w-4 bg-primary rounded"></div>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="h-24 bg-zinc-900 rounded border border-white/10"></div>
-                                            <div className="h-24 bg-zinc-900 rounded border border-white/10"></div>
-                                            <div className="h-32 col-span-2 bg-zinc-900 rounded border border-white/10"></div>
-                                        </div>
-                                        <div className="h-4 w-1/2 bg-zinc-800 rounded"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                </section>
-
-                <section className="mt-40 max-w-7xl mx-auto px-6" id="features">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="mb-16"
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="flex flex-wrap justify-center gap-4"
                     >
-                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">Built for Developer Speed</h2>
-                        <p className="text-zinc-400 max-w-xl">Noir translates your architectural intent into clean, production-ready code without the overhead.</p>
-                    </motion.div>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        {[
-                            { icon: 'psychology', title: 'Intent-Based Generation', desc: 'AI that understands high-level technical requirements and maps them to industry standard patterns.' },
-                            { icon: 'speed', title: 'Prompt-to-Production', desc: 'Go from a single line of text to a hosted, optimized, and secure production site instantly.' },
-                            { icon: 'view_stream', title: 'Live Preview', desc: 'See changes in real-time with zero-latency updates as the AI iterates through your requirements.' },
-                            { icon: 'code_blocks', title: 'Developer Export', desc: 'Get clean, modular React and Tailwind code that fits perfectly into your existing Git workflow.' }
-                        ].map((feature, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: i * 0.1, duration: 0.5 }}
-                                className="group relative p-8 rounded-xl border border-white/5 bg-zinc-900/50 hover:border-primary/50 transition-all"
-                            >
-                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
-                                <div className="relative">
-                                    <span className="material-symbols-outlined text-primary text-4xl mb-4">{feature.icon}</span>
-                                    <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                                    <p className="text-zinc-400 leading-relaxed">{feature.desc}</p>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </section>
-
-                <section className="mt-40 max-w-4xl mx-auto px-6 mb-20">
-                    <div className="relative p-12 rounded-2xl border border-white/5 bg-gradient-to-br from-zinc-900 to-black text-center overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px]"></div>
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6 relative z-10 font-display">Ready to build?</h2>
-                        <p className="text-zinc-400 mb-8 relative z-10 max-w-md mx-auto">Join the waitlist to get early access to the Noir developer workbench.</p>
-                        <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto relative z-10">
-                            <input className="flex-1 bg-black border border-white/10 rounded-lg px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white outline-none" placeholder="Enter your work email" type="email" />
-                            <button onClick={() => navigate('/join')} className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-bold transition-all shadow-[0_0_20px_-5px_rgba(163,230,53,0.4)] whitespace-nowrap">
-                                Join Waitlist
-                            </button>
-                        </div>
-                    </div>
-                </section>
-            </main>
-
-            <footer className="border-t border-white/5 py-12 bg-black">
-                <div className="max-w-7xl mx-auto px-6 text-center md:text-left">
-                    <div className="grid md:grid-cols-4 gap-12 mb-12">
-                        <div className="col-span-2">
-                            <div className="flex items-center gap-2 mb-4 justify-center md:justify-start">
-                                <NoirLogo className="size-10" />
-                                <span className="font-bold text-lg">Noir</span>
+                        <button
+                            onClick={handleJoinClick}
+                            className="px-8 py-4 bg-primary text-white rounded-xl font-semibold text-lg hover:scale-105 transition-transform flex items-center gap-2 shadow-xl shadow-primary/20"
+                        >
+                            <span className="material-symbols-outlined">bolt</span> Join Exclusive Waitlist
+                        </button>
+                        <div className="flex items-center gap-3 px-6 py-4 glass rounded-xl border border-white/10">
+                            <div className="flex -space-x-3">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="w-8 h-8 rounded-full border border-black bg-neutral-800 overflow-hidden">
+                                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i + 10}`} alt="user" className="w-full h-full grayscale opacity-80" />
+                                    </div>
+                                ))}
                             </div>
-                            <p className="text-zinc-500 max-w-xs leading-relaxed mx-auto md:mx-0">The modern AI engine for production-grade websites. Designed for developers who value quality and speed.</p>
+                            <span className="text-sm font-medium text-slate-300">
+                                {stats.total > 0 ? stats.total.toLocaleString() : '2,450'}+ builders joined
+                            </span>
                         </div>
-                        <div>
-                            <h5 className="font-bold mb-4">Product</h5>
-                            <ul className="flex flex-col gap-2 text-zinc-500 text-sm">
-                                <li><a className="hover:text-primary transition-colors" href="#">Features</a></li>
-                                <li><a className="hover:text-primary transition-colors" href="#">Integrations</a></li>
-                                <li><a className="hover:text-primary transition-colors" href="#">Pricing</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h5 className="font-bold mb-4">Resources</h5>
-                            <ul className="flex flex-col gap-2 text-zinc-500 text-sm">
-                                <li><a className="hover:text-primary transition-colors" href="#">Documentation</a></li>
-                                <li><a className="hover:text-primary transition-colors" href="#">GitHub</a></li>
-                                <li><a className="hover:text-primary transition-colors" href="#">Discord</a></li>
-                            </ul>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* Feature 1: Screenshot to Code */}
+            <section id="features" className="py-24 px-6 lg:px-20 max-w-[1200px] mx-auto">
+                <div className="flex flex-col gap-4 mb-12">
+                    <h2 className="text-3xl font-semibold flex items-center gap-3">
+                        <span className="material-symbols-outlined text-primary text-4xl">add_photo_alternate</span>
+                        Screenshot to Code
+                    </h2>
+                    <p className="text-slate-400 font-light">Transform any image, mockup, or napkin sketch into functional UI components.</p>
+                </div>
+                <div className="grid lg:grid-cols-2 gap-12 items-center">
+                    {/* Left: Upload Card */}
+                    <div className="glass p-8 rounded-2xl aspect-video flex flex-col items-center justify-center border-dashed border-2 border-primary/30 relative overflow-hidden group cursor-pointer" onClick={handleJoinClick}>
+                        <motion.div
+                            animate={{ top: ["0%", "100%", "0%"] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            className="absolute left-0 w-full scanner-line opacity-50 z-10"
+                        />
+                        <div className="text-center group-hover:scale-110 transition-transform duration-500 relative z-0">
+                            <div className="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-primary/20">
+                                <span className="material-symbols-outlined text-primary text-4xl">cloud_upload</span>
+                            </div>
+                            <p className="text-xl font-semibold mb-2">Drag and drop your design</p>
+                            <p className="text-slate-400 text-sm italic font-light">Join waitlist to unlock uploader</p>
                         </div>
                     </div>
-                    <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-zinc-600 text-xs">
-                        <p>© 2026 Noir AI. All rights reserved.</p>
-                        <div className="flex gap-6">
-                            <a className="hover:text-white transition-colors" href="#">Privacy Policy</a>
-                            <a className="hover:text-white transition-colors" href="#">Terms of Service</a>
+                    {/* Right: Code Preview */}
+                    <div className="glass rounded-2xl overflow-hidden border border-white/10 flex flex-col h-[400px]">
+                        <div className="bg-white/5 px-6 py-3 border-b border-white/10 flex items-center justify-between">
+                            <div className="flex gap-2">
+                                <div className="size-3 rounded-full bg-red-500/50"></div>
+                                <div className="size-3 rounded-full bg-yellow-500/50"></div>
+                                <div className="size-3 rounded-full bg-green-500/50"></div>
+                            </div>
+                            <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">Generated Output: React + Tailwind</span>
+                        </div>
+                        <div className="p-6 font-mono text-sm overflow-y-auto scanline-effect">
+                            <pre className="text-slate-300">
+                                <span className="text-primary">export default function</span> <span className="text-yellow-400">HeroSection</span>() {'{'}<br />
+                                {'  '}<span className="text-primary">return</span> (<br />
+                                {'    '}&lt;<span className="text-blue-400">div</span> <span className="text-green-400">className</span>=<span className="text-orange-300">"relative bg-dark p-12"</span>&gt;<br />
+                                {'      '}&lt;<span className="text-blue-400">h1</span> <span className="text-green-400">className</span>=<span className="text-orange-300">"text-4xl font-semibold"</span>&gt;<br />
+                                {'        '}Modern AI Platform<br />
+                                {'      '}&lt;/<span className="text-blue-400">h1</span>&gt;<br />
+                                {'      '}&lt;<span className="text-blue-400">button</span> <span className="text-green-400">className</span>=<span className="text-orange-300">"bg-blue-600 rounded-lg"</span>&gt;<br />
+                                {'        '}Get Started<br />
+                                {'      '}&lt;/<span className="text-blue-400">button</span>&gt;<br />
+                                {'    '}&lt;/<span className="text-blue-400">div</span>&gt;<br />
+                                {'  '});<br />
+                                {'}'}
+                            </pre>
                         </div>
                     </div>
                 </div>
+            </section>
+
+            {/* Feature 2: URL to Code */}
+            <section className="py-24 px-6 lg:px-20 bg-primary/5 border-y border-white/5">
+                <div className="max-w-[1200px] mx-auto">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl font-semibold mb-4 flex justify-center items-center gap-3">
+                            <span className="material-symbols-outlined text-primary text-4xl">link</span>
+                            Website Link to Code
+                        </h2>
+                        <p className="text-slate-400 max-w-2xl mx-auto font-light">Found a component you love? Paste the URL and let NOIR AI extract the design patterns and rebuild them for your tech stack.</p>
+                    </div>
+                    <div className="max-w-3xl mx-auto">
+                        <div className="glass p-2 rounded-2xl flex items-center gap-2 focus-within:ring-2 ring-primary/50 transition-all">
+                            <input
+                                onClick={handleJoinClick}
+                                readOnly
+                                className="flex-1 bg-transparent border-none focus:ring-0 px-6 py-4 text-white placeholder-slate-500 cursor-pointer font-light"
+                                placeholder="https://example.com/inspiration"
+                                type="text"
+                            />
+                            <button
+                                onClick={handleJoinClick}
+                                className="bg-primary hover:bg-blue-600 px-8 py-4 rounded-xl font-semibold flex items-center gap-2 whitespace-nowrap transition-all active:scale-95"
+                            >
+                                <span className="material-symbols-outlined">bolt</span> Fetch UI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Section 3: How It Works */}
+            <section id="flow" className="py-24 px-6 lg:px-20 max-w-[1200px] mx-auto">
+                <h2 className="text-center text-3xl font-semibold mb-16">The NOIR Intelligence Flow</h2>
+                <div className="grid md:grid-cols-3 gap-8 relative">
+                    <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent -translate-y-1/2 -z-10"></div>
+                    {[
+                        { icon: 'input', title: '1. Input Design', desc: 'Upload a screenshot or paste a URL for the AI to analyze.' },
+                        { icon: 'psychology', title: '2. AI Analysis', desc: 'Our neural engine identifies patterns, layouts, and style tokens.' },
+                        { icon: 'code_blocks', title: '3. Export Code', desc: 'Get production-ready code blocks tailored to your framework.' }
+                    ].map((step, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.2 }}
+                            className="glass p-8 rounded-2xl text-center flex flex-col items-center hover:border-primary/50 transition-colors"
+                        >
+                            <div className="size-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6 border border-primary/30 text-primary">
+                                <span className="material-symbols-outlined text-3xl">{step.icon}</span>
+                            </div>
+                            <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
+                            <p className="text-slate-400 text-sm font-light">{step.desc}</p>
+                        </motion.div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Section 5: Tech Stack */}
+            <section className="py-20 px-6 lg:px-20 opacity-40">
+                <div className="max-w-[1200px] mx-auto">
+                    <h2 className="text-center text-sm font-semibold tracking-[0.3em] uppercase text-slate-500 mb-12">Universal Compatibility</h2>
+                    <div className="flex flex-wrap justify-center gap-12 grayscale">
+                        {['React', 'Tailwind', 'HTML5', 'Next.js', 'TypeScript'].map((tech) => (
+                            <div key={tech} className="flex items-center gap-2 text-xl font-medium hover:grayscale-0 transition-all cursor-default">
+                                <span className="material-symbols-outlined text-primary">deployed_code</span>
+                                {tech}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Section 6: Live Demo Simulation */}
+            <section className="py-24 px-6 lg:px-20 max-w-[1000px] mx-auto">
+                <div className="glass rounded-3xl p-8 md:p-12 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-primary/5 opacity-40"></div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-4 mb-10">
+                            <motion.div
+                                animate={{ opacity: [1, 0.5, 1] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                                className="size-4 rounded-full bg-primary shadow-[0_0_15px_#0062ff]"
+                            />
+                            <span className="text-sm font-mono tracking-widest text-primary uppercase font-medium">Analyzing UI Hierarchy...</span>
+                        </div>
+                        <div className="space-y-8">
+                            {[
+                                { label: 'Visual Recognition', progress: 92 },
+                                { label: 'CSS/Tailwind Mapping', progress: 75 },
+                                { label: 'Component Architecture', progress: 48 }
+                            ].map((bar, i) => (
+                                <div key={i}>
+                                    <div className="flex justify-between text-xs font-mono mb-2 text-slate-400 uppercase tracking-tighter font-light">
+                                        <span>{bar.label}</span>
+                                        <span>{bar.progress}%</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            whileInView={{ width: `${bar.progress}%` }}
+                                            transition={{ duration: 1.5, delay: i * 0.2 }}
+                                            className="h-full bg-primary shadow-[0_0_10px_rgba(163,230,53,0.5)]"
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-12 glass bg-black/40 p-6 rounded-xl border-white/5 font-mono text-sm text-slate-500 border border-white/5 font-light">
+                            <p className="animate-pulse">$ initializing noir_engine_v2.0...</p>
+                            <p className="text-primary/70">$ scanning assets... 12 images found.</p>
+                            <p className="text-primary/70">$ extracting color tokens... 4 variables detected.</p>
+                            <p className="text-primary/70">$ compiling react components...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Footer CTA Banner */}
+            <footer className="py-24 px-6 lg:px-20">
+                <div className="max-w-[1200px] mx-auto rounded-[2.5rem] bg-gradient-to-br from-primary to-blue-800 p-12 md:p-20 text-center relative overflow-hidden group border border-white/10">
+                    <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                    <div className="relative z-10">
+                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 tracking-tighter">Start Turning Designs Into Code</h2>
+                        <p className="text-blue-100 text-lg md:text-xl max-w-xl mx-auto mb-12 opacity-80 font-medium font-light">
+                            Join over {stats.total > 0 ? stats.total.toLocaleString() : '10,000'}+ developers shipping faster than ever before.
+                        </p>
+                        <div className="flex flex-wrap justify-center gap-4">
+                            <button
+                                onClick={handleJoinClick}
+                                className="px-10 py-5 bg-white text-primary rounded-xl font-semibold text-lg hover:bg-slate-50 transition-all shadow-2xl active:scale-95"
+                            >
+                                Join Waitlist Now
+                            </button>
+                            <button className="px-10 py-5 bg-black/20 text-white rounded-xl font-semibold text-lg hover:bg-black/30 transition-all backdrop-blur-sm border border-white/20 active:scale-95">
+                                Explore Vision
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div className="max-w-[1200px] mx-auto mt-24 flex flex-col md:flex-row justify-between items-center gap-8 border-t border-white/10 pt-12">
+                    <div className="flex items-center gap-3">
+                        <NoirLogo className="size-6 text-primary" />
+                        <h2 className="text-lg font-semibold tracking-tight glow-text uppercase">NOIR AI</h2>
+                    </div>
+                    <p className="text-slate-500 text-sm font-light">© 2026 NOIR AI Systems. Built for the future of development.</p>
+                    <div className="flex gap-6">
+                        <a className="text-slate-400 hover:text-white transition-colors" href="#"><span className="material-symbols-outlined">public</span></a>
+                        <a className="text-slate-400 hover:text-white transition-colors" href="#"><span className="material-symbols-outlined">alternate_email</span></a>
+                        <a className="text-slate-400 hover:text-white transition-colors" href="#"><span className="material-symbols-outlined">terminal</span></a>
+                    </div>
+                </div>
             </footer>
-        </motion.div>
+        </div>
     );
 };

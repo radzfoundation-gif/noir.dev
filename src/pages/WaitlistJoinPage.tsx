@@ -83,17 +83,17 @@ export const WaitlistJoinPage = () => {
                 </motion.div>
 
                 <div className="max-w-3xl text-center mb-12">
-                    <h1 className="text-white tracking-tight text-4xl md:text-6xl font-extrabold leading-tight pb-4">
+                    <h1 className="text-white tracking-tight text-4xl md:text-6xl font-bold leading-tight pb-4">
                         The Future of Web Design is <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Autonomous.</span>
                     </h1>
-                    <p className="text-slate-400 text-lg md:text-xl font-normal leading-relaxed max-w-2xl mx-auto">
+                    <p className="text-slate-400 text-lg md:text-xl font-light leading-relaxed max-w-2xl mx-auto">
                         Build production-ready sites with AI in seconds. Join the exclusive early access list to shape the next era of the web.
                     </p>
                 </div>
 
                 <div className="w-full max-w-5xl bg-zinc-900/50 backdrop-blur-xl rounded-xl border border-white/10 overflow-hidden shadow-2xl flex flex-col lg:flex-row">
                     <div className="flex-1 p-8 lg:p-12 border-b lg:border-b-0 lg:border-r border-white/5">
-                        <h3 className="text-xl font-semibold mb-6">Reserve your spot</h3>
+                        <h3 className="text-xl font-medium mb-6">Reserve your spot</h3>
 
                         {errorMsg && (
                             <motion.div
@@ -107,31 +107,31 @@ export const WaitlistJoinPage = () => {
 
                         <form className="space-y-5" onSubmit={handleFormSubmit}>
                             <div className="flex flex-col gap-2">
-                                <label className="text-xs uppercase tracking-widest font-bold text-slate-500">Full Name</label>
+                                <label className="text-xs uppercase tracking-widest font-semibold text-slate-500">Full Name</label>
                                 <input
                                     required
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-black border border-white/10 rounded-lg px-4 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                                    className="w-full bg-black border border-white/10 rounded-lg px-4 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all font-light"
                                     placeholder="Alex Rivera"
                                     type="text"
                                 />
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-xs uppercase tracking-widest font-bold text-slate-500">Work Email</label>
+                                <label className="text-xs uppercase tracking-widest font-semibold text-slate-500">Work Email</label>
                                 <input
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-black border border-white/10 rounded-lg px-4 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                                    className="w-full bg-black border border-white/10 rounded-lg px-4 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all font-light"
                                     placeholder="alex@company.com"
                                     type="email"
                                 />
                             </div>
-                            <button className="w-full py-4 mt-4 bg-gradient-to-r from-blue-600 to-indigo-800 rounded-lg text-white font-bold text-lg hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-blue-500/20">
+                            <button className="w-full py-4 mt-4 bg-gradient-to-r from-blue-600 to-indigo-800 rounded-lg text-white font-semibold text-lg hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-blue-500/20">
                                 Join Waitlist
                             </button>
-                            <p className="text-[10px] text-center text-slate-500 uppercase tracking-tight">Limited spots available for the initial beta phase</p>
+                            <p className="text-[10px] text-center text-slate-500 uppercase tracking-tight font-light">Limited spots available for the initial beta phase</p>
                         </form>
                     </div>
                     <div className="flex-1 p-8 lg:p-12 bg-white/5 flex flex-col justify-center">
@@ -153,8 +153,8 @@ export const WaitlistJoinPage = () => {
                                 >
                                     <span className="material-symbols-outlined text-primary bg-primary/10 rounded-lg p-1">check_circle</span>
                                     <div>
-                                        <h5 className="font-bold text-white leading-none">{item.title}</h5>
-                                        <p className="text-sm text-slate-400 mt-1">{item.desc}</p>
+                                        <h5 className="font-semibold text-white leading-none">{item.title}</h5>
+                                        <p className="text-sm text-slate-400 mt-1 font-light">{item.desc}</p>
                                     </div>
                                 </motion.li>
                             ))}

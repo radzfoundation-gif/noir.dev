@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NOIR AI | Design to Code</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0062ff",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#050505",
+                        "card-dark": "#0f1723",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .scanner-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #0062ff, transparent);
+            box-shadow: 0 0 15px #0062ff;
+        }
+        .glow-text {
+            text-shadow: 0 0 10px rgba(0, 98, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white transition-colors duration-300">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 glass border-b border-white/10 px-6 lg:px-20 py-4">
+<div class="max-w-[1200px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="text-primary">
+<svg class="size-8" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold tracking-tight glow-text">NOIR AI</h2>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Features</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Showcase</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Docs</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Pricing</a>
+</nav>
+<div class="flex gap-3">
+<button class="hidden sm:block px-5 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm font-bold transition-all">Login</button>
+<button class="px-5 py-2 rounded-lg bg-primary hover:bg-blue-600 text-white text-sm font-bold shadow-lg shadow-primary/20 transition-all">Get Started</button>
+</div>
+</div>
+</header>
+<!-- Hero Section -->
+<section class="relative pt-32 pb-20 px-6 lg:px-20 overflow-hidden">
+<div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,98,255,0.08),transparent_50%)]"></div>
+<div class="max-w-[1200px] mx-auto text-center relative z-10">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-6 uppercase tracking-widest">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+                Next-Gen Engine v2.0
+            </div>
+<h1 class="text-5xl md:text-7xl font-black leading-tight tracking-tighter mb-8 max-w-4xl mx-auto">
+                Turn <span class="text-primary">Screenshots</span> into Production Code
+            </h1>
+<p class="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+                NOIR AI bridges the gap between vision and reality. Upload a mockup or paste a link to generate clean, accessible React and Tailwind code in seconds.
+            </p>
+<div class="flex flex-wrap justify-center gap-4">
+<button class="px-8 py-4 bg-primary text-white rounded-xl font-bold text-lg hover:scale-105 transition-transform flex items-center gap-2">
+<span class="material-symbols-outlined">bolt</span> Start Generating
+                </button>
+<button class="px-8 py-4 glass text-white rounded-xl font-bold text-lg hover:bg-white/10 transition-colors flex items-center gap-2 border border-white/20">
+<span class="material-symbols-outlined">play_circle</span> Watch Demo
+                </button>
+</div>
+</div>
+</section>
+<!-- Feature 1: Screenshot to Code -->
+<section class="py-20 px-6 lg:px-20 max-w-[1200px] mx-auto">
+<div class="flex flex-col gap-4 mb-12">
+<h2 class="text-3xl font-bold flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-4xl">add_photo_alternate</span>
+                Screenshot to Code
+            </h2>
+<p class="text-slate-400">Transform any image, mockup, or napkin sketch into functional UI components.</p>
+</div>
+<div class="grid lg:grid-cols-2 gap-8 items-center">
+<!-- Left: Upload Card -->
+<div class="glass p-8 rounded-2xl aspect-video flex flex-col items-center justify-center border-dashed border-2 border-primary/30 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-full scanner-line opacity-50"></div>
+<div class="text-center group-hover:scale-110 transition-transform duration-500">
+<div class="size-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-primary/20">
+<span class="material-symbols-outlined text-primary text-4xl">cloud_upload</span>
+</div>
+<p class="text-xl font-bold mb-2">Drag and drop your design</p>
+<p class="text-slate-400 text-sm">PNG, JPG or SVG up to 10MB</p>
+</div>
+</div>
+<!-- Right: Code Preview -->
+<div class="glass rounded-2xl overflow-hidden border border-white/10 flex flex-col h-[400px]">
+<div class="bg-white/5 px-6 py-3 border-b border-white/10 flex items-center justify-between">
+<div class="flex gap-2">
+<div class="size-3 rounded-full bg-red-500/50"></div>
+<div class="size-3 rounded-full bg-yellow-500/50"></div>
+<div class="size-3 rounded-full bg-green-500/50"></div>
+</div>
+<span class="text-xs font-mono text-slate-500 uppercase tracking-widest">Generated Output: React + Tailwind</span>
+</div>
+<div class="p-6 font-mono text-sm overflow-y-auto">
+<pre class="text-slate-300"><span class="text-primary">export default function</span> <span class="text-yellow-400">HeroSection</span>() {
+  <span class="text-primary">return</span> (
+    &lt;<span class="text-blue-400">div</span> <span class="text-green-400">className</span>=<span class="text-orange-300">"relative bg-dark p-12"</span>&gt;
+      &lt;<span class="text-blue-400">h1</span> <span class="text-green-400">className</span>=<span class="text-orange-300">"text-4xl font-bold"</span>&gt;
+        Modern AI Platform
+      &lt;/<span class="text-blue-400">h1</span>&gt;
+      &lt;<span class="text-blue-400">button</span> <span class="text-green-400">className</span>=<span class="text-orange-300">"bg-blue-600 rounded-lg"</span>&gt;
+        Get Started
+      &lt;/<span class="text-blue-400">button</span>&gt;
+    &lt;/<span class="text-blue-400">div</span>&gt;
+  );
+}</pre>
+</div>
+</div>
+</div>
+</section>
+<!-- Feature 2: URL to Code -->
+<section class="py-20 px-6 lg:px-20 bg-primary/5 border-y border-white/5">
+<div class="max-w-[1200px] mx-auto">
+<div class="text-center mb-16">
+<h2 class="text-3xl font-bold mb-4 flex justify-center items-center gap-3">
+<span class="material-symbols-outlined text-primary text-4xl">link</span>
+                    Website Link to Code
+                </h2>
+<p class="text-slate-400 max-w-2xl mx-auto">Found a component you love? Paste the URL and let NOIR AI extract the design patterns and rebuild them for your tech stack.</p>
+</div>
+<div class="max-w-3xl mx-auto">
+<div class="glass p-2 rounded-2xl flex items-center gap-2 focus-within:ring-2 ring-primary/50 transition-all">
+<input class="flex-1 bg-transparent border-none focus:ring-0 px-6 py-4 text-white placeholder-slate-500" placeholder="https://example.com/inspiration" type="text"/>
+<button class="bg-primary hover:bg-blue-600 px-8 py-4 rounded-xl font-bold flex items-center gap-2 whitespace-nowrap transition-all">
+<span class="material-symbols-outlined">bolt</span> Fetch UI
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: How It Works -->
+<section class="py-24 px-6 lg:px-20 max-w-[1200px] mx-auto">
+<h2 class="text-center text-3xl font-bold mb-16">The NOIR Intelligence Flow</h2>
+<div class="grid md:grid-cols-3 gap-8 relative">
+<!-- Connecting Line (Desktop) -->
+<div class="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent -translate-y-1/2 -z-10"></div>
+<div class="glass p-8 rounded-2xl text-center flex flex-col items-center">
+<div class="size-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6 border border-primary/30 text-primary">
+<span class="material-symbols-outlined text-3xl">input</span>
+</div>
+<h3 class="text-xl font-bold mb-3">1. Input Design</h3>
+<p class="text-slate-400 text-sm">Upload a screenshot or paste a URL for the AI to analyze.</p>
+</div>
+<div class="glass p-8 rounded-2xl text-center flex flex-col items-center border-primary/50">
+<div class="size-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6 border border-primary/30 text-primary">
+<span class="material-symbols-outlined text-3xl">psychology</span>
+</div>
+<h3 class="text-xl font-bold mb-3">2. AI Analysis</h3>
+<p class="text-slate-400 text-sm">Our neural engine identifies patterns, layouts, and style tokens.</p>
+</div>
+<div class="glass p-8 rounded-2xl text-center flex flex-col items-center">
+<div class="size-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6 border border-primary/30 text-primary">
+<span class="material-symbols-outlined text-3xl">code_blocks</span>
+</div>
+<h3 class="text-xl font-bold mb-3">3. Export Code</h3>
+<p class="text-slate-400 text-sm">Get production-ready code blocks tailored to your framework.</p>
+</div>
+</div>
+</section>
+<!-- Section 4: Tech Stack -->
+<section class="py-20 px-6 lg:px-20">
+<div class="max-w-[1200px] mx-auto">
+<h2 class="text-center text-sm font-bold tracking-[0.3em] uppercase text-slate-500 mb-12">Universal Compatibility</h2>
+<div class="flex flex-wrap justify-center gap-12 opacity-60">
+<div class="flex items-center gap-2 text-xl font-bold grayscale hover:grayscale-0 transition-all">
+<img alt="React Logo" class="size-8" data-alt="React JS logo icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSVjvwEOJvQ5ygzQJSbeBs1F3HnDlpj55Ex1ZuRcIaFz7QzeeFAQCmNztQq02WX_jEorOXJwy4a4W8WVZOysER26oogqEMtrwu9El72GIrMe3uvu4XZTBcueWmWGTlbbV5ou5QrwjZyTgr6NdZ_t9Bg3JJ5F4ViQZ0s-qKO8f8T9K3H1Cx87n8t1FEWoumMEEv2gujDBkpF7sONULPQC_NnYKwERuTbkvApHlF5jZcXkueAS4GMKnpyYuxBmm7H1c9A5-LNRex-dcY"/>
+                    React
+                </div>
+<div class="flex items-center gap-2 text-xl font-bold grayscale hover:grayscale-0 transition-all">
+<img alt="Tailwind Logo" class="size-8" data-alt="Tailwind CSS logo icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ4Cv_a4Sol8YKMOBWOeQMhYnACeMTw_6VqeTd8vbz2XyCFdmdNz_4qJl7K8kSpj2rlVqFqcLvlNntdXdPQG2ByAaVK5dlQnTyOFVoz3GMcLQwG1ya6IGbMMqawUOhbb7xlvLxowHITCkt0w04G4spsHIbnC2ogrM0EQzApE2k9zgID7nnyncfVublKp29dLv-O9niBXcspxzo7kxiH977DKZW3me1_YvkH9BSK_fm92hzJE7fg4tdMm5utk92SK-5zLlMkc9Im8_p"/>
+                    Tailwind
+                </div>
+<div class="flex items-center gap-2 text-xl font-bold grayscale hover:grayscale-0 transition-all">
+<img alt="HTML5 Logo" class="size-8" data-alt="HTML5 structural logo icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4eP9VLI2XlvS_LZtzjEJ3HEZ1xhkGCb5YEmZnXLOgzT1t4vM43uHvLBiR1pH688MI5juQtqo9Fna01jfApdFHvvOgv05NlK26ofTRsli5Uv8Bj1G8SARCEwpJsCe_mkd8U66s8UH5edZ_PYyud0QrUm2pD0ZMGn26Z437U-RPVj9ToFv7D87RRB8rQ3xvWnhQxxxhhId1hksnZ0KcO90bRTF3d3pg_Bc-f5jAadePaqbiN6ZNHWox4jfTsQ_VW7LK3WK7Z9Xqmdqk"/>
+                    HTML5
+                </div>
+<div class="flex items-center gap-2 text-xl font-bold grayscale hover:grayscale-0 transition-all">
+<img alt="Next JS Logo" class="size-8" data-alt="Next.js framework logo icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACD7EHPTZ3Tq8-P9waeavCHn5eXI33QRP9r2e0WLMc6MdgzTHorNBvodbFSuGhZCbhhTLgSOSsMMvVFeV-9TWIh7jKWDZDfnYpW_1LDdKlCRfStWMbBeET2al0Dal6Pt3Ugh6qhXUQIrww3giN9f8Cd6Mo9xvqEg_H-WITNjscn9oL9cHBL5Bx41I0deS8UkOH4fYXAyMLXQvZpd1nT7a_LJkCEASSXf5EwdnPvx9n2zOg5m-trQ-kr_HWTdCsMS67YPEOzOwihhnf"/>
+                    Next.js
+                </div>
+<div class="flex items-center gap-2 text-xl font-bold grayscale hover:grayscale-0 transition-all">
+<img alt="TypeScript Logo" class="size-8" data-alt="TypeScript language logo icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdJ8SeDakReX8MQu8yZ8bMdgjTQl2XUvkLwpeG18B2yDkRGwHgGx4KjmOPYWNiQN1x3p3oY-c7m6elXFljQcStLS_QRdcWM_Fmqi9H1L_Vu2W-TQyj8eeYbEOzhHqMHKMIHb8qrnEPfHeVjoNAO_JksOvWJg8ADeDsw1EB0V88-k4grJmYNElwZ0FFW3D1DFiPhbsE4v2PshipZy1JOGBI5O_LRStSiNU2CU62IF6KfZr3asObKO6DIyoJKM82dv96qe29NZqn8fmt"/>
+                    TypeScript
+                </div>
+</div>
+</div>
+</section>
+<!-- Section 5: Live Demo Simulation -->
+<section class="py-20 px-6 lg:px-20 max-w-[1000px] mx-auto">
+<div class="glass rounded-3xl p-8 md:p-12 relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/5 opacity-40"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-4 mb-10">
+<div class="size-4 rounded-full bg-primary animate-pulse shadow-[0_0_15px_#0062ff]"></div>
+<span class="text-sm font-mono tracking-widest text-primary">Analyzing UI Hierarchy...</span>
+</div>
+<!-- Mockup Progress -->
+<div class="space-y-6">
+<div>
+<div class="flex justify-between text-xs font-mono mb-2 text-slate-400">
+<span>Visual Recognition</span>
+<span>92%</span>
+</div>
+<div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[92%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs font-mono mb-2 text-slate-400">
+<span>CSS/Tailwind Mapping</span>
+<span>75%</span>
+</div>
+<div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs font-mono mb-2 text-slate-400">
+<span>Component Architecture</span>
+<span>48%</span>
+</div>
+<div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[48%]"></div>
+</div>
+</div>
+</div>
+<div class="mt-12 glass bg-white/5 p-6 rounded-xl border-white/5 font-mono text-sm text-slate-500">
+                    $ initializing noir_engine_v2...<br/>
+                    $ scanning assets... 12 images found.<br/>
+                    $ extracting color tokens... 4 variables detected.<br/>
+                    $ compiling react components...
+                </div>
+</div>
+</div>
+</section>
+<!-- Footer CTA Banner -->
+<footer class="py-24 px-6 lg:px-20">
+<div class="max-w-[1200px] mx-auto rounded-[2rem] bg-gradient-to-br from-primary to-blue-800 p-12 md:p-20 text-center relative overflow-hidden group">
+<div class="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+<div class="relative z-10">
+<h2 class="text-4xl md:text-5xl font-black text-white mb-8">Start Turning Designs Into Code With AI</h2>
+<p class="text-blue-100 text-lg md:text-xl max-w-xl mx-auto mb-12">
+                    Join over 10,000+ developers shipping faster than ever before.
+                </p>
+<div class="flex flex-wrap justify-center gap-4">
+<button class="px-10 py-5 bg-white text-primary rounded-xl font-bold text-lg hover:bg-slate-50 transition-colors shadow-2xl">Create Free Account</button>
+<button class="px-10 py-5 bg-black/20 text-white rounded-xl font-bold text-lg hover:bg-black/30 transition-colors backdrop-blur-sm border border-white/20">Enterprise Demo</button>
+</div>
+</div>
+</div>
+<div class="max-w-[1200px] mx-auto mt-24 flex flex-col md:flex-row justify-between items-center gap-8 border-t border-white/5 pt-12">
+<div class="flex items-center gap-3">
+<div class="text-primary">
+<svg class="size-6" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold tracking-tight">NOIR AI</h2>
+</div>
+<p class="text-slate-500 text-sm">© 2024 NOIR AI Systems. Built for the future of development.</p>
+<div class="flex gap-6">
+<a class="text-slate-400 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined">public</span></a>
+<a class="text-slate-400 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined">alternate_email</span></a>
+<a class="text-slate-400 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined">terminal</span></a>
+</div>
+</div>
+</footer>
+</body></html>

@@ -46,6 +46,22 @@
     font-family: 'Space Grotesk', sans-serif;
   }
 
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .scanner-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #0062ff, transparent);
+    box-shadow: 0 0 15px #0062ff;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 10px rgba(0, 98, 255, 0.5);
+  }
+
   /* Syntax Highlighting - Neon Style */
   .token-tag {
     @apply text-lime-400;

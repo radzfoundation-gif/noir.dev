@@ -74,24 +74,24 @@ export const WaitlistSuccessPage = () => {
                     </motion.div>
 
                     <div className="bg-[#172336]/70 backdrop-blur-xl border border-white/10 rounded-xl p-8 w-full shadow-2xl relative">
-                        <h1 className="text-white tracking-tight text-[40px] font-bold leading-tight pb-3">You're In!</h1>
-                        <p className="text-[#8da6ce] text-lg font-normal leading-relaxed mb-8">
-                            Welcome to the Noir exclusive preview, <span className="text-primary font-bold">{name || 'Early Adopter'}</span>. Your access has been successfully provisioned.
+                        <h1 className="text-white tracking-tight text-[40px] font-semibold leading-tight pb-3">You're In!</h1>
+                        <p className="text-[#8da6ce] text-lg font-light leading-relaxed mb-8">
+                            Welcome to the Noir exclusive preview, <span className="text-primary font-semibold">{name || 'Early Adopter'}</span>. Your access has been successfully provisioned.
                         </p>
 
                         <div className="flex flex-col gap-4 mb-8 text-left bg-black/20 p-5 rounded-lg border border-white/5">
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-primary text-xl">verified</span>
-                                    <p className="text-white text-base font-semibold">Beta Access Queue</p>
+                                    <span className="material-symbols-outlined text-primary text-xl font-light">verified</span>
+                                    <p className="text-white text-base font-medium">Beta Access Queue</p>
                                 </div>
-                                <p className="text-primary text-sm font-bold">100%</p>
+                                <p className="text-primary text-sm font-semibold">100%</p>
                             </div>
                             <div className="h-2.5 rounded-full bg-white/10 overflow-hidden">
                                 <div className="h-full rounded-full bg-primary shadow-[0_0_15px_rgba(163,230,53,0.6)]" style={{ width: '100%' }}></div>
                             </div>
                             <p className="text-primary text-sm font-medium flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-sm">check_circle</span>
+                                <span className="material-symbols-outlined text-sm font-light">check_circle</span>
                                 Early Access Granted
                             </p>
                         </div>
@@ -99,14 +99,14 @@ export const WaitlistSuccessPage = () => {
                         <div className="flex flex-col gap-3 w-full">
                             <button
                                 disabled
-                                className="group flex items-center justify-center gap-2 rounded-lg h-14 px-6 bg-primary/20 text-primary/50 text-lg font-bold cursor-not-allowed border border-primary/10 transition-all"
+                                className="group flex items-center justify-center gap-2 rounded-lg h-14 px-6 bg-primary/20 text-primary/50 text-lg font-semibold cursor-not-allowed border border-primary/10 transition-all"
                             >
-                                <span className="material-symbols-outlined text-xl">lock</span>
+                                <span className="material-symbols-outlined text-xl font-light">lock</span>
                                 <span>Explore Noir Preview (Soon)</span>
                             </button>
                             <button
                                 onClick={handleShare}
-                                className="flex items-center justify-center gap-2 rounded-lg h-14 px-6 bg-white/5 text-white text-lg font-bold transition-all hover:bg-white/10 active:scale-95 border border-white/10"
+                                className="flex items-center justify-center gap-2 rounded-lg h-14 px-6 bg-white/5 text-white text-lg font-semibold transition-all hover:bg-white/10 active:scale-[0.98] transition-all border border-white/10"
                             >
                                 <span className="material-symbols-outlined font-light">share</span>
                                 <span>Share With Friends</span>
