@@ -18,7 +18,8 @@ const Header: React.FC<{
     setViewport: (v: Viewport) => void;
     zoom: number;
     setZoom: (z: number) => void;
-}> = ({ activeView, setActiveView, viewport, setViewport, zoom, setZoom }) => (
+    onExport: () => void;
+}> = ({ activeView, setActiveView, viewport, setViewport, zoom, setZoom, onExport }) => (
     <header className="flex items-center justify-between border-b border-white/10 px-6 py-2 bg-background-light dark:bg-background-dark z-50">
         <div className="flex items-center gap-4">
             <div className="flex flex-col">
@@ -87,18 +88,13 @@ const Header: React.FC<{
                 </button>
             </div>
 
-            <div className="flex -space-x-1.5 ml-2">
-                {[1, 2, 3].map((i) => (
-                    <div key={i} className="size-6 rounded-full border border-background-dark bg-slate-800 flex items-center justify-center text-[8px] bg-cover shadow-sm" style={{ backgroundImage: `url('https://i.pravatar.cc/150?u=${i}')` }}></div>
-                ))}
-            </div>
-
-            <button className="flex items-center justify-center rounded-lg h-8 px-3 bg-primary text-white text-[11px] font-bold shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all ml-1">
-                Deploy
+            <button
+                onClick={onExport}
+                className="flex items-center gap-2 justify-center rounded-lg h-8 px-4 bg-primary text-white text-[11px] font-bold shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all ml-1"
+            >
+                <span className="material-symbols-outlined text-[16px]">download</span>
+                Export Code
             </button>
-            <div className="size-8 rounded-full bg-slate-800 flex items-center justify-center ml-1 border border-white/5 hover:border-white/20 transition-colors cursor-pointer">
-                <span className="material-symbols-outlined text-white text-[18px]">person</span>
-            </div>
         </div>
     </header>
 );
@@ -106,7 +102,17 @@ const Header: React.FC<{
 const SidebarLeft: React.FC<{
     isCollapsed: boolean;
     setIsCollapsed: (c: boolean) => void;
-}> = ({ isCollapsed, setIsCollapsed }) => (
+    currentTab: string;
+    setCurrentTab: (t: string) => void;
+    activeItem: string;
+    onItemClick: (id: string) => void;
+    layers: string[];
+    assets: { type: string, value: string }[];
+    pages: string[];
+    onColorChange: (color: string) => void;
+    onFontChange: (font: string) => void;
+    selectedElement?: any;
+}> = ({ isCollapsed, setIsCollapsed, currentTab, setCurrentTab, activeItem, onItemClick, layers, assets, pages, onColorChange, onFontChange, selectedElement }) => (
     <div className="flex h-full shrink-0">
         {/* Vertical Rail */}
         <div className="w-14 flex flex-col items-center py-4 bg-[#0a0c10] border-r border-white/10 z-30 shrink-0">
@@ -135,7 +141,7 @@ const SidebarLeft: React.FC<{
         {/* Hierarchy Pane */}
         <motion.aside
             initial={false}
-            animate={{ width: isCollapsed ? 0 : 220 }}
+            animate={{ width: isCollapsed ? 0 : 260 }}
             className="relative border-r border-white/10 flex flex-col glass-panel z-20 overflow-hidden"
         >
             <button
@@ -148,33 +154,109 @@ const SidebarLeft: React.FC<{
                 <span className="material-symbols-outlined text-[14px]">chevron_left</span>
             </button>
 
-            <div className={clsx("flex flex-col h-full w-[220px]", isCollapsed && "opacity-0 invisible")}>
+            <div className={clsx("flex flex-col h-full w-[260px]", isCollapsed && "opacity-0 invisible")}>
                 <div className="p-4 flex flex-col gap-6">
                     <div className="flex flex-col">
-                        <h1 className="text-white text-[11px] font-bold uppercase tracking-widest opacity-40">Hierarchy</h1>
-                        <p className="text-primary text-[9px] font-mono mt-0.5">V2.4 ENGINE</p>
+                        <h1 className="text-white text-[11px] font-bold uppercase tracking-widest opacity-40">
+                            {selectedElement ? `Styling: ${selectedElement.tagName}` : 'Hierarchy'}
+                        </h1>
+                        <p className="text-primary text-[9px] font-mono mt-0.5">
+                            {selectedElement ? (selectedElement.id || 'Selection Active') : 'V2.4 ENGINE'}
+                        </p>
                     </div>
                     <nav className="flex flex-col gap-0.5">
-                        {['Pages', 'Sections', 'Layers', 'Assets', 'Styles'].map((label, i) => {
-                            const active = i === 2; // Layers active
+                        {['Pages', 'Sections', 'Layers', 'Assets', 'Styles'].map((label) => {
+                            const active = currentTab === label;
                             return (
-                                <div key={label} className={clsx("flex items-center gap-2 px-3 py-1.5 rounded-md cursor-pointer transition-all duration-200 group", active ? "bg-primary/10 text-primary shadow-[0_0_10px_rgba(43,140,238,0.1)]" : "text-slate-500 hover:bg-white/5 hover:text-slate-300")}>
+                                <div
+                                    key={label}
+                                    onClick={() => setCurrentTab(label)}
+                                    className={clsx("flex items-center gap-2 px-3 py-1.5 rounded-md cursor-pointer transition-all duration-200 group", active ? "bg-primary/10 text-primary shadow-[0_0_10px_rgba(43,140,238,0.1)]" : "text-slate-500 hover:bg-white/5 hover:text-slate-300")}
+                                >
                                     <p className={clsx("text-[12px]", active ? "font-bold" : "font-medium")}>{label}</p>
-                                    {i === 0 && <span className="ml-auto text-[9px] bg-slate-800 px-1.5 py-0.5 rounded-full text-white/60">4</span>}
+                                    {label === 'Pages' && <span className="ml-auto text-[9px] bg-slate-800 px-1.5 py-0.5 rounded-full text-white/60">{pages.length}</span>}
+                                    {label === 'Layers' && <span className="ml-auto text-[9px] bg-slate-800 px-1.5 py-0.5 rounded-full text-white/60">{layers.length}</span>}
                                 </div>
                             );
                         })}
 
-                        <div className="ml-3 flex flex-col gap-0.5 border-l border-white/5 pl-3 mt-2">
-                            {['Header', 'Hero Section', 'Features'].map((label, j) => {
-                                const active = j === 1;
+                        <div className="ml-3 flex flex-col gap-0.5 border-l border-white/5 pl-3 mt-2 max-h-[400px] overflow-y-auto custom-scrollbar">
+                            {currentTab === 'Pages' && pages.map(page => (
+                                <div key={page} className="flex items-center py-1 text-[11px] text-slate-600 hover:text-slate-300 cursor-pointer transition-all">
+                                    <span className="material-symbols-outlined text-[12px] mr-2 opacity-50">description</span>
+                                    {page}
+                                </div>
+                            ))}
+
+                            {(currentTab === 'Layers' || currentTab === 'Sections') && layers.map((label) => {
+                                const active = activeItem === label;
                                 return (
-                                    <div key={label} className={clsx("flex items-center py-1 text-[11px] cursor-pointer transition-all group", active ? "text-white font-bold" : "text-slate-600 hover:text-slate-300")}>
+                                    <div
+                                        key={label}
+                                        onClick={() => onItemClick(label)}
+                                        className={clsx("flex items-center py-1 text-[11px] cursor-pointer transition-all group", active ? "text-white font-bold" : "text-slate-600 hover:text-slate-300")}
+                                    >
                                         {active && <span className="size-1 rounded-full bg-primary mr-2"></span>}
                                         {label}
                                     </div>
                                 );
                             })}
+
+                            {currentTab === 'Assets' && assets.map((asset, i) => (
+                                <div key={i} className="flex items-center py-1 text-[11px] text-slate-600 hover:text-slate-300 cursor-pointer transition-all group">
+                                    <span className="material-symbols-outlined text-[12px] mr-2 opacity-50">
+                                        {asset.type === 'image' ? 'image' : 'category'}
+                                    </span>
+                                    <span className="truncate max-w-[120px]">{asset.value}</span>
+                                </div>
+                            ))}
+
+                            {currentTab === 'Styles' && (
+                                <div className="space-y-3 mt-2">
+                                    <div>
+                                        <p className="text-[9px] text-slate-500 uppercase font-black mb-1">Typography</p>
+                                        <div className="flex flex-col gap-1 pl-1">
+                                            {[
+                                                { label: 'Inter (Sans)', value: 'Inter, sans-serif' },
+                                                { label: 'JetBrains Mono', value: 'JetBrains Mono, monospace' },
+                                                { label: 'Outfit (Modern)', value: 'Outfit, sans-serif' },
+                                                { label: 'Playfair (Elegant)', value: 'Playfair Display, serif' }
+                                            ].map(f => (
+                                                <div
+                                                    key={f.label}
+                                                    onClick={() => onFontChange(f.value)}
+                                                    className="text-[10px] text-slate-400 hover:text-white cursor-pointer transition-colors px-1 py-0.5 rounded hover:bg-white/5"
+                                                >
+                                                    {f.label}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] text-slate-500 uppercase font-black mb-1">Colors</p>
+                                        <div className="grid grid-cols-4 gap-2 px-1">
+                                            {[
+                                                { hex: '#6366f1', name: 'indigo' },
+                                                { hex: '#8b5cf6', name: 'violet' },
+                                                { hex: '#d946ef', name: 'fuchsia' },
+                                                { hex: '#10b981', name: 'emerald' },
+                                                { hex: '#f43f5e', name: 'rose' },
+                                                { hex: '#f59e0b', name: 'amber' },
+                                                { hex: '#3b82f6', name: 'blue' },
+                                                { hex: '#ef4444', name: 'red' }
+                                            ].map(c => (
+                                                <div
+                                                    key={c.name}
+                                                    onClick={() => onColorChange(c.name)}
+                                                    className="size-5 rounded-md border border-white/10 cursor-pointer hover:scale-110 hover:border-white/30 transition-all shadow-sm"
+                                                    style={{ backgroundColor: c.hex }}
+                                                    title={c.name}
+                                                ></div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </nav>
                 </div>
@@ -200,7 +282,14 @@ const CanvasArea: React.FC<{
     zoom: number;
     isPanning: boolean;
     setIsPanning: (p: boolean) => void;
-}> = ({ code, loading, activeView, setCode, textareaRef, onSelect, viewport, zoom, isPanning, setIsPanning }) => (
+    iframeRef: React.RefObject<HTMLIFrameElement | null>;
+    onUndo: () => void;
+    onRedo: () => void;
+    onAddBox: () => void;
+    onQuickAction: () => void;
+    canUndo: boolean;
+    canRedo: boolean;
+}> = ({ code, loading, activeView, setCode, textareaRef, onSelect, viewport, zoom, isPanning, setIsPanning, iframeRef, onUndo, onRedo, onAddBox, onQuickAction, canUndo, canRedo }) => (
     <section className={clsx(
         "flex-1 bg-[#0a0c10] relative flex flex-col items-center justify-center overflow-hidden",
         (viewport !== 'desktop' || activeView === 'editor') ? "p-8" : "p-0"
@@ -264,6 +353,7 @@ const CanvasArea: React.FC<{
 
                         <div className="flex-1 relative bg-[#0a0c10]">
                             <iframe
+                                ref={iframeRef}
                                 srcDoc={activeView === 'design' ? code + `
                                     <style>
                                         .noir-hover { outline: 2px solid #2b8cee !important; cursor: pointer !important; }
@@ -288,6 +378,20 @@ const CanvasArea: React.FC<{
                                                 className: e.target.className,
                                                 text: e.target.innerText.substring(0, 30) 
                                             }, '*');
+                                        });
+
+                                        window.addEventListener('message', (e) => {
+                                            if (e.data.type === 'SCROLL_TO_ELEMENT') {
+                                                const el = document.getElementById(e.data.id);
+                                                if (el) {
+                                                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                    
+                                                    // Visual highlight
+                                                    const all = document.querySelectorAll('.noir-selected');
+                                                    all.forEach(el => el.classList.remove('noir-selected'));
+                                                    el.classList.add('noir-selected');
+                                                }
+                                            }
                                         });
                                     </script>
                                 ` : code}
@@ -316,8 +420,20 @@ const CanvasArea: React.FC<{
         </div>
 
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-0.5 bg-slate-900/90 backdrop-blur-xl border border-white/5 rounded-full p-1 z-40 shadow-2xl scale-85">
-            <button className="p-2 hover:bg-white/5 rounded-full text-slate-600 hover:text-white transition-colors"><span className="material-symbols-outlined text-[15px]">undo</span></button>
-            <button className="p-2 hover:bg-white/5 rounded-full text-slate-600 hover:text-white transition-colors"><span className="material-symbols-outlined text-[15px]">redo</span></button>
+            <button
+                onClick={onUndo}
+                disabled={!canUndo}
+                className="p-2 hover:bg-white/5 rounded-full text-slate-600 hover:text-white transition-colors disabled:opacity-20"
+            >
+                <span className="material-symbols-outlined text-[15px]">undo</span>
+            </button>
+            <button
+                onClick={onRedo}
+                disabled={!canRedo}
+                className="p-2 hover:bg-white/5 rounded-full text-slate-600 hover:text-white transition-colors disabled:opacity-20"
+            >
+                <span className="material-symbols-outlined text-[15px]">redo</span>
+            </button>
             <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
             <button
                 onClick={() => setIsPanning(!isPanning)}
@@ -330,12 +446,22 @@ const CanvasArea: React.FC<{
                 Pan
             </button>
             <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
-            {['format_paint', 'add_box'].map((icon) => (
-                <button key={icon} className="p-2.5 hover:bg-white/5 rounded-full text-slate-500 hover:text-white transition-colors">
-                    <span className="material-symbols-outlined text-[15px]">{icon}</span>
-                </button>
-            ))}
-            <button className="flex items-center gap-1.5 px-4 py-1.5 bg-primary/90 text-white rounded-full text-[10px] font-black shadow-lg shadow-primary/20 hover:brightness-110 ml-1 uppercase tracking-tighter">
+            <button
+                onClick={() => { }} // Format paint toggle
+                className="p-2.5 hover:bg-white/5 rounded-full text-slate-500 hover:text-white transition-colors"
+            >
+                <span className="material-symbols-outlined text-[15px]">format_paint</span>
+            </button>
+            <button
+                onClick={onAddBox}
+                className="p-2.5 hover:bg-white/5 rounded-full text-slate-500 hover:text-white transition-colors"
+            >
+                <span className="material-symbols-outlined text-[15px]">add_box</span>
+            </button>
+            <button
+                onClick={onQuickAction}
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-primary/90 text-white rounded-full text-[10px] font-black shadow-lg shadow-primary/20 hover:brightness-110 ml-1 uppercase tracking-tighter"
+            >
                 <span className="material-symbols-outlined text-[15px]">bolt</span> Quick Action
             </button>
         </div>
@@ -352,73 +478,130 @@ const SidebarRight: React.FC<{
     setContext: (c: string | null) => void;
     model: string;
     setModel: (m: string) => void;
-}> = ({ prompt, setPrompt, loading, generateCode, code, context, setContext, model, setModel }) => (
-    <aside className="w-[280px] border-l border-white/10 flex flex-col glass-panel z-20">
-        <div className="p-3 border-b border-white/5 flex items-center justify-between bg-slate-900/40">
-            <div className="flex items-center gap-3">
-                <div className="size-5 rounded-md bg-primary/10 flex items-center justify-center border border-primary/20">
-                    <span className="material-symbols-outlined text-[13px] text-primary">psychology</span>
+    onEnhancePrompt: () => void;
+}> = ({ prompt, setPrompt, loading, generateCode, code, context, setContext, model, setModel, onEnhancePrompt }) => {
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0) {
+            const fileList = files.map(f => f.name).join(', ');
+            setContext(`Attached (${files.length}): ${fileList}`);
+        }
+    };
+
+    return (
+        <aside className="w-[320px] border-l border-white/10 flex flex-col glass-panel z-20">
+            <div className="p-3 border-b border-white/5 flex items-center justify-between bg-slate-900/40">
+                <div className="flex items-center gap-3">
+                    <div className="size-5 rounded-md bg-primary/10 flex items-center justify-center border border-primary/20">
+                        <span className="material-symbols-outlined text-[13px] text-primary">psychology</span>
+                    </div>
+                    <span className="text-[11px] font-bold text-white uppercase tracking-widest opacity-80">AI Navigator</span>
                 </div>
-                <span className="text-[11px] font-bold text-white uppercase tracking-widest opacity-80">AI Navigator</span>
+                <button className="p-1 hover:bg-white/5 rounded transition-all"><span className="material-symbols-outlined text-[16px] text-slate-600">more_vert</span></button>
             </div>
-            <button className="p-1 hover:bg-white/5 rounded transition-all"><span className="material-symbols-outlined text-[16px] text-slate-600">more_vert</span></button>
-        </div>
 
-        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 custom-scrollbar bg-slate-900/20">
-            {context && (
-                <div className="bg-primary/5 border border-primary/10 rounded-lg p-3 relative group animate-in fade-in slide-in-from-top-1">
-                    <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[9px] font-bold text-primary uppercase tracking-tighter flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[11px]">attachment</span>
-                            Context
-                        </span>
-                        <button onClick={() => setContext(null)} className="text-slate-600 hover:text-white transition-colors"><span className="material-symbols-outlined text-[12px]">close</span></button>
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 custom-scrollbar bg-slate-900/20">
+                {context && (
+                    <div className="bg-primary/5 border border-primary/10 rounded-lg p-3 relative group animate-in fade-in slide-in-from-top-1">
+                        <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[9px] font-bold text-primary uppercase tracking-tighter flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[11px]">attachment</span>
+                                Context
+                            </span>
+                            <button onClick={() => setContext(null)} className="text-slate-600 hover:text-white transition-colors"><span className="material-symbols-outlined text-[12px]">close</span></button>
+                        </div>
+                        <p className="text-[10px] text-slate-500 line-clamp-2 font-mono leading-relaxed">{context}</p>
                     </div>
-                    <p className="text-[10px] text-slate-500 line-clamp-2 font-mono leading-relaxed">{context}</p>
-                </div>
-            )}
+                )}
 
-            {!loading && !code && !context && (
-                <div className="h-full flex items-center justify-center opacity-20"><span className="material-symbols-outlined text-[48px]">smart_toy</span></div>
-            )}
+                {!loading && !code && !context && (
+                    <div className="h-full flex items-center justify-center opacity-20"><span className="material-symbols-outlined text-[48px]">smart_toy</span></div>
+                )}
 
-            {loading && (
-                <div className="space-y-4">
-                    <div className="bg-primary/10 text-white p-3 rounded-xl rounded-tr-none text-[11px] border border-primary/20 max-w-[90%] self-end ml-auto">{prompt}</div>
-                    <div className="flex items-start gap-2">
-                        <div className="size-5 rounded-full bg-primary flex items-center justify-center shrink-0 mt-0.5"><span className="material-symbols-outlined text-[11px] text-white">bolt</span></div>
-                        <div className="bg-slate-800/40 text-slate-400 p-3 rounded-xl rounded-tl-none text-[10px] border border-white/5 flex-1 leading-relaxed">Processing your request to enhance the component aesthetics...</div>
+                {loading && (
+                    <div className="space-y-4">
+                        <div className="bg-primary/10 text-white p-3 rounded-xl rounded-tr-none text-[11px] border border-primary/20 max-w-[90%] self-end ml-auto">{prompt}</div>
+                        <div className="flex items-start gap-2">
+                            <div className="size-5 rounded-full bg-primary flex items-center justify-center shrink-0 mt-0.5"><span className="material-symbols-outlined text-[11px] text-white">bolt</span></div>
+                            <div className="bg-slate-800/40 text-slate-400 p-3 rounded-xl rounded-tl-none text-[10px] border border-white/5 flex-1 leading-relaxed">Processing your request to enhance the component aesthetics...</div>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
+            </div>
 
-        <div className="p-3 bg-background-dark/80 mt-auto border-t border-white/5">
-            <div className="bg-slate-800/20 border border-white/5 rounded-xl p-2 relative group focus-within:border-primary/30 transition-all duration-300">
-                <textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateCode(); } }}
-                    className="w-full bg-transparent text-[11px] text-white placeholder:text-slate-600 resize-none h-14 focus:outline-none p-1 custom-scrollbar"
-                    placeholder="Ask AI to design..."
-                />
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
-                    <div className="flex gap-1">
-                        <ModelSelector selectedId={model} onSelect={setModel} variant="pill" />
-                        <button className="p-1.5 text-slate-600 hover:text-white transition-colors" title="Attach Image"><span className="material-symbols-outlined text-[15px]">image</span></button>
+            <div className="p-3 bg-white/5 mt-auto border-t border-white/5">
+                <div className="bg-[#0a0a0a] border border-white/10 rounded-[24px] shadow-2xl p-2.5 relative group transition-all duration-300">
+                    <textarea
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateCode(); } }}
+                        className="w-full bg-transparent text-[11px] text-white placeholder:text-slate-600 resize-none h-8 focus:outline-none p-0.5 custom-scrollbar leading-tight"
+                        placeholder="Ask for revisions..."
+                    />
+
+                    <div className="flex items-center justify-between mt-1 pt-1 border-t border-white/5">
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={onEnhancePrompt}
+                                disabled={loading || !prompt.trim()}
+                                className="size-7 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-slate-500 hover:text-primary transition-all disabled:opacity-30"
+                                title="Enhance Prompt (AI)"
+                            >
+                                <span className="material-symbols-outlined text-[15px] animate-pulse group-hover:animate-none">magic_button</span>
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    if (prompt.endsWith(' ') || prompt === '') setPrompt(prompt + '@');
+                                    else setPrompt(prompt + ' @');
+                                    setContext("Referencing System Layers & Project Files");
+                                }}
+                                className="size-7 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-slate-500 hover:text-primary transition-all"
+                                title="Mention"
+                            >
+                                <span className="material-symbols-outlined text-[15px]">alternate_email</span>
+                            </button>
+
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                className="hidden"
+                                accept="image/*,video/*,.pdf,.doc,.docx,.txt,.json,.html,.css,.js,.ts"
+                                multiple
+                            />
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="size-7 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-slate-500 hover:text-primary transition-all"
+                                title="Attach File"
+                            >
+                                <span className="material-symbols-outlined text-[15px]">attachment</span>
+                            </button>
+
+                            <div className="flex bg-white/5 rounded-md p-0.5 border border-white/10 text-[7px] font-bold scale-[0.75] origin-left ml-0.5">
+                                <button className="px-1 py-0.5 bg-white/10 text-white rounded">DEFAULT</button>
+                                <button className="px-1 py-0.5 text-slate-500">EDITS</button>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                            <ModelSelector selectedId={model} onSelect={setModel} variant="pill" iconOnly={true} />
+                            <button
+                                onClick={generateCode}
+                                disabled={loading || !prompt.trim()}
+                                className="size-7 bg-white/10 text-white rounded-lg border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all disabled:opacity-30 shadow-lg"
+                            >
+                                <span className="material-symbols-outlined text-[15px] font-bold">{loading ? 'sync' : 'north'}</span>
+                            </button>
+                        </div>
                     </div>
-                    <button
-                        onClick={generateCode}
-                        disabled={loading || !prompt.trim()}
-                        className="size-7 bg-primary text-white rounded-lg flex items-center justify-center hover:brightness-110 transition-all disabled:opacity-30 shadow-lg shadow-primary/20"
-                    >
-                        <span className="material-symbols-outlined text-[16px]">{loading ? 'sync' : 'north'}</span>
-                    </button>
                 </div>
             </div>
-        </div>
-    </aside>
-);
+        </aside>
+    );
+};
 
 // ==========================================
 // MAIN WORKBENCH COMPONENT
@@ -469,7 +652,7 @@ export const Workbench: React.FC = () => {
 <body class="text-neutral-400 selection:bg-indigo-500/30 selection:text-indigo-200 overflow-x-hidden">
 
     <!-- Navbar -->
-    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-[#050505]/80 backdrop-blur-md">
+    <nav id="Header" class="fixed top-0 w-full z-50 border-b border-white/5 bg-[#050505]/80 backdrop-blur-md">
         <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <div class="w-6 h-6 rounded bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -495,7 +678,7 @@ export const Workbench: React.FC = () => {
     </nav>
 
     <!-- Hero Section -->
-    <header class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 px-6 overflow-hidden">
+    <header id="Hero Section" class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 px-6 overflow-hidden">
         <!-- Background Effects -->
         <div class="absolute inset-0 z-0 bg-grid pointer-events-none"></div>
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none"></div>
@@ -512,13 +695,13 @@ export const Workbench: React.FC = () => {
             </div>
 
             <!-- Headline -->
-            <h1 class="text-4xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tight mb-6 leading-[1.1]">
+            <h1 id="hero-title" class="text-4xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tight mb-6 leading-[1.1]">
                 Backend logic, <br>
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-indigo-300">handled instantly.</span>
             </h1>
 
             <!-- Subheadline -->
-            <p class="text-base md:text-lg text-neutral-500 max-w-xl mx-auto mb-10 leading-relaxed">
+            <p id="hero-subtitle" class="text-base md:text-lg text-neutral-500 max-w-xl mx-auto mb-10 leading-relaxed">
                 Noir Code provides the infrastructure for modern applications. Deploy serverless functions, manage databases, and scale effortlessly with a single command.
             </p>
 
@@ -528,7 +711,7 @@ export const Workbench: React.FC = () => {
                     <iconify-icon icon="solar:letter-linear" class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" width="18"></iconify-icon>
                     <input type="email" placeholder="Enter your work email..." class="w-full bg-neutral-900/50 border border-neutral-800 text-sm text-white pl-10 pr-4 py-2.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all placeholder:text-neutral-600">
                 </div>
-                <button class="w-full sm:w-auto whitespace-nowrap px-5 py-2.5 text-sm font-medium text-white bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-lg transition-all shadow-lg shadow-indigo-500/5 flex items-center justify-center gap-2 group">
+                <button id="hero-cta" class="w-full sm:w-auto whitespace-nowrap px-5 py-2.5 text-sm font-medium text-white bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-lg transition-all shadow-lg shadow-indigo-500/5 flex items-center justify-center gap-2 group">
                     Join Waitlist
                     <iconify-icon icon="solar:arrow-right-linear" class="group-hover:translate-x-0.5 transition-transform"></iconify-icon>
                 </button>
@@ -644,7 +827,7 @@ export const Workbench: React.FC = () => {
     </section>
 
     <!-- Features Grid -->
-    <section class="py-24 px-6 relative">
+    <section id="Features" class="py-24 px-6 relative">
         <div class="max-w-6xl mx-auto">
             <div class="text-center max-w-2xl mx-auto mb-16">
                 <h2 class="text-3xl md:text-4xl font-semibold text-white tracking-tight mb-4">Everything you need to ship</h2>
@@ -799,6 +982,14 @@ export const Workbench: React.FC = () => {
     // Context & Selection State
     const [selectedText, setSelectedText] = useState('');
     const [selectedElement, setSelectedElement] = useState<any>(null);
+    const [layers, setLayers] = useState<string[]>([]);
+    const [assets, setAssets] = useState<{ type: string, value: string }[]>([]);
+    const [pages] = useState(['index.html', 'about.html', 'pricing.html']);
+    const [currentTab, setCurrentTab] = useState('Layers');
+
+    // History & Actions State
+    const [history, setHistory] = useState<string[]>([]);
+    const [historyIndex, setHistoryIndex] = useState(-1);
 
     // View State
     const [activeView, setActiveView] = useState<ViewMode>('design');
@@ -806,7 +997,9 @@ export const Workbench: React.FC = () => {
     const [zoom, setZoom] = useState(1);
     const [isPanning, setIsPanning] = useState(false);
     const [isHierarchyCollapsed, setIsHierarchyCollapsed] = useState(false);
+    const [activeHierarchyItem, setActiveHierarchyItem] = useState('Hero Section');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const iframeRef = useRef<HTMLIFrameElement>(null);
 
     useEffect(() => {
         const handleMessage = (e: MessageEvent) => {
@@ -819,10 +1012,54 @@ export const Workbench: React.FC = () => {
         return () => window.removeEventListener('message', handleMessage);
     }, []);
 
+    // Extract Layers & Assets from Code
+    useEffect(() => {
+        // Layers/IDs
+        const sectionIds = Array.from(code.matchAll(/id=["']([^"']+)["']/g)).map(m => m[1]);
+        const semanticTags = Array.from(code.matchAll(/<(header|section|footer|nav)[^>]*>/g)).map(m => {
+            const tag = m[1];
+            return tag.charAt(0).toUpperCase() + tag.slice(1);
+        });
+        const combinedLayers = Array.from(new Set([...sectionIds, ...semanticTags]));
+        setLayers(combinedLayers.length > 0 ? combinedLayers : ['Header', 'Hero Section', 'Features']);
+
+        // Assets (Images/Icons)
+        const imgSrcs = Array.from(code.matchAll(/src=["']([^"']+)["']/g)).map(m => ({ type: 'image', value: m[1].split('/').pop() || 'image' }));
+        const icons = Array.from(code.matchAll(/icon=["']([^"']+)["']/g)).map(m => ({ type: 'icon', value: m[1] }));
+        setAssets([...imgSrcs, ...icons].slice(0, 10));
+
+        // Initial history push
+        if (historyIndex === -1 && code) {
+            setHistory([code]);
+            setHistoryIndex(0);
+        }
+    }, [code]);
+
+    const updateCode = (newCode: string, pushToHistory = true) => {
+        setCode(newCode);
+        if (pushToHistory) {
+            const newHistory = history.slice(0, historyIndex + 1);
+            newHistory.push(newCode);
+            setHistory(newHistory);
+            setHistoryIndex(newHistory.length - 1);
+        }
+    };
+
     const generateCode = () => {
         if (loading || !prompt.trim()) return;
         setLoading(true);
         setTimeout(() => setLoading(false), 1500);
+    };
+
+    const handleEnhancePrompt = () => {
+        if (!prompt.trim() || loading) return;
+
+        // Simulated AI Enhancement
+        const improved = `Enhance this UI with a professional, modern aesthetic. Focus on ${prompt}. Incorporate sleek typography, subtle glassmorphism effects, optimized color palettes, and smooth interactive transitions for a premium user experience.`;
+        setPrompt(improved);
+
+        // Add a visual indicator
+        setContext("Prompt refined by AI ✨");
     };
 
     const handleTextSelect = () => {
@@ -850,6 +1087,125 @@ export const Workbench: React.FC = () => {
         }
     };
 
+    const handleHierarchyClick = (id: string) => {
+        setActiveHierarchyItem(id);
+        if (iframeRef.current?.contentWindow) {
+            iframeRef.current.contentWindow.postMessage({ type: 'SCROLL_TO_ELEMENT', id }, '*');
+        }
+    };
+
+    const handleColorChange = (newFamily: string) => {
+        const families = ['indigo', 'blue', 'purple', 'violet', 'rose', 'emerald', 'amber', 'fuchsia', 'red'];
+
+        if (selectedElement) {
+            // Local Replacement
+            let newCode = code;
+            const elementId = selectedElement.id;
+
+            if (elementId) {
+                // Find tag with matching ID
+                const tagRegex = new RegExp(`(<[^>]+id=["']${elementId}["'][^>]*class=["'])([^"']*)(["'][^>]*>)`, 'g');
+                newCode = code.replace(tagRegex, (__, pre, classes, post) => {
+                    const current = families.find(f => classes.includes(f + '-')) || families.find(f => code.includes(f + '-')) || 'indigo';
+                    const newClasses = classes.replaceAll(current, newFamily);
+                    return `${pre}${newClasses}${post}`;
+                });
+            } else {
+                // If no ID, try to match by tag + first 20 characters of text
+                const textContent = (selectedElement.text || '').trim().substring(0, 20);
+                if (textContent) {
+                    const fallbackRegex = new RegExp(`(<${selectedElement.tagName.toLowerCase()}[^>]*class=["'])([^"']*)(["'][^>]*>[\\s\\S]*?${textContent})`, 'i');
+                    newCode = code.replace(fallbackRegex, (__, pre, classes, post) => {
+                        const current = families.find(f => classes.includes(f + '-')) || 'indigo';
+                        const newClasses = classes.replaceAll(current, newFamily);
+                        return `${pre}${newClasses}${post}`;
+                    });
+                }
+            }
+            setCode(newCode);
+            updateCode(newCode);
+        } else {
+            // Global Replacement
+            const current = families.find(f => code.includes(f + '-')) || 'indigo';
+            if (current === newFamily) return;
+            const newCode = code.replaceAll(new RegExp(current, 'g'), newFamily);
+            updateCode(newCode);
+        }
+    };
+
+    const handleFontChange = (fontValue: string) => {
+        let newCode = code;
+
+        // Handle Google Font Imports
+        if (fontValue.includes('Outfit') && !code.includes('Outfit')) {
+            newCode = newCode.replace('</head>', `<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">\n</head>`);
+        }
+        if (fontValue.includes('Playfair') && !code.includes('Playfair')) {
+            newCode = newCode.replace('</head>', `<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">\n</head>`);
+        }
+
+        if (selectedElement) {
+            // Local Replacement (Selective Styling)
+            const elementId = selectedElement.id;
+            if (elementId) {
+                // Find tag with matching ID and update/add style attribute
+                const tagRegex = new RegExp(`(<[^>]+id=["']${elementId}["'][^>]*)(>)`, 'i');
+                newCode = newCode.replace(tagRegex, (__, opening, closing) => {
+                    if (opening.includes('style=')) {
+                        return opening.replace(/style=["']([^"']*)["']/, `style="$1; font-family: ${fontValue};"`) + closing;
+                    }
+                    return `${opening} style="font-family: ${fontValue};"${closing}`;
+                });
+            } else {
+                // Fallback: apply globally if no ID is found (as specified in current plan logic)
+                newCode = newCode.replace(/font-family:\s*['"][^'"]+['"]/g, `font-family: '${fontValue}'`);
+            }
+        } else {
+            // Global Replacement
+            newCode = newCode.replace(/font-family:\s*['"][^'"]+['"]/g, `font-family: '${fontValue}'`);
+        }
+
+        updateCode(newCode);
+    };
+
+    const handleUndo = () => {
+        if (historyIndex > 0) {
+            const prevCode = history[historyIndex - 1];
+            setCode(prevCode);
+            setHistoryIndex(historyIndex - 1);
+        }
+    };
+
+    const handleRedo = () => {
+        if (historyIndex < history.length - 1) {
+            const nextCode = history[historyIndex + 1];
+            setCode(nextCode);
+            setHistoryIndex(historyIndex + 1);
+        }
+    };
+
+    const handleAddBox = () => {
+        const newBox = `\n    <!-- New Section -->\n    <section class="py-12 px-6 bg-slate-900 border-y border-white/5 flex flex-col items-center justify-center text-center">\n        <h2 class="text-2xl font-bold text-white mb-4">New Component</h2>\n        <p class="text-slate-400 max-w-md">Edit this component to build your layout faster.</p>\n    </section>\n`;
+        const newCode = code.includes('</body>') ? code.replace('</body>', `${newBox}</body>`) : code + newBox;
+        updateCode(newCode);
+    };
+
+    const handleQuickAction = () => {
+        setPrompt('Improve the styling of this page with modern glassmorphism and smooth animations.');
+        generateCode();
+    };
+
+    const handleExport = () => {
+        const blob = new Blob([code], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        a.href = url;
+        a.download = `noir-${timestamp}.html`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="bg-background-dark text-slate-300 overflow-hidden h-screen flex flex-col font-display">
             <Header
@@ -859,25 +1215,43 @@ export const Workbench: React.FC = () => {
                 setViewport={setViewport}
                 zoom={zoom}
                 setZoom={setZoom}
+                onExport={handleExport}
             />
 
             <main className="flex flex-1 overflow-hidden relative border-t border-white/5">
                 <SidebarLeft
                     isCollapsed={isHierarchyCollapsed}
                     setIsCollapsed={setIsHierarchyCollapsed}
+                    currentTab={currentTab}
+                    setCurrentTab={setCurrentTab}
+                    activeItem={activeHierarchyItem}
+                    onItemClick={handleHierarchyClick}
+                    layers={layers}
+                    assets={assets}
+                    pages={pages}
+                    onColorChange={handleColorChange}
+                    onFontChange={handleFontChange}
+                    selectedElement={selectedElement}
                 />
 
                 <CanvasArea
                     code={code}
                     loading={loading}
                     activeView={activeView}
-                    setCode={setCode}
+                    setCode={(c) => updateCode(c)}
                     textareaRef={textareaRef}
                     onSelect={handleTextSelect}
                     viewport={viewport}
                     zoom={zoom}
                     isPanning={isPanning}
                     setIsPanning={setIsPanning}
+                    iframeRef={iframeRef}
+                    onUndo={handleUndo}
+                    onRedo={handleRedo}
+                    onAddBox={handleAddBox}
+                    onQuickAction={handleQuickAction}
+                    canUndo={historyIndex > 0}
+                    canRedo={historyIndex < history.length - 1}
                 />
 
                 <AnimatePresence>
@@ -923,6 +1297,7 @@ export const Workbench: React.FC = () => {
                     setContext={setContext}
                     model={model}
                     setModel={setModel}
+                    onEnhancePrompt={handleEnhancePrompt}
                 />
             </main>
 

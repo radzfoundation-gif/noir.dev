@@ -10,7 +10,7 @@
     /* bg-background-dark */
     font-family: 'Space Grotesk', sans-serif;
     /* font-display */
-    @apply text-slate-900 dark:text-white overflow-hidden h-screen flex flex-col;
+    @apply text-slate-900 dark:text-white min-h-screen;
   }
 
   /* Custom Scrollbar */

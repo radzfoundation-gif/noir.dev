@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Noir Success State - Variant 1</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Inter"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}}}};</script>
+<style>
+        body {
+            font-family: "Spline Sans", sans-serif;
+        }
+        .glass-card {
+            background: rgba(23, 35, 54, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(0, 98, 255, 0.6);
+        }
+        .floating-robot {
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .bg-blur-gradient {
+            background: radial-gradient(circle at 50% 50%, #1a2a44 0%, #0f1723 100%);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen relative overflow-hidden flex flex-col font-display">
+<!-- Subtle Background Particles/Orbs -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none">
+<div class="absolute top-[20%] left-[15%] w-72 h-72 bg-primary/20 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-[20%] right-[15%] w-96 h-96 bg-primary/10 rounded-full blur-[120px]"></div>
+<!-- Simulated Confetti/Particles -->
+<div class="absolute top-1/4 left-1/3 w-1 h-1 bg-white opacity-40 rounded-full"></div>
+<div class="absolute top-1/2 right-1/4 w-2 h-2 bg-primary opacity-30 rounded-full"></div>
+<div class="absolute bottom-1/3 left-1/4 w-1.5 h-1.5 bg-white opacity-50 rounded-full"></div>
+</div>
+<!-- Navigation -->
+<header class="relative z-10 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-white/10 px-10 py-3 mx-auto w-full max-w-[1200px]">
+<div class="flex items-center gap-4 text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_6_319)">
+<path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" fill="currentColor"></path>
+</g>
+<defs>
+<clippath id="clip0_6_319"><rect fill="white" height="48" width="48"></rect></clippath>
+</defs>
+</svg>
+</div>
+<h2 class="text-white text-xl font-bold leading-tight tracking-tight">Noir</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8 items-center">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="#">Features</a>
+<a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="#">Community</a>
+</div>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all">
+<span class="truncate">Sign Out</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-12">
+<div class="max-w-[560px] w-full flex flex-col items-center text-center">
+<!-- Floating Robot Mascot -->
+<div class="mb-8 floating-robot relative">
+<div class="w-32 h-32 bg-primary/20 rounded-full absolute -inset-4 blur-2xl"></div>
+<div class="relative w-32 h-32 flex items-center justify-center bg-[#172336] rounded-full border border-white/20 shadow-2xl overflow-hidden">
+<svg class="w-20 h-20 text-white" fill="none" viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<!-- Robot Head -->
+<rect fill="currentColor" fill-opacity="0.1" height="40" rx="12" stroke="currentColor" stroke-width="3" width="50" x="25" y="35"></rect>
+<!-- Eyes -->
+<circle cx="40" cy="55" fill="currentColor" r="4">
+<animate attributename="opacity" dur="4s" repeatcount="indefinite" values="1;0;1"></animate>
+</circle>
+<circle cx="60" cy="55" fill="currentColor" r="4">
+<animate attributename="opacity" dur="4s" repeatcount="indefinite" values="1;0;1"></animate>
+</circle>
+<!-- Antennas -->
+<path d="M50 35V25" stroke="currentColor" stroke-linecap="round" stroke-width="3"></path>
+<circle cx="50" cy="22" fill="currentColor" r="3"></circle>
+</svg>
+</div>
+</div>
+<!-- Glassmorphic Success Card -->
+<div class="glass-card rounded-xl p-8 w-full shadow-2xl relative">
+<!-- Headline -->
+<h1 class="text-white tracking-tight text-[40px] font-bold leading-tight pb-3">You're In!</h1>
+<p class="text-[#8da6ce] text-lg font-normal leading-relaxed mb-8">
+                    Welcome to the Noir exclusive preview. Your access has been successfully provisioned and you're ready to explore.
+                </p>
+<!-- Progress Bar Section -->
+<div class="flex flex-col gap-4 mb-8 text-left bg-black/20 p-5 rounded-lg border border-white/5">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">verified</span>
+<p class="text-white text-base font-semibold">Beta Access Queue</p>
+</div>
+<p class="text-primary text-sm font-bold">100%</p>
+</div>
+<div class="h-2.5 rounded-full bg-white/10 overflow-hidden">
+<div class="h-full rounded-full bg-primary neon-glow" style="width: 100%;"></div>
+</div>
+<p class="text-primary text-sm font-medium flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                        Early Access Granted
+                    </p>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-3 w-full">
+<button class="group flex items-center justify-center gap-2 overflow-hidden rounded-lg h-14 px-6 bg-primary text-white text-lg font-bold transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/30 active:scale-95">
+<span>Explore Noir Preview</span>
+<span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+<button class="flex items-center justify-center gap-2 overflow-hidden rounded-lg h-14 px-6 bg-white/5 text-white text-lg font-bold transition-all hover:bg-white/10 active:scale-95 border border-white/10">
+<span class="material-symbols-outlined">share</span>
+<span>Share With Friends</span>
+</button>
+</div>
+</div>
+<!-- Micro-text Footer -->
+<div class="mt-8 flex gap-6">
+<a class="text-white/40 text-xs hover:text-white/60 transition-colors uppercase tracking-widest" href="#">Privacy Policy</a>
+<a class="text-white/40 text-xs hover:text-white/60 transition-colors uppercase tracking-widest" href="#">Support</a>
+<a class="text-white/40 text-xs hover:text-white/60 transition-colors uppercase tracking-widest" href="#">Twitter / X</a>
+</div>
+</div>
+</main>
+<!-- Background Images (Hidden but defined for rules) -->
+<div class="hidden">
+<img alt="" data-alt="Subtle dark blue gradient background with particles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAofLj6GgU18MgWBFc0ElkLcC4VERVg4sPw0tVJzXeYC5qi6qEESs4MAQXmWB-Cm2-63CN0CvArjRJG15D6bOH42547MNXJ8yObm9kJ6GoIisT0D_F7Vu7G6hVRDkHO4KcZ2CKfPzl6wq4fpuZ33BLu2Ty6Ok9it6pC1cBN3sW_WPtEFZckP1dqqrc7l28qZnEOaJlyRHWZtQgVUBrqwFmHiCyoAoTPGbo1_pLmEM6bDoP4bMoCso9s0eoo74QAHiLqKR53JZ5ra-E"/>
+<img alt="" data-alt="Minimalist robot mascot icon waving" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCv0J7tUu5lB2rI0VxMNCHLNyeqTOfWybYiYiSM1BlQEBrvPkpKzM-QFiSkxWPu5ebLs-qCrAqU8oJE1QpvKcitlqNQrmcrnywkCQxIk0xxkaGYZTTKYhDPUHtJex9k727N4Vu-Dhu3vSjylQbqlftxa9T-8uKuHbWVLyLd0NQ2rhjoHVdUrHcUsrU9ajMAZcBO2czzk3mf5oQLpOiWGfDllC714TSqrare7tPNNL627Q_deOrVMuHufx9hEEJywI7ukmbYnQZIDp8"/>
+</div>
+</body></html>

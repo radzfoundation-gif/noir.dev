@@ -1,5 +1,6 @@
 import React from 'react';
-import { Code2, Settings, History, MessageSquare, Plus } from 'lucide-react';
+import { Settings, History, MessageSquare, Plus, Code2 } from 'lucide-react';
+import { NoirLogo } from './NoirLogo';
 
 interface EditorLayoutProps {
     sidebarContent: React.ReactNode;
@@ -15,9 +16,7 @@ export const EditorLayout: React.FC<EditorLayoutProps> = ({ sidebarContent, side
                 {/* Sidebar Header */}
                 <div className="h-14 flex items-center justify-between px-4 border-b border-zinc-900">
                     <div className="flex items-center gap-2 text-white font-bold">
-                        <div className="w-6 h-6 rounded bg-lime-400 flex items-center justify-center text-black">
-                            <Code2 size={16} strokeWidth={2.5} />
-                        </div>
+                        <NoirLogo className="size-8" />
                         <span>Noir Editor</span>
                     </div>
                     <button className="text-zinc-500 hover:text-white transition-colors">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Code2 } from 'lucide-react';
+import { NoirLogo } from './NoirLogo';
 
 export const Footer: React.FC = () => {
     return (
@@ -7,9 +7,7 @@ export const Footer: React.FC = () => {
             <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-lime-500 flex items-center justify-center text-black shadow-lg shadow-lime-500/20">
-                            <Code2 size={14} strokeWidth={2.5} />
-                        </div>
+                        <NoirLogo className="size-8" />
                         <span className="text-sm font-bold text-white tracking-tight">Noir Code</span>
                         <span className="text-xs text-zinc-600 ml-2">© 2026</span>
                     </div>

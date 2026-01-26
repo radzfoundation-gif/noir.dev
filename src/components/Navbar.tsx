@@ -1,14 +1,13 @@
 import { Link } from 'react-router-dom';
-import { Code2, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { NoirLogo } from './NoirLogo';
 
 export const Navbar: React.FC = () => {
     return (
         <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-black/80 backdrop-blur-xl">
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-lime-400 flex items-center justify-center text-black shadow-lg shadow-lime-400/20">
-                        <Code2 size={20} strokeWidth={2} />
-                    </div>
+                    <NoirLogo className="size-10" />
                     <span className="text-lg font-bold tracking-tight text-white leading-none">Noir Code</span>
                 </div>
 

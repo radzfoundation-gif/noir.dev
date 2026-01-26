@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Noir Waitlist - Variant 2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017", "noir-dark": "#111318", "noir-border": "#272e3a"}, fontFamily: {display: "Inter"}, borderRadius: {DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem"}}}};</script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glow-bg {
+            background: radial-gradient(circle at center, rgba(6, 99, 249, 0.15) 0%, rgba(10, 10, 11, 0) 70%);
+        }
+        .glass-card {
+            background: rgba(17, 19, 24, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        .neon-gradient {
+            background: linear-gradient(135deg, #0663f9 0%, #312e81 100%);
+        }
+        .tech-pattern {
+            background-image: radial-gradient(circle at 1px 1px, #1e293b 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white selection:bg-primary/30 min-h-screen relative overflow-x-hidden">
+<!-- Background Decoration -->
+<div class="fixed inset-0 tech-pattern opacity-20 pointer-events-none"></div>
+<div class="fixed inset-0 glow-bg pointer-events-none"></div>
+<div class="relative flex flex-col min-h-screen">
+<!-- Top Navigation -->
+<header class="w-full px-6 lg:px-20 py-6 flex items-center justify-between border-b border-white/5">
+<div class="flex items-center gap-3">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_logo)">
+<path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" fill="currentColor"></path>
+</g>
+<defs><clippath id="clip0_logo"><rect fill="white" height="48" width="48"></rect></clippath></defs>
+</svg>
+</div>
+<h2 class="text-xl font-bold tracking-tighter text-white">Noir</h2>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-sm font-medium text-slate-400 hover:text-white transition-colors" href="#">Vision</a>
+<a class="text-sm font-medium text-slate-400 hover:text-white transition-colors" href="#">Technology</a>
+<a class="text-sm font-medium text-slate-400 hover:text-white transition-colors" href="#">Careers</a>
+<button class="px-6 py-2 rounded-lg border border-white/10 text-sm font-semibold hover:bg-white hover:text-black transition-all">
+                    Login
+                </button>
+</nav>
+</header>
+<!-- Main Content Section -->
+<main class="flex-1 flex flex-col items-center justify-center px-4 py-12 lg:py-20">
+<!-- Headline Section -->
+<div class="max-w-3xl text-center mb-12">
+<h1 class="text-white tracking-tight text-4xl md:text-6xl font-extrabold leading-tight pb-4">
+                    The Future of Web Design is <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Autonomous.</span>
+</h1>
+<p class="text-slate-400 text-lg md:text-xl font-normal leading-relaxed max-w-2xl mx-auto">
+                    Build production-ready sites with AI in seconds. Join the exclusive early access list to shape the next era of the web.
+                </p>
+</div>
+<!-- Signup Card Container -->
+<div class="w-full max-w-5xl glass-card rounded-xl border border-white/10 overflow-hidden shadow-2xl flex flex-col lg:flex-row">
+<!-- Left Column: Form -->
+<div class="flex-1 p-8 lg:p-12 border-b lg:border-b-0 lg:border-r border-white/5">
+<h3 class="text-xl font-semibold mb-6">Reserve your spot</h3>
+<form class="space-y-5">
+<div class="flex flex-col gap-2">
+<label class="text-xs uppercase tracking-widest font-bold text-slate-500">Full Name</label>
+<input class="w-full bg-noir-dark border border-white/10 rounded-lg px-4 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="Alex Rivera" type="text"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-xs uppercase tracking-widest font-bold text-slate-500">Work Email</label>
+<input class="w-full bg-noir-dark border border-white/10 rounded-lg px-4 py-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="alex@company.com" type="email"/>
+</div>
+<button class="w-full py-4 mt-4 neon-gradient rounded-lg text-white font-bold text-lg hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/20">
+                            Join Waitlist
+                        </button>
+<p class="text-[10px] text-center text-slate-500 uppercase tracking-tight">Limited spots available for the initial beta phase</p>
+</form>
+</div>
+<!-- Right Column: Features -->
+<div class="flex-1 p-8 lg:p-12 bg-white/5 flex flex-col justify-center">
+<h4 class="text-slate-300 font-medium mb-8">What early access gives you:</h4>
+<ul class="space-y-6">
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary/10 rounded-lg p-1">check_circle</span>
+<div>
+<h5 class="font-bold text-white leading-none">AI-Driven Layouts</h5>
+<p class="text-sm text-slate-400 mt-1">Intelligent structural design based on your content intent.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary/10 rounded-lg p-1">check_circle</span>
+<div>
+<h5 class="font-bold text-white leading-none">Seamless SEO Integration</h5>
+<p class="text-sm text-slate-400 mt-1">Built-in semantic tagging and automated meta-optimization.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary/10 rounded-lg p-1">check_circle</span>
+<div>
+<h5 class="font-bold text-white leading-none">Zero-Code Customization</h5>
+<p class="text-sm text-slate-400 mt-1">Deep edit every component through natural language prompts.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary bg-primary/10 rounded-lg p-1">check_circle</span>
+<div>
+<h5 class="font-bold text-white leading-none">Instant Deployment</h5>
+<p class="text-sm text-slate-400 mt-1">One-click push to global edge networks with SSL included.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<!-- Social Proof / Footer -->
+<div class="mt-16 flex flex-col items-center gap-6">
+<p class="text-slate-500 text-xs uppercase tracking-widest font-semibold">Trusted by builders at</p>
+<div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-40 grayscale contrast-125">
+<img alt="Slack logo" class="h-6" data-alt="Slack technology company logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANbiuOltKSzmELjeAEoZRoXD5-smwB05th47gy-QNErNjarrJHb2x9j7-X58mnUmXH9jGsymuWmYTXFU_MGRc9ZShOq77VtEujuWSj9G0yjIdaThw1Pyb36dFxswYs7dbW7fjdrXUWzRfE0Ng4yl8gmRoOS2pp-cD8tugO0nyjO2eCscjo2Qxk2eFws3U3tqq9653xXHxwdFTBRzJWQAOwzA_Bp07vm5tIL1WLK9mBIGLpvZfKAHw6qLo3GaCQBwYRR0C6tcuZDr4"/>
+<img alt="Google logo" class="h-6" data-alt="Google technology company logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCOceMxGweKlVoRFr-eZNc9VRnNN5lCRB6tqhrZ85zXOvWsDnLJ4nCT92uVWkKEZB36OPU_GY-K5ac1Y326GtzN6aLh_qvLC0FGrn104FVpqWACbJFIctITT0Q8mjP9wabrojow5smOY4_lDbV15KT5B6CRUVw_Q1UDRzcDZmNn7z9Me0QZ-gfxTrN75tiKZUD-X-RKnqGGx6t7MStXyIyRaThQSQ8cQOrogoWd89OfLdiDT8y0ZNr2FIMw8Idj84j0K-w-cLJM74"/>
+<img alt="Meta logo" class="h-6" data-alt="Meta technology company logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhJDDIi3F6HT8_syldz9o3n8DYHw_UVR4YI4U5TDwOHRmMV687XOE9NDErbdGarwm-AdRPJMXs7QJgWnaqABeD0-V3CbKPiXZUKYIVEEiBKGLBw14P2-R2EQoMG5vN3LX59JAFR0UgDyOct4Rqp-A7UUT9B0IwCHLkn2IEXk7zqMtCcX4D6DO0BtHeNfW0EQDs83Bp1-dTHVoW-j1VpArdy46s9oum8lKznwENvjRAXKvoY76BLYnKtUb2s9MVnnMyr_RduhTF9YA"/>
+<img alt="OpenAI logo" class="h-6" data-alt="OpenAI artificial intelligence logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHV7xwDAAU94rUEGuwF4-i0qMkGwqtL9gq3-DYv5tQxZXfNYMZaj0k9zLBCfaiIbyE51-yJZhbHq44DdNvQMDagnH-upi14kVDWDxuKmV6H1lx41_WyYvtd8DoYiOzqwlcbqA-Io0lwZp2V7Qxs9or5oHqj--BFjzU1L9Yrpedt_wrhJsJ9KGdA0LEqr1GvPW_i0-8wdsLdYNr-FPyArHUiwIaEY7M2leqGWYnKAO7R3Se0BFQ5ySTcoEth1f6R_F5opLjCl75go8"/>
+</div>
+</div>
+</main>
+<footer class="w-full px-10 py-12 mt-auto border-t border-white/5 bg-noir-dark/50">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-slate-500 text-sm">© 2024 Noir Autonomous Web Systems. All rights reserved.</p>
+<div class="flex gap-8 text-sm text-slate-400 font-medium">
+<a class="hover:text-white" href="#">Privacy Policy</a>
+<a class="hover:text-white" href="#">Terms of Service</a>
+<a class="hover:text-white" href="#">X (Twitter)</a>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

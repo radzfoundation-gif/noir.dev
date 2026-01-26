@@ -56,9 +56,10 @@ interface ModelSelectorProps {
     selectedId: string;
     onSelect: (id: string) => void;
     variant?: 'default' | 'minimal' | 'pill';
+    iconOnly?: boolean;
 }
 
-export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSelect, variant = 'default' }) => {
+export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSelect, variant = 'default', iconOnly = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const selectedModel = MODELS.find(m => m.id === selectedId) || MODELS[0];
 
@@ -72,15 +73,18 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSele
             <div className="relative group/dropdown">
                 <div
                     onClick={() => setIsOpen(!isOpen)}
-                    className="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 hover:text-white hover:border-lime-500/50 cursor-pointer transition-all min-w-0 md:min-w-[140px] justify-between"
+                    className={clsx(
+                        "flex items-center gap-2 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 hover:text-white hover:border-lime-500/50 cursor-pointer transition-all justify-between",
+                        iconOnly ? "p-1.5 size-8 ring-1 ring-white/5" : "px-2 md:px-3 py-1.5 min-w-0 md:min-w-[140px]"
+                    )}
                 >
-                    <div className="flex items-center gap-2">
-                        <div className="w-3.5 h-3.5 flex items-center justify-center overflow-hidden">
+                    <div className="flex items-center gap-2 mx-auto">
+                        <div className={clsx("flex items-center justify-center overflow-hidden", iconOnly ? "w-5 h-5 scale-110" : "w-3.5 h-3.5")}>
                             {renderLogo(selectedModel.logo, "w-full h-full")}
                         </div>
-                        <span className="font-medium whitespace-nowrap hidden md:inline">{selectedModel.name}</span>
+                        {!iconOnly && <span className="font-medium whitespace-nowrap hidden md:inline">{selectedModel.name}</span>}
                     </div>
-                    <ChevronDown size={12} className={clsx("text-zinc-500 transition-transform flex-shrink-0", isOpen && "rotate-180")} />
+                    {!iconOnly && <ChevronDown size={12} className={clsx("text-zinc-500 transition-transform flex-shrink-0", isOpen && "rotate-180")} />}
                 </div>
 
                 <AnimatePresence>
@@ -89,7 +93,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSele
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute bottom-[calc(100%+12px)] left-0 w-[240px] bg-slate-900 text-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden z-[100] py-1 border border-white/10 origin-bottom-left"
+                            className="absolute bottom-[calc(100%+8px)] right-0 w-[240px] bg-slate-900 text-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden z-[100] py-1 border border-white/10 origin-bottom-right"
                         >
                             <div className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-white/5 border-b border-white/5 mb-1">
                                 AI Architecture Models

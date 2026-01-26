@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Noir AI | Build Production Websites Instantly</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017", "card-bg": "#0a0a0a", "border-muted": "#1f1f1f"}, fontFamily: {display: "Space Grotesk"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}}}};</script>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .glass {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .glow-blue {
+            box-shadow: 0 0 40px -10px rgba(0, 98, 255, 0.3);
+        }
+        .radial-glow {
+            background: radial-gradient(circle at 50% 50%, rgba(0, 98, 255, 0.1) 0%, transparent 70%);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-white selection:bg-primary/30">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 border-b border-border-muted glass">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-primary rounded flex items-center justify-center">
+<svg class="text-white size-5" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold tracking-tight">Noir</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium text-zinc-400 hover:text-white transition-colors" href="#features">Features</a>
+<a class="text-sm font-medium text-zinc-400 hover:text-white transition-colors" href="#">Docs</a>
+<a class="text-sm font-medium text-zinc-400 hover:text-white transition-colors" href="#">Pricing</a>
+<button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all glow-blue">
+                    Join Waitlist
+                </button>
+</nav>
+</div>
+</header>
+<main class="pt-32 pb-20">
+<!-- Hero Section -->
+<section class="max-w-5xl mx-auto px-6 text-center">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-8">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+                NEXT-GEN AI GENERATOR
+            </div>
+<h1 class="text-5xl md:text-7xl font-bold tracking-tighter mb-6 bg-gradient-to-b from-white to-zinc-500 bg-clip-text text-transparent">
+                Build Production Websites <br/> With AI. Instantly.
+            </h1>
+<p class="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+                The intelligent workbench for developers. Move from prompt to production in seconds, not hours.
+            </p>
+<div class="flex flex-wrap justify-center gap-4 mb-20">
+<button class="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-lg font-bold transition-all glow-blue text-lg">
+                    Join Waitlist
+                </button>
+<button class="bg-transparent border border-border-muted hover:bg-border-muted text-white px-8 py-4 rounded-lg font-bold transition-all text-lg">
+                    View Demo
+                </button>
+</div>
+<!-- Workbench Mockup -->
+<div class="relative group">
+<div class="absolute -top-20 -left-20 w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="absolute -bottom-20 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="relative border border-border-muted rounded-xl bg-card-bg overflow-hidden shadow-2xl">
+<!-- ToolBar Area -->
+<div class="border-b border-border-muted px-4 py-3 flex items-center justify-between bg-zinc-900/50">
+<div class="flex gap-2">
+<div class="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
+<div class="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
+<div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
+</div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-zinc-500 text-sm">code</span>
+<span class="material-symbols-outlined text-zinc-500 text-sm">visibility</span>
+<span class="material-symbols-outlined text-zinc-500 text-sm">share</span>
+</div>
+</div>
+<!-- UI Content -->
+<div class="flex flex-col md:flex-row h-[500px]">
+<div class="w-full md:w-1/3 border-r border-border-muted p-6 flex flex-col gap-4">
+<div class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Input Prompt</div>
+<div class="bg-black border border-border-muted rounded-lg p-4 h-full text-left font-mono text-sm text-zinc-300">
+<span class="text-primary">&gt;</span> Create a minimalist dashboard for a SaaS platform with a dark theme, neon blue accents, and responsive charts...
+                                <span class="animate-pulse">|</span>
+</div>
+</div>
+<div class="flex-1 bg-zinc-950 p-6 flex items-center justify-center overflow-hidden">
+<div class="w-full h-full border border-border-muted rounded-lg bg-[#050505] p-4 flex flex-col gap-4">
+<div class="flex justify-between items-center border-b border-border-muted pb-4">
+<div class="flex gap-2">
+<div class="h-4 w-20 bg-zinc-800 rounded"></div>
+<div class="h-4 w-12 bg-zinc-800 rounded"></div>
+</div>
+<div class="h-4 w-4 bg-primary rounded"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="h-24 bg-zinc-900 rounded border border-border-muted"></div>
+<div class="h-24 bg-zinc-900 rounded border border-border-muted"></div>
+<div class="h-32 col-span-2 bg-zinc-900 rounded border border-border-muted"></div>
+</div>
+<div class="h-4 w-1/2 bg-zinc-800 rounded"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Social Proof -->
+<section class="mt-32 max-w-7xl mx-auto px-6">
+<div class="text-center mb-10">
+<p class="text-zinc-500 text-sm font-medium tracking-widest uppercase">Trusted by modern engineering teams</p>
+</div>
+<div class="flex flex-wrap justify-center gap-12 md:gap-20 opacity-30 grayscale hover:grayscale-0 transition-all duration-500">
+<div class="text-2xl font-bold flex items-center gap-2"><span class="material-symbols-outlined">bolt</span> PHANTOM</div>
+<div class="text-2xl font-bold flex items-center gap-2"><span class="material-symbols-outlined">layers</span> STACK</div>
+<div class="text-2xl font-bold flex items-center gap-2"><span class="material-symbols-outlined">database</span> DATASYNC</div>
+<div class="text-2xl font-bold flex items-center gap-2"><span class="material-symbols-outlined">terminal</span> NEXUS</div>
+<div class="text-2xl font-bold flex items-center gap-2"><span class="material-symbols-outlined">api</span> VERTEX</div>
+</div>
+</section>
+<!-- FeatureSection Grid -->
+<section class="mt-40 max-w-7xl mx-auto px-6" id="features">
+<div class="mb-16">
+<h2 class="text-3xl md:text-5xl font-bold tracking-tight mb-4">Built for Developer Speed</h2>
+<p class="text-zinc-400 max-w-xl">Noir translates your architectural intent into clean, production-ready code without the overhead.</p>
+</div>
+<div class="grid md:grid-cols-2 gap-6">
+<!-- Card 1 -->
+<div class="group relative p-8 rounded-xl border border-border-muted bg-card-bg hover:border-primary/50 transition-all">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
+<div class="relative">
+<span class="material-symbols-outlined text-primary text-4xl mb-4">psychology</span>
+<h3 class="text-xl font-bold mb-2">Intent-Based Generation</h3>
+<p class="text-zinc-400 leading-relaxed">AI that understands high-level technical requirements and maps them to industry standard patterns.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group relative p-8 rounded-xl border border-border-muted bg-card-bg hover:border-primary/50 transition-all">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
+<div class="relative">
+<span class="material-symbols-outlined text-primary text-4xl mb-4">speed</span>
+<h3 class="text-xl font-bold mb-2">Prompt-to-Production</h3>
+<p class="text-zinc-400 leading-relaxed">Go from a single line of text to a hosted, optimized, and secure production site instantly.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group relative p-8 rounded-xl border border-border-muted bg-card-bg hover:border-primary/50 transition-all">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
+<div class="relative">
+<span class="material-symbols-outlined text-primary text-4xl mb-4">view_stream</span>
+<h3 class="text-xl font-bold mb-2">Live Preview</h3>
+<p class="text-zinc-400 leading-relaxed">See changes in real-time with zero-latency updates as the AI iterates through your requirements.</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group relative p-8 rounded-xl border border-border-muted bg-card-bg hover:border-primary/50 transition-all">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
+<div class="relative">
+<span class="material-symbols-outlined text-primary text-4xl mb-4">code_blocks</span>
+<h3 class="text-xl font-bold mb-2">Developer Export</h3>
+<p class="text-zinc-400 leading-relaxed">Get clean, modular React and Tailwind code that fits perfectly into your existing Git workflow.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works -->
+<section class="mt-40 max-w-5xl mx-auto px-6">
+<div class="text-center mb-16">
+<h2 class="text-3xl font-bold">How Noir Works</h2>
+</div>
+<div class="flex flex-col gap-12 relative">
+<div class="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-border-muted md:-translate-x-1/2"></div>
+<div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
+<div class="flex-1 md:text-right">
+<h4 class="text-xl font-bold mb-2">01. Describe your vision</h4>
+<p class="text-zinc-400">Use natural language to outline your stack, styles, and data requirements.</p>
+</div>
+<div class="size-12 rounded-full bg-primary flex items-center justify-center text-white font-bold border-4 border-black shrink-0">1</div>
+<div class="flex-1 hidden md:block"></div>
+</div>
+<div class="flex flex-col md:flex-row-reverse items-center gap-8 relative z-10">
+<div class="flex-1 md:text-left">
+<h4 class="text-xl font-bold mb-2">02. Iterate &amp; Refine</h4>
+<p class="text-zinc-400">Tweak elements visually or via terminal while the AI handles the heavy lifting.</p>
+</div>
+<div class="size-12 rounded-full bg-primary flex items-center justify-center text-white font-bold border-4 border-black shrink-0">2</div>
+<div class="flex-1 hidden md:block"></div>
+</div>
+<div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
+<div class="flex-1 md:text-right">
+<h4 class="text-xl font-bold mb-2">03. Ship to Cloud</h4>
+<p class="text-zinc-400">Deploy directly to our edge network or export the source code for self-hosting.</p>
+</div>
+<div class="size-12 rounded-full bg-primary flex items-center justify-center text-white font-bold border-4 border-black shrink-0">3</div>
+<div class="flex-1 hidden md:block"></div>
+</div>
+</div>
+</section>
+<!-- Final CTA -->
+<section class="mt-40 max-w-4xl mx-auto px-6 mb-20">
+<div class="relative p-12 rounded-2xl border border-border-muted bg-gradient-to-br from-zinc-900 to-black text-center overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px]"></div>
+<h2 class="text-3xl md:text-5xl font-bold mb-6 relative z-10">Ready to build?</h2>
+<p class="text-zinc-400 mb-8 relative z-10 max-w-md mx-auto">Join the waitlist to get early access to the Noir developer workbench.</p>
+<form class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto relative z-10" onsubmit="return false">
+<input class="flex-1 bg-black border border-border-muted rounded-lg px-4 py-3 focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white outline-none" placeholder="Enter your work email" type="email"/>
+<button class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-bold transition-all glow-blue whitespace-nowrap">
+                        Join Waitlist
+                    </button>
+</form>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="border-t border-border-muted py-12 bg-black">
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid md:grid-cols-4 gap-12 mb-12">
+<div class="col-span-2">
+<div class="flex items-center gap-2 mb-4">
+<div class="size-6 bg-primary rounded flex items-center justify-center">
+<svg class="text-white size-3" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" fill="currentColor"></path>
+</svg>
+</div>
+<span class="font-bold text-lg">Noir</span>
+</div>
+<p class="text-zinc-500 max-w-xs leading-relaxed">The modern AI engine for production-grade websites. Designed for developers who value quality and speed.</p>
+</div>
+<div>
+<h5 class="font-bold mb-4">Product</h5>
+<ul class="flex flex-col gap-2 text-zinc-500 text-sm">
+<li><a class="hover:text-primary transition-colors" href="#">Features</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Integrations</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Pricing</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Changelog</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold mb-4">Resources</h5>
+<ul class="flex flex-col gap-2 text-zinc-500 text-sm">
+<li><a class="hover:text-primary transition-colors" href="#">Documentation</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">GitHub</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Discord</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Twitter (X)</a></li>
+</ul>
+</div>
+</div>
+<div class="pt-8 border-t border-border-muted flex flex-col md:flex-row justify-between items-center gap-4 text-zinc-600 text-xs">
+<p>© 2024 Noir AI. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-white transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
