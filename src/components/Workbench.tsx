@@ -297,8 +297,8 @@ const CanvasArea: React.FC<{
                             />
 
                             {/* Watermark Overlay */}
-                            <div className="absolute inset-0 pointer-events-none z-50 flex items-center justify-center overflow-hidden mix-blend-overlay">
-                                <div className="text-[100px] font-black text-white/5 -rotate-12 select-none whitespace-nowrap blur-[2px]">
+                            <div className="absolute inset-0 pointer-events-none z-50 flex items-center justify-center overflow-hidden">
+                                <div className="text-[100px] font-black text-white/10 -rotate-12 select-none whitespace-nowrap">
                                     DEMO PREVIEW
                                 </div>
                             </div>
