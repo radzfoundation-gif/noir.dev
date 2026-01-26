@@ -262,7 +262,14 @@ const CanvasArea: React.FC<{
                             </div>
                         )}
 
-                        <div className="flex-1 relative">
+                        <div className="flex-1 relative bg-white">
+                            {/* Watermark */}
+                            <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center overflow-hidden">
+                                <div className="text-[120px] font-black text-slate-900/5 -rotate-12 select-none whitespace-nowrap">
+                                    DEMO PREVIEW
+                                </div>
+                            </div>
+
                             <iframe
                                 srcDoc={activeView === 'design' ? code + `
                                     <style>
