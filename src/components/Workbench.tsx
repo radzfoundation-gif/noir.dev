@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ModelSelector } from './ModelSelector';
+import { ChatInput } from './ChatInput';
 
 // --- Types ---
 type ViewMode = 'design' | 'editor' | 'preview';
@@ -113,9 +114,9 @@ const SidebarLeft: React.FC<{
     onFontChange: (font: string) => void;
     selectedElement?: any;
 }> = ({ isCollapsed, setIsCollapsed, currentTab, setCurrentTab, activeItem, onItemClick, layers, assets, pages, onColorChange, onFontChange, selectedElement }) => (
-    <div className="flex h-full shrink-0">
+    <div className="flex h-full shrink-0 flex-row-reverse">
         {/* Vertical Rail */}
-        <div className="w-14 flex flex-col items-center py-4 bg-[#0a0c10] border-r border-white/10 z-30 shrink-0">
+        <div className="w-14 flex flex-col items-center py-4 bg-[#0a0c10] border-l border-white/10 z-30 shrink-0">
             {/* Logo */}
             <div className="size-8 text-primary mb-6 relative group cursor-pointer hover:scale-110 transition-transform duration-300">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-[0_0_8px_rgba(43,140,238,0.5)]">
@@ -142,16 +143,16 @@ const SidebarLeft: React.FC<{
         <motion.aside
             initial={false}
             animate={{ width: isCollapsed ? 0 : 260 }}
-            className="relative border-r border-white/10 flex flex-col glass-panel z-20 overflow-hidden"
+            className="relative border-l border-white/10 flex flex-col glass-panel z-20 overflow-hidden"
         >
             <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 className={clsx(
-                    "absolute -right-3 top-1/2 -translate-y-1/2 size-5 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white z-50 transition-all",
-                    isCollapsed ? "-translate-x-1 rotate-180" : ""
+                    "absolute -left-3 top-1/2 -translate-y-1/2 size-5 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-slate-500 hover:text-white z-50 transition-all",
+                    isCollapsed ? "translate-x-1 rotate-180" : ""
                 )}
             >
-                <span className="material-symbols-outlined text-[14px]">chevron_left</span>
+                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
             </button>
 
             <div className={clsx("flex flex-col h-full w-[260px]", isCollapsed && "opacity-0 invisible")}>
@@ -400,12 +401,6 @@ const CanvasArea: React.FC<{
                                 sandbox="allow-scripts"
                             />
 
-                            {/* Watermark Overlay */}
-                            <div className="absolute inset-0 pointer-events-none z-50 flex items-center justify-center overflow-hidden">
-                                <div className="text-[100px] font-black text-white/10 -rotate-12 select-none whitespace-nowrap">
-                                    DEMO PREVIEW
-                                </div>
-                            </div>
 
                             {loading && (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/40 backdrop-blur-sm z-30">
@@ -472,26 +467,26 @@ const SidebarRight: React.FC<{
     prompt: string;
     setPrompt: (p: string) => void;
     loading: boolean;
-    generateCode: () => void;
+    generateCode: (p?: string) => void;
     code: string;
     context: string | null;
     setContext: (c: string | null) => void;
     model: string;
     setModel: (m: string) => void;
     onEnhancePrompt: () => void;
-}> = ({ prompt, setPrompt, loading, generateCode, code, context, setContext, model, setModel, onEnhancePrompt }) => {
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []);
-        if (files.length > 0) {
-            const fileList = files.map(f => f.name).join(', ');
-            setContext(`Attached (${files.length}): ${fileList}`);
-        }
-    };
-
+    width: number;
+    onMouseDown: (e: React.MouseEvent) => void;
+}> = ({ prompt, setPrompt, loading, generateCode, code, context, setContext, model, setModel, onEnhancePrompt, width, onMouseDown }) => {
     return (
-        <aside className="w-[320px] border-l border-white/10 flex flex-col glass-panel z-20">
+        <aside
+            className="border-r border-white/10 flex flex-col glass-panel z-20 relative group/sidebar !overflow-visible"
+            style={{ width: `${width}px`, minWidth: '260px', maxWidth: '600px', backgroundColor: 'rgba(9, 9, 11, 0.95)' }}
+        >
+            {/* Resize Handle */}
+            <div
+                onMouseDown={onMouseDown}
+                className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/50 transition-colors z-30"
+            />
             <div className="p-3 border-b border-white/5 flex items-center justify-between bg-slate-900/40">
                 <div className="flex items-center gap-3">
                     <div className="size-5 rounded-md bg-primary/10 flex items-center justify-center border border-primary/20">
@@ -531,73 +526,25 @@ const SidebarRight: React.FC<{
                 )}
             </div>
 
-            <div className="p-3 bg-white/5 mt-auto border-t border-white/5">
-                <div className="bg-[#0a0a0a] border border-white/10 rounded-[24px] shadow-2xl p-2.5 relative group transition-all duration-300">
-                    <textarea
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateCode(); } }}
-                        className="w-full bg-transparent text-[11px] text-white placeholder:text-slate-600 resize-none h-8 focus:outline-none p-0.5 custom-scrollbar leading-tight"
-                        placeholder="Ask for revisions..."
-                    />
-
-                    <div className="flex items-center justify-between mt-1 pt-1 border-t border-white/5">
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={onEnhancePrompt}
-                                disabled={loading || !prompt.trim()}
-                                className="size-7 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-slate-500 hover:text-primary transition-all disabled:opacity-30"
-                                title="Enhance Prompt (AI)"
-                            >
-                                <span className="material-symbols-outlined text-[15px] animate-pulse group-hover:animate-none">magic_button</span>
-                            </button>
-
-                            <button
-                                onClick={() => {
-                                    if (prompt.endsWith(' ') || prompt === '') setPrompt(prompt + '@');
-                                    else setPrompt(prompt + ' @');
-                                    setContext("Referencing System Layers & Project Files");
-                                }}
-                                className="size-7 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-slate-500 hover:text-primary transition-all"
-                                title="Mention"
-                            >
-                                <span className="material-symbols-outlined text-[15px]">alternate_email</span>
-                            </button>
-
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleFileChange}
-                                className="hidden"
-                                accept="image/*,video/*,.pdf,.doc,.docx,.txt,.json,.html,.css,.js,.ts"
-                                multiple
-                            />
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="size-7 flex items-center justify-center bg-white/5 border border-white/10 rounded-lg text-slate-500 hover:text-primary transition-all"
-                                title="Attach File"
-                            >
-                                <span className="material-symbols-outlined text-[15px]">attachment</span>
-                            </button>
-
-                            <div className="flex bg-white/5 rounded-md p-0.5 border border-white/10 text-[7px] font-bold scale-[0.75] origin-left ml-0.5">
-                                <button className="px-1 py-0.5 bg-white/10 text-white rounded">DEFAULT</button>
-                                <button className="px-1 py-0.5 text-slate-500">EDITS</button>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-1.5 shrink-0">
-                            <ModelSelector selectedId={model} onSelect={setModel} variant="pill" iconOnly={true} />
-                            <button
-                                onClick={generateCode}
-                                disabled={loading || !prompt.trim()}
-                                className="size-7 bg-white/10 text-white rounded-lg border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all disabled:opacity-30 shadow-lg"
-                            >
-                                <span className="material-symbols-outlined text-[15px] font-bold">{loading ? 'sync' : 'north'}</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div className="p-3 bg-white/5 mt-auto border-t border-white/5 overflow-visible">
+                <ChatInput
+                    onGenerate={generateCode}
+                    loading={loading}
+                    image={null}
+                    setImage={() => { }} // Not implemented in Workbench yet
+                    model={model}
+                    setModel={setModel}
+                    prompt={prompt}
+                    setPrompt={setPrompt}
+                    onEnhancePrompt={onEnhancePrompt}
+                    context={context}
+                    onClearContext={() => setContext(null)}
+                    onMention={() => {
+                        if (prompt.endsWith(' ') || prompt === '') setPrompt(prompt + '@');
+                        else setPrompt(prompt + ' @');
+                        setContext("Referencing System Layers & Project Files");
+                    }}
+                />
             </div>
         </aside>
     );
@@ -608,6 +555,8 @@ const SidebarRight: React.FC<{
 // ==========================================
 
 export const Workbench: React.FC = () => {
+    const location = useLocation();
+    const hasAutoGenerated = useRef(false);
 
     // Editor Logic State
     const [model, setModel] = useState('google/gemini-2.0-flash-exp');
@@ -978,6 +927,37 @@ export const Workbench: React.FC = () => {
 </body></html>`);
     const [loading, setLoading] = useState(false);
     const [context, setContext] = useState<string | null>(null);
+    const [sidebarWidth, setSidebarWidth] = useState(320);
+    const [isResizing, setIsResizing] = useState(false);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isResizing) return;
+            const newWidth = Math.min(Math.max(260, e.clientX), 600);
+            setSidebarWidth(newWidth);
+        };
+
+        const handleMouseUp = () => {
+            setIsResizing(false);
+            document.body.style.cursor = 'default';
+        };
+
+        if (isResizing) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+            document.body.style.cursor = 'col-resize';
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isResizing]);
+
+    const handleResizeStart = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setIsResizing(true);
+    };
 
     // Context & Selection State
     const [selectedText, setSelectedText] = useState('');
@@ -996,10 +976,25 @@ export const Workbench: React.FC = () => {
     const [viewport, setViewport] = useState<Viewport>('desktop');
     const [zoom, setZoom] = useState(1);
     const [isPanning, setIsPanning] = useState(false);
-    const [isHierarchyCollapsed, setIsHierarchyCollapsed] = useState(false);
+    const [isHierarchyCollapsed, setIsHierarchyCollapsed] = useState(true);
     const [activeHierarchyItem, setActiveHierarchyItem] = useState('Hero Section');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const iframeRef = useRef<HTMLIFrameElement>(null);
+
+    useEffect(() => {
+        const state = location.state as { prompt?: string, model?: string, autoGenerate?: boolean, image?: string };
+        if (state?.autoGenerate && !hasAutoGenerated.current && state.prompt) {
+            setPrompt(state.prompt);
+            if (state.model) setModel(state.model);
+            hasAutoGenerated.current = true;
+
+            // Trigger generation with a slight delay to ensure other initializations are done
+            // or pass the prompt directly if we modify generateCode to accept it
+            setTimeout(() => {
+                generateCode(state.prompt);
+            }, 500);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         const handleMessage = (e: MessageEvent) => {
@@ -1045,11 +1040,75 @@ export const Workbench: React.FC = () => {
         }
     };
 
-    const generateCode = () => {
-        if (loading || !prompt.trim()) return;
+    const generateCode = React.useCallback(async (overridePrompt?: string) => {
+        const activePrompt = overridePrompt || prompt;
+        if (loading || !activePrompt.trim()) {
+            console.log('[DEBUG] Generation blocked:', { loading, activePrompt: activePrompt.trim() });
+            return;
+        }
+
         setLoading(true);
-        setTimeout(() => setLoading(false), 1500);
-    };
+
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const response = await fetch(`${apiUrl}/api/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: activePrompt,
+                    model,
+                    history: [
+                        { role: 'system', content: `Current Code:\n${code}\n\nProject Context:\n- Layers: ${layers.join(', ')}\n- View: ${activeView}` }
+                    ]
+                })
+            });
+
+            if (!response.ok) throw new Error('Generation failed');
+
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+            let currentContent = '';
+
+            if (reader) {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const dataStr = line.replace('data: ', '').trim();
+                            if (dataStr === '[DONE]') continue;
+
+                            try {
+                                const data = JSON.parse(dataStr);
+                                if (data.content) {
+                                    currentContent += data.content;
+                                    setCode(currentContent);
+                                } else if (data.error) {
+                                    console.error('AI Error:', data.error);
+                                }
+                            } catch (e) {
+                                // Partial JSON or invalid
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Finalize and push to history
+            updateCode(currentContent);
+        } catch (error: any) {
+            console.error('Generation Error:', error);
+            setContext(`Error: ${error.message}`);
+        } finally {
+            setLoading(false);
+            // DO NOT clear prompt automatically to allow user to retry or edit
+            // Only clear it on successful start if desired, but user prefer "nothing lost"
+        }
+    }, [prompt, model, code, layers, activeView, loading]);
 
     const handleEnhancePrompt = () => {
         if (!prompt.trim() || loading) return;
@@ -1219,19 +1278,19 @@ export const Workbench: React.FC = () => {
             />
 
             <main className="flex flex-1 overflow-hidden relative border-t border-white/5">
-                <SidebarLeft
-                    isCollapsed={isHierarchyCollapsed}
-                    setIsCollapsed={setIsHierarchyCollapsed}
-                    currentTab={currentTab}
-                    setCurrentTab={setCurrentTab}
-                    activeItem={activeHierarchyItem}
-                    onItemClick={handleHierarchyClick}
-                    layers={layers}
-                    assets={assets}
-                    pages={pages}
-                    onColorChange={handleColorChange}
-                    onFontChange={handleFontChange}
-                    selectedElement={selectedElement}
+                <SidebarRight
+                    prompt={prompt}
+                    setPrompt={setPrompt}
+                    loading={loading}
+                    generateCode={generateCode}
+                    code={code}
+                    context={context}
+                    setContext={setContext}
+                    model={model}
+                    setModel={setModel}
+                    onEnhancePrompt={handleEnhancePrompt}
+                    width={sidebarWidth}
+                    onMouseDown={handleResizeStart}
                 />
 
                 <CanvasArea
@@ -1287,17 +1346,19 @@ export const Workbench: React.FC = () => {
                     )}
                 </AnimatePresence>
 
-                <SidebarRight
-                    prompt={prompt}
-                    setPrompt={setPrompt}
-                    loading={loading}
-                    generateCode={generateCode}
-                    code={code}
-                    context={context}
-                    setContext={setContext}
-                    model={model}
-                    setModel={setModel}
-                    onEnhancePrompt={handleEnhancePrompt}
+                <SidebarLeft
+                    isCollapsed={isHierarchyCollapsed}
+                    setIsCollapsed={setIsHierarchyCollapsed}
+                    currentTab={currentTab}
+                    setCurrentTab={setCurrentTab}
+                    activeItem={activeHierarchyItem}
+                    onItemClick={handleHierarchyClick}
+                    layers={layers}
+                    assets={assets}
+                    pages={pages}
+                    onColorChange={handleColorChange}
+                    onFontChange={handleFontChange}
+                    selectedElement={selectedElement}
                 />
             </main>
 

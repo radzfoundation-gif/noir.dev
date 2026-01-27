@@ -63,7 +63,47 @@ app.get('/api/diag', async (req, res) => {
 });
 
 app.post('/api/generate', async (req, res) => {
-    // ... (existing code)
+    const { prompt, model, history } = req.body;
+
+    if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
+
+    console.log(`\n[Generate] Starting stream for model: ${model || 'auto'}`);
+
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    try {
+        const stream = await client.chat.completions.create({
+            model: model || "google/gemini-2.0-flash-exp:free",
+            messages: [
+                {
+                    role: "system",
+                    content: "You are NOIR AI, an expert web developer. Your task is to generate or revise production-ready HTML and CSS using Tailwind CSS and Iconify. CRITICAL: Always return the FULL, VALID HTML document. DO NOT use markdown code blocks (e.g., ```html). Return only the raw HTML code."
+                },
+                ...(history || []),
+                { role: "user", content: prompt }
+            ],
+            stream: true,
+        });
+
+        for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content || "";
+            if (content) {
+                res.write(`data: ${JSON.stringify({ content })}\n\n`);
+            }
+        }
+
+        res.write('data: [DONE]\n\n');
+        res.end();
+        console.log(`[Generate] Stream completed successfully`);
+
+    } catch (error) {
+        console.error("[Generate] API Error:", error);
+        res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+        res.end();
+    }
 });
 
 // Waitlist API

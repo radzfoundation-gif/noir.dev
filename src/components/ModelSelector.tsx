@@ -57,9 +57,10 @@ interface ModelSelectorProps {
     onSelect: (id: string) => void;
     variant?: 'default' | 'minimal' | 'pill';
     iconOnly?: boolean;
+    align?: 'left' | 'right';
 }
 
-export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSelect, variant = 'default', iconOnly = false }) => {
+export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSelect, variant = 'default', iconOnly = false, align = 'right' }) => {
     const [isOpen, setIsOpen] = useState(false);
     const selectedModel = MODELS.find(m => m.id === selectedId) || MODELS[0];
 
@@ -93,7 +94,10 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedId, onSele
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute bottom-[calc(100%+8px)] right-0 w-[240px] bg-slate-900 text-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden z-[100] py-1 border border-white/10 origin-bottom-right"
+                            className={clsx(
+                                "absolute bottom-[calc(100%+8px)] w-[240px] bg-slate-900 text-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden z-[100] py-1 border border-white/10",
+                                align === 'right' ? "right-0 origin-bottom-right" : "left-0 origin-bottom-left"
+                            )}
                         >
                             <div className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-white/5 border-b border-white/5 mb-1">
                                 AI Architecture Models

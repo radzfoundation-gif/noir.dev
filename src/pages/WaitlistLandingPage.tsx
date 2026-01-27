@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { motion } from 'framer-motion';
 import { NoirLogo } from '../components/NoirLogo';
+import { InteractiveDemo } from '../components/InteractiveDemo';
+import { ShieldCheck, Code2, Layers, Sparkles } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -45,7 +47,7 @@ export const WaitlistLandingPage = () => {
                     <div className="flex gap-3">
                         <button
                             onClick={handleJoinClick}
-                            className="px-5 py-2 rounded-lg bg-primary hover:bg-blue-600 text-white text-sm font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95"
+                            className="px-5 py-2 rounded-lg bg-primary hover:bg-lime-500 text-stone-900 text-sm font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95"
                         >
                             Join Waitlist
                         </button>
@@ -92,7 +94,7 @@ export const WaitlistLandingPage = () => {
                     >
                         <button
                             onClick={handleJoinClick}
-                            className="px-8 py-4 bg-primary text-white rounded-xl font-semibold text-lg hover:scale-105 transition-transform flex items-center gap-2 shadow-xl shadow-primary/20"
+                            className="px-8 py-4 bg-primary text-stone-900 rounded-xl font-semibold text-lg hover:scale-105 transition-transform flex items-center gap-2 shadow-xl shadow-primary/20"
                         >
                             <span className="material-symbols-outlined">bolt</span> Join Exclusive Waitlist
                         </button>
@@ -240,47 +242,56 @@ export const WaitlistLandingPage = () => {
                 </div>
             </section>
 
-            {/* Section 6: Live Demo Simulation */}
-            <section className="py-24 px-6 lg:px-20 max-w-[1000px] mx-auto">
-                <div className="glass rounded-3xl p-8 md:p-12 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-primary/5 opacity-40"></div>
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-4 mb-10">
-                            <motion.div
-                                animate={{ opacity: [1, 0.5, 1] }}
-                                transition={{ duration: 1.5, repeat: Infinity }}
-                                className="size-4 rounded-full bg-primary shadow-[0_0_15px_#0062ff]"
-                            />
-                            <span className="text-sm font-mono tracking-widest text-primary uppercase font-medium">Analyzing UI Hierarchy...</span>
+            {/* Section 6: Interactive Demo */}
+            <section className="py-24 px-6 lg:px-20 max-w-[1200px] mx-auto">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                        See the <span className="text-primary">Intelligence</span> in Action
+                    </h2>
+                    <p className="text-slate-400 max-w-2xl mx-auto text-lg font-light">
+                        Select a design mockup below to see how NOIR AI analyzes the hierarchy and generates production-grade React code.
+                    </p>
+                </div>
+                <InteractiveDemo />
+            </section>
+
+            {/* Section 7: Engineered for Maintainability */}
+            <section className="py-24 px-6 lg:px-20 bg-primary/5 border-y border-white/5">
+                <div className="max-w-[1200px] mx-auto">
+                    <div className="flex flex-col items-center text-center mb-16">
+                        <div className="size-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6 border border-primary/30 text-primary">
+                            <ShieldCheck size={32} />
                         </div>
-                        <div className="space-y-8">
-                            {[
-                                { label: 'Visual Recognition', progress: 92 },
-                                { label: 'CSS/Tailwind Mapping', progress: 75 },
-                                { label: 'Component Architecture', progress: 48 }
-                            ].map((bar, i) => (
-                                <div key={i}>
-                                    <div className="flex justify-between text-xs font-mono mb-2 text-slate-400 uppercase tracking-tighter font-light">
-                                        <span>{bar.label}</span>
-                                        <span>{bar.progress}%</span>
-                                    </div>
-                                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            whileInView={{ width: `${bar.progress}%` }}
-                                            transition={{ duration: 1.5, delay: i * 0.2 }}
-                                            className="h-full bg-primary shadow-[0_0_10px_rgba(163,230,53,0.5)]"
-                                        />
-                                    </div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Engineered for Maintainability</h2>
+                        <p className="text-slate-400 max-w-2xl font-light">We don't just generate code; we generate code that your team will actually want to use and scale.</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {[
+                            {
+                                icon: <Code2 className="text-primary" />,
+                                title: "Clean Tailwind Tokens",
+                                desc: "No magic numbers. Every spacing, color, and shadow is mapped to your design system's consistent tokens."
+                            },
+                            {
+                                icon: <Layers className="text-primary" />,
+                                title: "Modular Components",
+                                desc: "Generated code is split into logical, reusable components following modern React and TypeScript best practices."
+                            },
+                            {
+                                icon: <Sparkles className="text-primary" />,
+                                title: "Semantic & Accessible",
+                                desc: "Accessibility isn't an afterthought. We generate ARIA-compliant, semantic HTML5 layouts by default."
+                            }
+                        ].map((item, i) => (
+                            <div key={i} className="glass p-8 rounded-2xl border border-white/10 hover:border-primary/50 transition-colors group">
+                                <div className="size-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-primary/10 transition-colors">
+                                    {item.icon}
                                 </div>
-                            ))}
-                        </div>
-                        <div className="mt-12 glass bg-black/40 p-6 rounded-xl border-white/5 font-mono text-sm text-slate-500 border border-white/5 font-light">
-                            <p className="animate-pulse">$ initializing noir_engine_v2.0...</p>
-                            <p className="text-primary/70">$ scanning assets... 12 images found.</p>
-                            <p className="text-primary/70">$ extracting color tokens... 4 variables detected.</p>
-                            <p className="text-primary/70">$ compiling react components...</p>
-                        </div>
+                                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                                <p className="text-slate-400 text-sm leading-relaxed font-light">{item.desc}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -297,7 +308,7 @@ export const WaitlistLandingPage = () => {
                         <div className="flex flex-wrap justify-center gap-4">
                             <button
                                 onClick={handleJoinClick}
-                                className="px-10 py-5 bg-white text-primary rounded-xl font-semibold text-lg hover:bg-slate-50 transition-all shadow-2xl active:scale-95"
+                                className="px-10 py-5 bg-primary text-stone-900 rounded-xl font-semibold text-lg hover:bg-lime-500 transition-all shadow-2xl active:scale-95"
                             >
                                 Join Waitlist Now
                             </button>

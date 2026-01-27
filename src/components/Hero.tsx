@@ -1,6 +1,5 @@
-import { Wand2, Image as ImageIcon, ArrowRight, Clock, ShieldCheck as ShieldIcon } from 'lucide-react';
-import { ModelSelector } from './ModelSelector';
-import { ImageUpload } from './ImageUpload';
+import { Wand2, Clock, ShieldCheck as ShieldIcon } from 'lucide-react';
+import { ChatInput } from './ChatInput';
 import { FlipWords } from './FlipWords';
 
 interface HeroProps {
@@ -44,80 +43,18 @@ export const Hero: React.FC<HeroProps> = ({
                     Upload a design mock or screenshot. Our AI architect builds the frontend for you instantly.
                 </p>
 
-                {/* Main Input Area */}
                 <div className="w-full max-w-2xl mx-auto">
-                    <div className="bg-black border border-zinc-800 rounded-xl p-2.5 shadow-lg relative group focus-within:border-lime-500/50 focus-within:shadow-[0_0_10px_rgba(163,230,53,0.05)] transition-all duration-300">
-
-                        {/* Prompt Input */}
-                        <div className="relative">
-                            <textarea
-                                value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
-                                placeholder="Paste a design screenshot and watch it come to life..."
-                                className="w-full bg-transparent text-white text-sm font-light placeholder:text-zinc-600 resize-none h-12 focus:outline-none p-1.5 leading-relaxed"
-                            />
-
-                            {/* Image Preview Overlay */}
-                            {image && (
-                                <div className="absolute top-0 right-0 w-20 h-20 rounded-lg overflow-hidden border border-lime-500/30 group/img shadow-lg shadow-lime-900/20">
-                                    <img src={image} alt="Preview" className="w-full h-full object-cover" />
-                                    <button
-                                        onClick={() => setImage(null)}
-                                        className="absolute top-1 right-1 bg-black/50 p-0.5 rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-black/80"
-                                    >
-                                        <ArrowRight size={10} className="rotate-45 text-white" />
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Bottom Toolbar */}
-                        <div className="flex flex-wrap items-center justify-between gap-y-4 mt-4 md:mt-6">
-                            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                                {/* Prompt Builder */}
-                                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-lime-500/30 text-xs font-medium text-zinc-400 hover:text-white transition-all whitespace-nowrap">
-                                    <Wand2 size={12} className="text-lime-400" />
-                                    <span>Prompt Builder</span>
-                                </button>
-
-                                {/* Model Selector */}
-                                <ModelSelector selectedId={model} onSelect={setModel} variant="pill" />
-
-                                <div className="h-4 w-[1px] bg-zinc-800 mx-1 flex-shrink-0"></div>
-
-                                {/* Actions */}
-                                <button
-                                    className="p-2 text-zinc-500 hover:text-lime-400 transition-colors rounded-full hover:bg-zinc-900 flex-shrink-0"
-                                    title="Add Context (@)"
-                                >
-                                    <span className="text-sm font-bold">@</span>
-                                </button>
-
-                                <button
-                                    onClick={() => document.getElementById('hero-image-upload')?.click()}
-                                    className="p-2 text-zinc-500 hover:text-lime-400 transition-colors rounded-full hover:bg-zinc-900 flex-shrink-0"
-                                    title="Attach Image"
-                                >
-                                    <ImageIcon size={16} strokeWidth={1.5} />
-                                </button>
-
-                                {/* Hidden Input */}
-                                <div className="hidden">
-                                    <ImageUpload onImageSelect={setImage} inputId="hero-image-upload" />
-                                </div>
-                            </div>
-
-                            {/* Generate Button (Full width on mobile/tablet if needed, or just standard) */}
-                            <button
-                                onClick={onGenerate}
-                                disabled={(!image && !prompt.trim()) || loading}
-                                className="w-full md:w-auto px-4 py-2 rounded-lg md:rounded-full bg-zinc-100 hover:bg-white text-black text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/5"
-                            >
-                                <span>Generate</span>
-                                <ArrowRight size={14} strokeWidth={2.5} />
-                            </button>
-                        </div>
-                    </div>
+                    <ChatInput
+                        onGenerate={onGenerate}
+                        loading={loading}
+                        image={image}
+                        setImage={setImage}
+                        model={model}
+                        setModel={setModel}
+                        prompt={prompt}
+                        setPrompt={setPrompt}
+                        variant="hero"
+                    />
 
 
                     <div className="mt-3 flex justify-center gap-4 text-[10px] text-zinc-600 font-mono">
