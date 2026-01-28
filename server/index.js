@@ -34,8 +34,8 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
 const client = new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
-    apiKey: process.env.OPENROUTER_API_KEY,
+    baseURL: "https://ai.sumopod.com/v1",
+    apiKey: process.env.SUMOPOD_API_KEY,
 });
 
 app.get('/api/health', (req, res) => {

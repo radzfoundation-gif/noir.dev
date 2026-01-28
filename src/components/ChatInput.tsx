@@ -182,7 +182,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
                     {/* Generate Button */}
                     <button
-                        onClick={onGenerate}
+                        onClick={() => onGenerate()}
                         disabled={(!image && !prompt.trim()) || loading}
                         className="p-1.5 rounded-lg bg-lime-400 hover:bg-lime-300 text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_10px_rgba(163,230,53,0.2)] flex items-center justify-center min-w-[32px] min-h-[32px] relative z-50"
                     >

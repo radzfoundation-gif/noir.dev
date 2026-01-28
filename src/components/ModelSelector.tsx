@@ -22,33 +22,25 @@ export interface Model {
 
 const MODELS: Model[] = [
     {
-        id: 'google/gemini-2.0-pro-exp',
+        id: 'gemini/gemini-3-pro-preview',
         name: 'Gemini 3 Pro',
         logo: googleLogo,
         category: 'HTML GENERATION',
-        badge: 'Best For UI'
+        badge: 'Experimental'
     },
     {
-        id: 'google/gemini-2.0-flash-exp',
-        name: 'Gemini 3 Flash',
-        logo: googleLogo,
-        category: 'HTML GENERATION',
-        badge: 'Quick iterations'
-    },
-    {
-        id: 'openai/gpt-5.2',
-        name: 'GPT-5.2',
-        logo: openaiLogo,
-        category: 'HTML GENERATION',
-        badge: 'Fastest'
-    },
-    // Adding Claude models back as they are valid "text/html" models and we have the logo
-    {
-        id: 'anthropic/claude-3.5-sonnet',
-        name: 'Claude 3.5 Sonnet',
+        id: 'anthropic/claude-sonnet-4-5',
+        name: 'Claude Sonnet 4.5',
         logo: anthropicLogo,
         category: 'HTML GENERATION',
-        badge: 'Smartest'
+        badge: 'Best Quality'
+    },
+    {
+        id: 'openai/gpt-5',
+        name: 'GPT-5',
+        logo: openaiLogo,
+        category: 'HTML GENERATION',
+        badge: 'Reasoning'
     }
 ];
 
