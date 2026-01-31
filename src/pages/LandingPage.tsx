@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { Hero } from '../components/Hero';
-import { DemoCarousel } from '../components/DemoCarousel';
+import { Testimonials } from '../components/Testimonials';
 import { HowToUse } from '../components/HowToUse';
 import { motion } from 'framer-motion';
 
 export const LandingPage = () => {
+    // ... existing hook logic ... 
     const navigate = useNavigate();
     const [image, setImage] = useState<string | null>(null);
     const [model, setModel] = useState('google/gemini-2.0-flash-exp');
@@ -30,35 +31,16 @@ export const LandingPage = () => {
 
     return (
         <Layout>
-            <div className="min-h-screen w-full bg-black relative overflow-hidden">
+            {/* Hero Section with Green/Vintage Background */}
+            <div className="relative w-full h-screen overflow-hidden">
                 <div
                     className="absolute inset-0 z-0 pointer-events-none"
                     style={{
-                        background: `
-                linear-gradient(
-                  90deg, 
-                  transparent 0%,
-                  transparent 30%,
-                  rgba(138, 43, 226, 0.4) 50%,
-                  transparent 70%,
-                  transparent 100%
-                ),
-                linear-gradient(
-                  to bottom,
-                  #1a1a2e 0%,
-                  #2d1b69 50%,
-                  #0f0f23 100%
-                )
-              `,
-                        backgroundImage: `
-                repeating-linear-gradient(
-                  90deg,
-                  transparent 0px,
-                  transparent 79px,
-                  rgba(255, 255, 255, 0.05) 80px,
-                  rgba(255, 255, 255, 0.05) 81px
-                )
-              `,
+                        backgroundImage: `url('/landing-bg.png')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        opacity: 0.8
                     }}
                 />
                 <motion.div
@@ -77,9 +59,23 @@ export const LandingPage = () => {
                         prompt={prompt}
                         setPrompt={setPrompt}
                     />
-                    <DemoCarousel />
-                    <HowToUse />
                 </motion.div>
+            </div>
+
+            {/* Subsequent Sections (with Second Background) */}
+            <div
+                className="relative w-full min-h-screen flex items-center"
+                style={{
+                    backgroundImage: `url('/landing-bg-2.png')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                }}
+            >
+                <div className="absolute inset-0 bg-black/40 pointer-events-none" /> {/* Optional overlay for readability */}
+                <div className="relative z-10 w-full">
+                    <Testimonials />
+                </div>
             </div>
         </Layout>
     );

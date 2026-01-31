@@ -1,21 +1,24 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
 import { EditorPage } from './pages/EditorPage';
-import { WaitlistLandingPage } from './pages/WaitlistLandingPage';
-import { WaitlistJoinPage } from './pages/WaitlistJoinPage';
-import { WaitlistSuccessPage } from './pages/WaitlistSuccessPage';
-import { AdminPage } from './pages/AdminPage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { PricingPage } from './pages/PricingPage';
+import { HowItWorksPage } from './pages/HowItWorksPage';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<WaitlistLandingPage />} />
-        <Route path="/join" element={<WaitlistJoinPage />} />
-        <Route path="/success" element={<WaitlistSuccessPage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/home" element={<LandingPage />} />
         <Route path="/editor" element={<EditorPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
       </Routes>
     </Router>
   );

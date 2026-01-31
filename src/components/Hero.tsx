@@ -34,12 +34,12 @@ export const Hero: React.FC<HeroProps> = ({
                     V 2.0 Now Supporting Gemini 3 & Claude 4.5
                 </div>
 
-                <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-6 leading-[1.1]">
-                    Turn <FlipWords words={["Screenshots", "Wireframes", "Mockups", "Designs"]} className="text-white" /> into <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-emerald-300">Clean Code</span>
+                <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-6 leading-[1.1] drop-shadow-md">
+                    Turn <FlipWords words={["Screenshots", "Wireframes", "Mockups", "Designs"]} className="text-white drop-shadow-md" /> into <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-emerald-300 drop-shadow-sm">Clean Code</span>
                 </h1>
 
-                <p className="text-lg text-zinc-400 max-w-xl mx-auto mb-10 leading-relaxed font-light">
+                <p className="text-lg text-zinc-200/90 max-w-xl mx-auto mb-10 leading-relaxed font-light drop-shadow">
                     Upload a design mock or screenshot. Our AI architect builds the frontend for you instantly.
                 </p>
 

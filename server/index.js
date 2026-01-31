@@ -35,7 +35,7 @@ app.use(express.json({ limit: '50mb' }));
 
 const client = new OpenAI({
     baseURL: "https://ai.sumopod.com/v1",
-    apiKey: process.env.SUMOPOD_API_KEY,
+    apiKey: process.env.SUMOPOD_API_KEY || "dummy-key",
 });
 
 app.get('/api/health', (req, res) => {
@@ -261,6 +261,6 @@ io.on('connection', async (socket) => {
     socket.emit('waitlistUpdated', { count: count || 0 });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

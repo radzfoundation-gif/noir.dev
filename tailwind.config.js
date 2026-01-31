@@ -8,10 +8,15 @@ export default {
     theme: {
         extend: {
             colors: {
-                "primary": "#a3e635", // Neon Green to match localhost
+                "primary": "#32CD32", // Vibrant Lime Green
+                "pure-black": "#000000",
+                "dark-border": "#1A1A1A",
                 "background-light": "#f6f7f8", // from code.html
                 "background-dark": "#101922", // from code.html
                 background: '#000000',
+                "accent-green": "#4ade80",
+                "dark-gray": "#0a0a0a",
+                "input-bg": "#121212",
                 surface: '#0f0f0f',
                 // Keeping old palette for compatibility if needed, but primary is overridden
                 lime: {
@@ -26,7 +31,8 @@ export default {
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
-                display: ['Space Grotesk', 'sans-serif'],
+                display: ['Plus Jakarta Sans', 'Space Grotesk', 'sans-serif'],
+                mono: ['JetBrains Mono', 'monospace'],
             },
             animation: {
                 'fade-in': 'fadeIn 0.5s ease-out forwards',
