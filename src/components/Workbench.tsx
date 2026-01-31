@@ -26,7 +26,7 @@ export const Workbench: React.FC = () => {
     const [toast, setToast] = useState<{ message: string, type: 'success' | 'info' } | null>(null);
 
     // Placeholder code state
-    const [code, setCode] = useState('<!-- Designed with Noir -->\n<div class="h-full flex flex-col items-center justify-center p-10 text-center bg-gradient-to-br from-zinc-900 to-black text-white">\n  <div class="w-20 h-20 bg-lime-500 rounded-2xl mb-6 shadow-[0_0_40px_rgba(132,204,22,0.3)] animate-pulse"></div>\n  <h1 class="text-5xl font-black mb-4 tracking-tight">Hello Future</h1>\n  <p class="text-zinc-400 max-w-md text-lg">Start designing by entering a prompt. Experience the power of Noir AI.</p>\n</div>');
+    const [code] = useState('<!-- Designed with Noir -->\n<div class="h-full flex flex-col items-center justify-center p-10 text-center bg-gradient-to-br from-zinc-900 to-black text-white">\n  <div class="w-20 h-20 bg-lime-500 rounded-2xl mb-6 shadow-[0_0_40px_rgba(132,204,22,0.3)] animate-pulse"></div>\n  <h1 class="text-5xl font-black mb-4 tracking-tight">Hello Future</h1>\n  <p class="text-zinc-400 max-w-md text-lg">Start designing by entering a prompt. Experience the power of Noir AI.</p>\n</div>');
 
     // Effects
     useEffect(() => {

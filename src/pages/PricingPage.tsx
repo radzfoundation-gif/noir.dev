@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 export const PricingPage = () => {
@@ -57,7 +56,7 @@ export const PricingPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full items-stretch">
                         <div className="flex flex-col gap-8 rounded-xl border border-slate-200 dark:border-white/10 bg-white/50 dark:bg-[#121212] p-8 transition-transform hover:-translate-y-1">
                             <div className="flex flex-col gap-2">
-                                <h3 class="text-lg font-bold">Free</h3>
+                                <h3 className="text-lg font-bold">Free</h3>
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-4xl font-black tracking-tight">$0</span>
                                     <span className="text-slate-500 dark:text-slate-400 font-medium">/month</span>

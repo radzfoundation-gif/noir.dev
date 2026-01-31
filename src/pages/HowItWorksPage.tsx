@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 export const HowItWorksPage = () => {
@@ -143,7 +142,7 @@ export const HowItWorksPage = () => {
                                     <div className="p-6 font-mono text-sm space-y-2">
                                         <div className="flex gap-4">
                                             <span className="text-slate-600">1</span>
-                                            <div><span className="text-purple-400">import</span> <span className="text-blue-300">React</span> <span className="text-purple-400">from</span> <span class="text-orange-300">'react'</span>;</div>
+                                            <div><span className="text-purple-400">import</span> <span className="text-blue-300">React</span> <span className="text-purple-400">from</span> <span className="text-orange-300">'react'</span>;</div>
                                         </div>
                                         <div className="flex gap-4">
                                             <span className="text-slate-600">2</span>

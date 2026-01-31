@@ -1,5 +1,3 @@
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
 import { Slack, Github, Twitter, Linkedin, Twitch, Figma, Chrome, Dribbble } from "lucide-react";
 
 const TESTIMONIALS = [

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { Hero } from '../components/Hero';
 import { Testimonials } from '../components/Testimonials';
-import { HowToUse } from '../components/HowToUse';
 import { motion } from 'framer-motion';
 
 export const LandingPage = () => {
