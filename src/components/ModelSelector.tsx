@@ -22,11 +22,11 @@ export interface Model {
 
 const MODELS: Model[] = [
     {
-        id: 'gemini/gemini-3-pro-preview',
-        name: 'Gemini 3 Pro',
+        id: 'gemini/gemini-2.5-flash-lite',
+        name: 'Gemini 2.5 Flash Lite',
         logo: googleLogo,
         category: 'HTML GENERATION',
-        badge: 'Experimental'
+        badge: 'Free'
     },
     {
         id: 'anthropic/claude-sonnet-4-5',

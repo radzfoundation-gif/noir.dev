@@ -63,9 +63,9 @@ app.get('/api/diag', async (req, res) => {
 });
 
 app.post('/api/generate', async (req, res) => {
-    const { prompt, model, history } = req.body;
+    const { prompt, model, history, image } = req.body;
 
-    if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
+    if (!prompt && !image) return res.status(400).json({ error: 'Prompt or image is required' });
 
     console.log(`\n[Generate] Starting stream for model: ${model || 'auto'}`);
 
@@ -75,17 +75,36 @@ app.post('/api/generate', async (req, res) => {
     res.setHeader('Connection', 'keep-alive');
 
     try {
+        const messages = [
+            {
+                role: "system",
+                content: "You are NOIR AI, an expert web developer. Your task is to generate or revise production-ready HTML and CSS using Tailwind CSS and Iconify. CRITICAL: Always return the FULL, VALID HTML document. DO NOT use markdown code blocks (e.g., ```html). Return only the raw HTML code."
+            },
+            ...(history || [])
+        ];
+
+        if (image) {
+            messages.push({
+                role: "user",
+                content: [
+                    { type: "text", text: prompt || "Generate code based on this image." },
+                    {
+                        type: "image_url",
+                        image_url: {
+                            url: image
+                        }
+                    }
+                ]
+            });
+        } else {
+            messages.push({ role: "user", content: prompt });
+        }
+
         const stream = await client.chat.completions.create({
             model: model || "google/gemini-2.0-flash-exp:free",
-            messages: [
-                {
-                    role: "system",
-                    content: "You are NOIR AI, an expert web developer. Your task is to generate or revise production-ready HTML and CSS using Tailwind CSS and Iconify. CRITICAL: Always return the FULL, VALID HTML document. DO NOT use markdown code blocks (e.g., ```html). Return only the raw HTML code."
-                },
-                ...(history || []),
-                { role: "user", content: prompt }
-            ],
+            messages: messages,
             stream: true,
+            max_tokens: 4000 // Ensure enough tokens for full code
         });
 
         for await (const chunk of stream) {

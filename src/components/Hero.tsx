@@ -1,6 +1,9 @@
 import { Wand2, Clock, ShieldCheck as ShieldIcon } from 'lucide-react';
 import { ChatInput } from './ChatInput';
 import { FlipWords } from './FlipWords';
+import { useNavigate } from 'react-router-dom';
+import type { Project } from '../lib/projectService';
+import type { User } from '@supabase/supabase-js';
 
 interface HeroProps {
     onGenerate: () => void;
@@ -13,6 +16,8 @@ interface HeroProps {
     setPrompt: (p: string) => void;
     generationType: 'web' | 'app';
     setGenerationType: (t: 'web' | 'app') => void;
+    recentProjects: Project[];
+    user: User | null;
 }
 
 export const Hero: React.FC<HeroProps> = ({
@@ -25,8 +30,12 @@ export const Hero: React.FC<HeroProps> = ({
     prompt,
     setPrompt,
     generationType,
-    setGenerationType
+    setGenerationType,
+    recentProjects,
+    user
 }) => {
+    const navigate = useNavigate();
+
     return (
         <section className="relative pt-20 pb-12 md:pt-28 overflow-hidden">
             {/* Background Gradients */}
@@ -47,20 +56,33 @@ export const Hero: React.FC<HeroProps> = ({
                     Upload a design mock or screenshot. Our AI architect builds the frontend for you instantly.
                 </p>
 
-                {/* App/Web Toggle */}
+                {/* App/Web Toggle with Smooth Animation */}
                 <div className="flex justify-center mb-6">
-                    <div className="p-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-full flex items-center gap-1">
+                    <div className="relative p-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-full flex items-center">
+                        {/* Animated Sliding Background */}
+                        <div
+                            className={`absolute h-[calc(100%-8px)] w-[calc(50%-4px)] bg-white rounded-full shadow-lg shadow-white/20 transition-all duration-300 ease-out ${generationType === 'web' ? 'left-1' : 'left-[calc(50%+2px)]'
+                                }`}
+                        />
                         <button
                             onClick={() => setGenerationType('web')}
-                            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${generationType === 'web' ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-neutral-400 hover:text-white'}`}
+                            className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-300 ${generationType === 'web' ? 'text-black' : 'text-neutral-400 hover:text-white'
+                                }`}
                         >
-                            Web App
+                            <span className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">language</span>
+                                Web
+                            </span>
                         </button>
                         <button
                             onClick={() => setGenerationType('app')}
-                            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${generationType === 'app' ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-neutral-400 hover:text-white'}`}
+                            className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-300 ${generationType === 'app' ? 'text-black' : 'text-neutral-400 hover:text-white'
+                                }`}
                         >
-                            Mobile App
+                            <span className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">smartphone</span>
+                                Mobile App
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -87,6 +109,43 @@ export const Hero: React.FC<HeroProps> = ({
                             <ShieldIcon size={12} /> Private mode
                         </span>
                     </div>
+
+                    {/* Recent Projects Section */}
+                    {user && recentProjects.length > 0 && (
+                        <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="flex items-center gap-2 mb-3 px-1">
+                                <span className="text-lime-400/70 text-xs font-mono tracking-widest uppercase">Select Recent</span>
+                                <div className="h-px bg-lime-500/20 flex-1"></div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                {recentProjects.map(project => (
+                                    <button
+                                        key={project.id}
+                                        onClick={() => navigate(`/editor?project=${project.id}`)}
+                                        className="group relative p-3 rounded-lg border border-lime-500/20 bg-black/80 backdrop-blur-sm hover:border-lime-500/60 hover:shadow-[0_0_15px_-3px_rgba(132,204,22,0.3)] transition-all duration-300 cursor-pointer text-left overflow-hidden w-full"
+                                    >
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className={`text-[10px] px-1.5 py-0.5 rounded border ${project.generation_type === 'app'
+                                                ? 'border-blue-500/30 text-blue-400 bg-blue-500/10'
+                                                : 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10'
+                                                }`}>
+                                                {project.generation_type === 'app' ? 'APP' : 'WEB'}
+                                            </span>
+                                            <span className="text-[10px] text-zinc-600 font-mono">
+                                                {new Date(project.updated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                            </span>
+                                        </div>
+                                        <h3 className="text-lime-100 font-medium text-xs truncate w-full group-hover:text-lime-300 transition-colors">
+                                            {project.name || 'Untitled Project'}
+                                        </h3>
+                                        <p className="text-zinc-500 text-[10px] truncate w-full mt-0.5 opacity-60">
+                                            {project.prompt || 'No prompt'}
+                                        </p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Mac-style Video Demo Embed */}
 

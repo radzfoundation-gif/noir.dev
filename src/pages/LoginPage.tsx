@@ -24,7 +24,20 @@ export const LoginPage = () => {
             setError(authError.message);
             setIsLoading(false);
         } else {
-            navigate('/editor');
+            // Check for pending generation from landing page
+            const pendingData = sessionStorage.getItem('pendingGeneration');
+            if (pendingData) {
+                const generation = JSON.parse(pendingData);
+                sessionStorage.removeItem('pendingGeneration');
+                navigate('/editor', {
+                    state: {
+                        ...generation,
+                        autoGenerate: true
+                    }
+                });
+            } else {
+                navigate('/editor');
+            }
         }
     };
 

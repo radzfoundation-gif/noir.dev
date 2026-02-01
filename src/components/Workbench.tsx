@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatInput } from './ChatInput';
-import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Camera, Save } from 'lucide-react';
+import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Redo, Camera, Save } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { projectService } from '../lib/projectService';
 import { useAuth } from '../context/AuthContext';
@@ -24,12 +24,14 @@ export const Workbench = () => {
     // Chat State
     // Chat State
     const location = useLocation();
-    const [model, setModel] = useState(location.state?.model || 'google/gemini-2.0-flash-exp');
+    const [model, setModel] = useState(location.state?.model || 'gemini/gemini-2.5-flash-lite');
     const [prompt, setPrompt] = useState(location.state?.prompt || '');
     const [image, setImage] = useState<string | null>(location.state?.image || null);
-    const [generationType] = useState<'web' | 'app'>(location.state?.generationType || 'web');
+    const [generationType, setGenerationType] = useState<'web' | 'app'>(location.state?.generationType || 'web');
     const [isGenerating, setIsGenerating] = useState(false);
     const [context, setContext] = useState<string | null>(null);
+    const [streamingMessage, setStreamingMessage] = useState<string>('');
+    const [currentPrompt, setCurrentPrompt] = useState<string>('');
 
     // Auto-generate if triggered from Landing Page
     useEffect(() => {
@@ -133,11 +135,32 @@ export const Workbench = () => {
 
     const [code, setCode] = useState(location.state?.generationType === 'app' ? defaultAppCode : defaultWebCode);
     const [history, setHistory] = useState<string[]>([code]);
+    const [historyIndex, setHistoryIndex] = useState(0);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const updateCode = (newCode: string) => {
+        // Remove future history when editing after undo
+        const newHistory = history.slice(0, historyIndex + 1);
+        newHistory.push(newCode);
+        setHistory(newHistory.slice(-20)); // Keep last 20 edits
+        setHistoryIndex(newHistory.length - 1);
         setCode(newCode);
-        setHistory(prev => [...prev.slice(-10), newCode]); // Keep last 10 edits
+    };
+
+    const handleUndo = () => {
+        if (historyIndex > 0) {
+            setHistoryIndex(historyIndex - 1);
+            setCode(history[historyIndex - 1]);
+            showToast('Undo');
+        }
+    };
+
+    const handleRedo = () => {
+        if (historyIndex < history.length - 1) {
+            setHistoryIndex(historyIndex + 1);
+            setCode(history[historyIndex + 1]);
+            showToast('Redo');
+        }
     };
 
     // Live Preview Extraction
@@ -160,6 +183,9 @@ export const Workbench = () => {
         if (!prompt.trim() && !image) return;
 
         setIsGenerating(true);
+        setCurrentPrompt(prompt); // Save the prompt being processed
+        setPrompt(''); // Clear input immediately
+        setStreamingMessage('');
         let accumulatedCode = '';
 
         try {
@@ -176,12 +202,18 @@ export const Workbench = () => {
                 fullPrompt += '\n\nGenerate a modern, responsive web page.';
             }
 
+            // Enhance prompt for cloning if image is provided
+            if (image) {
+                fullPrompt += '\n\nCRITICAL INSTRUCTION: Clone the design in the attached image EXACTLY. Make it 100% PIXEL PERFECT to the provided image. Match colors, spacing, typography, and layout precisely. Use Tailwind CSS to replicate the visual style completely.';
+            }
+
             const response = await fetch(`${apiUrl}/api/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     prompt: fullPrompt,
                     model: model,
+                    image: image, // Send the image data
                     history: []
                 })
             });
@@ -214,8 +246,9 @@ export const Workbench = () => {
                             const parsed = JSON.parse(data);
                             if (parsed.content) {
                                 accumulatedCode += parsed.content;
-                                // Update code in realtime as it streams
+                                // Update code and streaming message in realtime
                                 setCode(accumulatedCode);
+                                setStreamingMessage(accumulatedCode);
                             }
                             if (parsed.error) {
                                 console.error('Stream error:', parsed.error);
@@ -240,6 +273,7 @@ export const Workbench = () => {
 
             if (cleanCode) {
                 updateCode(cleanCode);
+                setStreamingMessage(cleanCode);
                 showToast("Code generated successfully!");
                 setIsRefreshing(true);
                 setTimeout(() => setIsRefreshing(false), 800);
@@ -252,6 +286,8 @@ export const Workbench = () => {
         } catch (error) {
             console.error('Generation error:', error);
             showToast(`Generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            setStreamingMessage('');
+            setCurrentPrompt('');
         } finally {
             setIsGenerating(false);
         }
@@ -280,17 +316,6 @@ export const Workbench = () => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         showToast("HTML file downloaded");
-    };
-
-    const handleUndo = () => {
-        if (history.length > 1) {
-            const previousCode = history[history.length - 2];
-            setCode(previousCode);
-            setHistory(prev => prev.slice(0, -1));
-            showToast("Undo successful");
-        } else {
-            showToast("Nothing to undo");
-        }
     };
 
     const handleScreenshot = () => {
@@ -391,7 +416,13 @@ export const Workbench = () => {
                     <div className="flex items-center text-sm font-medium text-neutral-500 ml-4 border-l border-neutral-800 pl-4">
                         <span className="hover:text-white cursor-pointer transition-colors" onClick={() => showToast("Project settings")}>{previewAppName}</span>
                         <span className="mx-2 text-neutral-700">/</span>
-                        <span className="text-neutral-300">{generationType === 'app' ? 'Mobile App' : 'Web App'}</span>
+                        <button
+                            className="text-neutral-300 hover:text-white hover:bg-neutral-800 px-2 py-0.5 rounded transition-colors"
+                            onClick={() => setGenerationType(prev => prev === 'app' ? 'web' : 'app')}
+                            title="Click to switch mode"
+                        >
+                            {generationType === 'app' ? 'Mobile App' : 'Web App'}
+                        </button>
                         <button className="ml-2 text-neutral-600 hover:text-primary transition-colors" onClick={() => showToast("Settings opened")}>
                             <span className="material-symbols-outlined text-base">settings</span>
                         </button>
@@ -409,6 +440,25 @@ export const Workbench = () => {
                     ))}
                 </nav>
                 <div className="flex items-center gap-3">
+                    {/* Undo/Redo Buttons */}
+                    <div className="flex items-center gap-1 border border-neutral-700 rounded-lg p-0.5">
+                        <button
+                            className="p-1.5 text-neutral-400 hover:text-white hover:bg-white/10 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            onClick={handleUndo}
+                            disabled={historyIndex <= 0}
+                            title="Undo"
+                        >
+                            <Undo size={16} />
+                        </button>
+                        <button
+                            className="p-1.5 text-neutral-400 hover:text-white hover:bg-white/10 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            onClick={handleRedo}
+                            disabled={historyIndex >= history.length - 1}
+                            title="Redo"
+                        >
+                            <Redo size={16} />
+                        </button>
+                    </div>
                     <button
                         className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-white border border-neutral-700 rounded-lg hover:bg-white/10 transition-colors uppercase tracking-wider disabled:opacity-50"
                         onClick={handleSaveProject}
@@ -435,6 +485,7 @@ export const Workbench = () => {
             <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
                 {/* Sidebar */}
                 <aside className={`w-[400px] border-r border-neutral-800 flex flex-col bg-noir-black transition-all ${sidebarOpen ? 'translate-x-0' : '-translate-x-full absolute z-40 h-full'}`}>
+                    {/* Scrollable Content */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar">
                         <div className="space-y-4">
                             <div className="flex gap-3">
@@ -443,49 +494,47 @@ export const Workbench = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-semibold text-neutral-200 mb-2">Noir Assistant</p>
-                                    <ul className="space-y-3 text-sm text-neutral-400 list-disc pl-4 leading-relaxed">
-                                        <li>Implemented <span className="text-neutral-200">AI Coach Chat</span> with multi-provider support.</li>
-                                        <li>Added <span className="text-neutral-200">Analytics Dashboard</span> featuring interactive charts.</li>
-                                        <li>Created <span className="text-neutral-200">Dashboard Home</span> with productivity scoring.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <button
-                                className="w-full flex items-center justify-between p-3 rounded-xl border border-neutral-800 bg-neutral-900/50 hover:bg-neutral-900 hover:border-neutral-700 transition-colors"
-                                onClick={() => showToast("Files panel toggled")}
-                            >
-                                <span className="text-sm font-medium text-neutral-300">Files (17)</span>
-                                <span className="material-symbols-outlined text-lg text-neutral-500">chevron_right</span>
-                            </button>
-                            <div className="flex gap-2">
-                                <button className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-neutral-900 border border-neutral-800 rounded-lg text-xs font-medium text-neutral-300 hover:text-primary transition-colors" onClick={() => showToast("Showing Code Diff")}>
-                                    <span className="material-symbols-outlined text-sm">compare_arrows</span>
-                                    Code diff
-                                </button>
-                                <button className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-neutral-900 border border-neutral-800 rounded-lg text-xs font-medium text-neutral-600 cursor-not-allowed">
-                                    <span className="material-symbols-outlined text-sm">history</span>
-                                    Rollback
-                                </button>
-                            </div>
-                        </div>
 
-                        {/* Error State */}
-                        <div className="p-4 rounded-xl bg-red-950/20 border border-red-900/30">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2 text-red-500">
-                                    <span className="material-symbols-outlined text-lg">error</span>
-                                    <span className="text-sm font-bold uppercase tracking-tight">Error found in code</span>
+                                    {/* Show current prompt being processed */}
+                                    {currentPrompt && (
+                                        <div className="mb-3 p-2 bg-lime-500/10 border border-lime-500/20 rounded-lg">
+                                            <p className="text-xs text-lime-400 font-medium mb-1">Your Prompt:</p>
+                                            <p className="text-sm text-neutral-300">{currentPrompt}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Show streaming message or default */}
+                                    {isGenerating ? (
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-2 text-sm text-primary">
+                                                <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                                                <span>Generating code...</span>
+                                            </div>
+                                            {streamingMessage && (
+                                                <div className="p-2 bg-neutral-900 rounded-lg border border-neutral-800 max-h-[200px] overflow-y-auto">
+                                                    <pre className="text-[10px] font-mono text-neutral-400 whitespace-pre-wrap">{streamingMessage.slice(-500)}...</pre>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : streamingMessage ? (
+                                        <div className="p-2 bg-neutral-900 rounded-lg border border-neutral-800">
+                                            <p className="text-xs text-green-400 font-medium mb-1">✓ Code Generated Successfully</p>
+                                            <p className="text-xs text-neutral-500">{code.length} characters generated</p>
+                                        </div>
+                                    ) : (
+                                        <ul className="space-y-3 text-sm text-neutral-400 list-disc pl-4 leading-relaxed">
+                                            <li>Type a prompt below to generate <span className="text-neutral-200">HTML/CSS code</span></li>
+                                            <li>Select a model from the dropdown</li>
+                                            <li>Press Enter or click the arrow to generate</li>
+                                        </ul>
+                                    )}
                                 </div>
-                                <button className="text-xs font-medium text-red-400 hover:underline">1 issue <span className="material-symbols-outlined align-middle text-sm">chevron_right</span></button>
                             </div>
-                            <p className="text-xs text-red-400/80 leading-relaxed">
-                                Deployment stalled. The current preview is outdated. Please resolve the compilation error.
-                            </p>
                         </div>
                     </div>
 
-                    {/* Chat Input Area */}
-                    <div className="p-4 border-t border-neutral-800 bg-noir-black">
+                    {/* Chat Input Area - Fixed at Bottom */}
+                    <div className="p-4 border-t border-neutral-800 bg-noir-black flex-shrink-0">
                         <ChatInput
                             onGenerate={handleGenerate}
                             loading={isGenerating}
@@ -562,11 +611,21 @@ export const Workbench = () => {
                                         <RefreshCw className="text-primary animate-spin mb-2" size={40} />
                                         <p className="text-neutral-400 text-sm">Refreshing Preview...</p>
                                     </div>
+                                ) : code ? (
+                                    <div className={`${currentDeviceClass[device]} device-mockup overflow-hidden transition-all duration-500 ${device === 'iPhone 17 Pro' ? 'notch' : ''}`}>
+                                        <iframe
+                                            srcDoc={code}
+                                            className="w-full h-full border-0 bg-white"
+                                            title="Preview"
+                                            sandbox="allow-scripts allow-same-origin"
+                                        />
+                                    </div>
                                 ) : (
                                     <div className={`${currentDeviceClass[device]} device-mockup flex flex-col items-center justify-center text-center px-8 transition-all duration-500 ${device === 'iPhone 17 Pro' ? 'notch' : ''}`}>
-                                        <div className="p-6 bg-white rounded-2xl shadow-sm border border-neutral-100 w-full max-w-[280px]">
-                                            <h1 className="text-2xl font-bold text-neutral-800 mb-2">{previewTitle}</h1>
-                                            <p className="text-sm text-neutral-500 leading-relaxed">{previewDesc}</p>
+                                        <div className="p-6 bg-neutral-900 rounded-2xl border border-neutral-800 w-full max-w-[280px]">
+                                            <span className="material-symbols-outlined text-4xl text-neutral-600 mb-4">code</span>
+                                            <h1 className="text-lg font-bold text-neutral-400 mb-2">No Preview Yet</h1>
+                                            <p className="text-sm text-neutral-500 leading-relaxed">Enter a prompt and generate code to see the preview here.</p>
                                         </div>
                                     </div>
                                 )}

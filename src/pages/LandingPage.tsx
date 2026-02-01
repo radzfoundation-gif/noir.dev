@@ -1,24 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { projectService } from '../lib/projectService';
+import type { Project } from '../lib/projectService';
 import { Layout } from '../components/Layout';
 import { Hero } from '../components/Hero';
 import { Testimonials } from '../components/Testimonials';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+// ... rest of imports
+
 
 export const LandingPage = () => {
     // ... existing hook logic ... 
     const navigate = useNavigate();
     const { user } = useAuth();
     const [image, setImage] = useState<string | null>(null);
-    const [model, setModel] = useState('google/gemini-2.0-flash-exp');
+    const [model, setModel] = useState('gemini/gemini-2.5-flash-lite');
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
     const [generationType, setGenerationType] = useState<'web' | 'app'>('web');
+    const [recentProjects, setRecentProjects] = useState<Project[]>([]);
+
+    // Fetch recent projects if user is logged in
+    useEffect(() => {
+        if (user) {
+            projectService.getProjects()
+                .then(projects => setRecentProjects(projects.slice(0, 3)))
+                .catch(console.error);
+        }
+    }, [user]);
 
     const handleGenerate = () => {
         // Require login before generating
         if (!user) {
+            // Save prompt data to restore after login
+            sessionStorage.setItem('pendingGeneration', JSON.stringify({
+                prompt,
+                image,
+                model,
+                generationType
+            }));
             navigate('/login');
             return;
         }
@@ -69,6 +90,8 @@ export const LandingPage = () => {
                         setPrompt={setPrompt}
                         generationType={generationType}
                         setGenerationType={setGenerationType}
+                        recentProjects={recentProjects}
+                        user={user}
                     />
                 </motion.div>
             </div>
