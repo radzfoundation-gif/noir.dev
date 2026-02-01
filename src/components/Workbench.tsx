@@ -170,8 +170,6 @@ export const Workbench = () => {
         return match ? match[1] : null;
     };
 
-    const previewTitle = extractContent('h1') || "Untitled Component";
-    const previewDesc = extractContent('p') || "No description available.";
     const previewAppName = extractContent('title') || "Noir App";
 
     const showToast = (message: string) => {
