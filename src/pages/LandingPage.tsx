@@ -4,16 +4,25 @@ import { Layout } from '../components/Layout';
 import { Hero } from '../components/Hero';
 import { Testimonials } from '../components/Testimonials';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 export const LandingPage = () => {
     // ... existing hook logic ... 
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [image, setImage] = useState<string | null>(null);
     const [model, setModel] = useState('google/gemini-2.0-flash-exp');
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
+    const [generationType, setGenerationType] = useState<'web' | 'app'>('web');
 
     const handleGenerate = () => {
+        // Require login before generating
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
         setLoading(true);
         // Navigate immediately, passing state
         setTimeout(() => {
@@ -22,6 +31,7 @@ export const LandingPage = () => {
                     prompt,
                     image,
                     model,
+                    generationType,
                     autoGenerate: true // Flag to trigger generation on load
                 }
             });
@@ -57,6 +67,8 @@ export const LandingPage = () => {
                         setModel={setModel}
                         prompt={prompt}
                         setPrompt={setPrompt}
+                        generationType={generationType}
+                        setGenerationType={setGenerationType}
                     />
                 </motion.div>
             </div>

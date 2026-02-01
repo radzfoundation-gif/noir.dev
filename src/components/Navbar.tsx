@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { LogIn, LogOut, User } from 'lucide-react';
 import { NoirLogo } from './NoirLogo';
+import { useAuth } from '../context/AuthContext';
 import clsx from 'clsx';
 
 export const Navbar: React.FC = () => {
     const [scrolled, setScrolled] = useState(false);
+    const { user, signOut } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -14,6 +17,11 @@ export const Navbar: React.FC = () => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const handleLogout = async () => {
+        await signOut();
+        navigate('/');
+    };
 
     return (
         <nav
@@ -37,14 +45,35 @@ export const Navbar: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <Link to="/login" className="group relative px-4 py-2 text-sm font-semibold text-black bg-lime-400 rounded-full hover:bg-lime-300 transition-all overflow-hidden shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:shadow-[0_0_30px_rgba(163,230,53,0.5)]">
-                        <span className="relative z-10 flex items-center gap-2">
-                            Login
-                            <LogIn size={16} strokeWidth={2} className="group-hover:translate-x-0.5 transition-transform" />
-                        </span>
-                    </Link>
+                    {user ? (
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+                                <User size={16} className="text-lime-400" />
+                                <span className="text-sm font-medium text-white/80 max-w-[150px] truncate">
+                                    {user.email}
+                                </span>
+                            </div>
+                            <button
+                                onClick={handleLogout}
+                                className="group px-4 py-2 text-sm font-semibold text-white/80 bg-white/5 border border-white/10 rounded-full hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-400 transition-all"
+                            >
+                                <span className="flex items-center gap-2">
+                                    Logout
+                                    <LogOut size={16} strokeWidth={2} />
+                                </span>
+                            </button>
+                        </div>
+                    ) : (
+                        <Link to="/login" className="group relative px-4 py-2 text-sm font-semibold text-black bg-lime-400 rounded-full hover:bg-lime-300 transition-all overflow-hidden shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:shadow-[0_0_30px_rgba(163,230,53,0.5)]">
+                            <span className="relative z-10 flex items-center gap-2">
+                                Login
+                                <LogIn size={16} strokeWidth={2} className="group-hover:translate-x-0.5 transition-transform" />
+                            </span>
+                        </Link>
+                    )}
                 </div>
             </div>
         </nav>
     );
 };
+

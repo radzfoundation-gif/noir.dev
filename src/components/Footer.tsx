@@ -3,18 +3,46 @@ import { NoirLogo } from './NoirLogo';
 
 export const Footer: React.FC = () => {
     return (
-        <footer className="border-t border-white/5 bg-black pt-16 pb-8 mt-12">
-            <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <NoirLogo className="size-8" />
-                        <span className="text-sm font-bold text-white tracking-tight">Noir Code</span>
-                        <span className="text-xs text-zinc-600 ml-2">© 2026</span>
+        <footer
+            className="border-t border-white/5 bg-black pt-32 pb-16 mt-0 relative overflow-hidden"
+            style={{
+                backgroundImage: `url('/footer-bg.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            }}
+        >
+            <div className="absolute inset-0 bg-black/20 pointer-events-none"></div>
+            <div className="max-w-7xl mx-auto px-6 relative z-10">
+                <div className="flex flex-col items-center justify-center gap-8">
+
+                    {/* Large Centered Logo */}
+                    <div className="flex items-center gap-4 opacity-90 hover:opacity-100 transition-opacity">
+                        <NoirLogo className="size-16 md:size-24" />
+                        <span className="text-4xl md:text-6xl font-bold text-white tracking-tighter">noir</span>
                     </div>
-                    <div className="flex gap-6 text-xs text-zinc-500">
-                        <a href="#" className="hover:text-lime-400 transition-colors">Privacy</a>
-                        <a href="#" className="hover:text-lime-400 transition-colors">Terms</a>
-                        <a href="#" className="hover:text-lime-400 transition-colors">Status</a>
+
+                    {/* Navigation & Socials */}
+                    <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8 mt-4">
+                        <a href="#" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white">
+                            <span className="material-symbols-outlined text-xl">smart_display</span> {/* Youtube */}
+                        </a>
+                        <a href="#" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white">
+                            <span className="material-symbols-outlined text-xl">alternate_email</span> {/* X/Twitter */}
+                        </a>
+                        <a href="#" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white">
+                            <span className="material-symbols-outlined text-xl">discord</span> {/* Discord */}
+                        </a>
+
+                        <div className="w-px h-6 bg-white/20 mx-2 hidden md:block"></div>
+
+                        <a href="#" className="text-sm font-medium text-white/80 hover:text-white transition-colors">Terms</a>
+                        <a href="#" className="text-sm font-medium text-white/80 hover:text-white transition-colors">Privacy</a>
+                    </div>
+
+                    {/* Copyright at very bottom */}
+                    <div className="mt-8 text-xs font-medium text-white/50 tracking-wide">
+                        © 2026 NOIR USA Inc.
                     </div>
                 </div>
             </div>

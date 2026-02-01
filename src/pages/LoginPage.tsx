@@ -1,6 +1,31 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export const LoginPage = () => {
+    const navigate = useNavigate();
+    const { signIn } = useAuth();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setIsLoading(true);
+
+        const { error: authError } = await signIn(email, password);
+
+        if (authError) {
+            setError(authError.message);
+            setIsLoading(false);
+        } else {
+            navigate('/editor');
+        }
+    };
+
     return (
         <div className="flex min-h-screen w-full flex-col lg:flex-row bg-[#000000] relative font-display text-white">
             <div className="absolute inset-0 grid-pattern pointer-events-none z-0" style={{
@@ -42,7 +67,7 @@ export const LoginPage = () => {
                         <p className="mt-6 text-lg text-[#a3a3a3] max-w-md">The next generation developer platform for building high-performance interfaces with AI precision.</p>
                     </div>
                     <div className="text-sm text-[#525252]">
-                        © 2024 Noir Code. Engineered for performance.
+                        © 2026 Noir Code. Engineered for performance.
                     </div>
                 </div>
             </div>
@@ -57,17 +82,41 @@ export const LoginPage = () => {
                     <h2 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">Developer Access</h2>
                     <p className="text-[#737373] mt-2 text-base font-normal">Authenticate to access your workspace.</p>
                 </div>
-                <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+                <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+                    {error && (
+                        <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                            {error}
+                        </div>
+                    )}
                     <div className="flex flex-col gap-2">
                         <label className="text-[#d4d4d4] text-sm font-semibold">Email address</label>
-                        <input className="form-input w-full rounded-lg border border-[#262626] bg-[#121212] text-white h-14 p-[15px] text-base placeholder:text-[#525252] focus:border-[#4ade80] focus:ring-1 focus:ring-[#4ade80]/20 transition-all outline-none" placeholder="dev@noir.code" type="email" />
+                        <input
+                            className="form-input w-full rounded-lg border border-[#262626] bg-[#121212] text-white h-14 p-[15px] text-base placeholder:text-[#525252] focus:border-[#4ade80] focus:ring-1 focus:ring-[#4ade80]/20 transition-all outline-none"
+                            placeholder="dev@noir.code"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
                     </div>
                     <div className="flex flex-col gap-2">
                         <label className="text-[#d4d4d4] text-sm font-semibold">Security Key</label>
                         <div className="relative flex w-full items-stretch rounded-lg">
-                            <input className="form-input w-full rounded-lg border border-[#262626] bg-[#121212] text-white h-14 p-[15px] pr-12 text-base placeholder:text-[#525252] focus:border-[#4ade80] focus:ring-1 focus:ring-[#4ade80]/20 transition-all outline-none" placeholder="••••••••" type="password" />
+                            <input
+                                className="form-input w-full rounded-lg border border-[#262626] bg-[#121212] text-white h-14 p-[15px] pr-12 text-base placeholder:text-[#525252] focus:border-[#4ade80] focus:ring-1 focus:ring-[#4ade80]/20 transition-all outline-none"
+                                placeholder="••••••••"
+                                type={showPassword ? 'text' : 'password'}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
                             <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-                                <span className="material-symbols-outlined text-[#737373] hover:text-[#a3a3a3] cursor-pointer text-[20px] select-none transition-colors">visibility</span>
+                                <span
+                                    className="material-symbols-outlined text-[#737373] hover:text-[#a3a3a3] cursor-pointer text-[20px] select-none transition-colors"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? 'visibility_off' : 'visibility'}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -78,8 +127,16 @@ export const LoginPage = () => {
                         </label>
                         <Link className="text-sm font-semibold text-[#a3a3a3] hover:text-[#4ade80] transition-colors" to="/forgot-password">Forgot key?</Link>
                     </div>
-                    <button className="flex w-full items-center justify-center rounded-lg h-14 bg-[#4ade80] text-black text-base font-bold tracking-[0.015em] hover:brightness-110 shadow-[0_0_20px_rgba(74,222,128,0.2)] transition-all" type="submit">
-                        Sign In
+                    <button
+                        className="flex w-full items-center justify-center rounded-lg h-14 bg-[#4ade80] text-black text-base font-bold tracking-[0.015em] hover:brightness-110 shadow-[0_0_20px_rgba(74,222,128,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        type="submit"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                        ) : (
+                            'Sign In'
+                        )}
                     </button>
                     <div className="relative flex items-center py-4">
                         <div className="flex-grow border-t border-[#262626]"></div>

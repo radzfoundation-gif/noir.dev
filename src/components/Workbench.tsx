@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatInput } from './ChatInput';
 import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Camera } from 'lucide-react';
@@ -15,14 +16,73 @@ export const Workbench = () => {
     const [showDeviceMenu, setShowDeviceMenu] = useState(false);
 
     // Chat State
-    const [model, setModel] = useState('google/gemini-2.0-flash-exp');
-    const [prompt, setPrompt] = useState('');
-    const [image, setImage] = useState<string | null>(null);
+    // Chat State
+    const location = useLocation();
+    const [model, setModel] = useState(location.state?.model || 'google/gemini-2.0-flash-exp');
+    const [prompt, setPrompt] = useState(location.state?.prompt || '');
+    const [image, setImage] = useState<string | null>(location.state?.image || null);
+    const [generationType] = useState<'web' | 'app'>(location.state?.generationType || 'web');
     const [isGenerating, setIsGenerating] = useState(false);
     const [context, setContext] = useState<string | null>(null);
 
+    // Auto-generate if triggered from Landing Page
+    useEffect(() => {
+        if (location.state?.autoGenerate && prompt) {
+            handleGenerate();
+            // Optional: clear state to prevent regeneration on refresh, 
+            // but for now let's just trigger it.
+        }
+    }, []);
+
     // Code & Preview State
-    const [code, setCode] = useState(`export const GeneratedComponent = () => {\n  return (\n    <div className="p-4 bg-white rounded-lg shadow-md">\n      <h1 className="text-2xl font-bold text-neutral-800">Hello World</h1>\n      <p className="mt-2 text-gray-600">This is a generated component.</p>\n    </div>\n  );\n};`);
+    // Code & Preview State
+    const defaultWebCode = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello Universe</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #f3f4f6; }
+        .card { background: white; padding: 2.5rem; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); max-width: 400px; text-align: center; }
+        h1 { color: #111827; margin-bottom: 0.75rem; font-size: 1.8rem; letter-spacing: -0.025em; }
+        p { color: #6b7280; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Hello Universe</h1>
+        <p>This is a generated HTML5 component. Not a React component anymore.</p>
+    </div>
+</body>
+</html>`;
+
+    const defaultAppCode = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile App</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #fff; display: flex; flex-direction: column; height: 100vh; }
+        header { background-color: #f8f8f8; padding: 16px; border-bottom: 1px solid #e5e5e5; display: flex; justify-content: center; align-items: center; padding-top: 50px; }
+        h1 { font-size: 17px; font-weight: 600; margin: 0; color: #000; }
+        main { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .button { background-color: #007AFF; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 600; text-decoration: none; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Home</h1>
+    </header>
+    <main>
+        <p>Welcome to your new iOS-style app.</p>
+        <a href="#" class="button">Get Started</a>
+    </main>
+</body>
+</html>`;
+
+    const [code, setCode] = useState(location.state?.generationType === 'app' ? defaultAppCode : defaultWebCode);
     const [history, setHistory] = useState<string[]>([code]);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -40,36 +100,112 @@ export const Workbench = () => {
 
     const previewTitle = extractContent('h1') || "Untitled Component";
     const previewDesc = extractContent('p') || "No description available.";
+    const previewAppName = extractContent('title') || "Noir App";
 
     const showToast = (message: string) => {
         setToast({ message, show: true });
         setTimeout(() => setToast({ message: '', show: false }), 3000);
     };
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
+        if (!prompt.trim() && !image) return;
+
         setIsGenerating(true);
-        setTimeout(() => {
-            setIsGenerating(false);
-            setPrompt('');
-            setImage(null);
-            setContext(null); // Clear context after use
+        let accumulatedCode = '';
 
-            // Simulate Code Update
-            const newCode = code.includes('// AI Optimized')
-                ? code
-                : code.replace('export const GeneratedComponent', '// AI Optimized\nexport const GeneratedComponent');
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-            if (newCode !== code) {
-                updateCode(newCode);
-                showToast("Code updated successfully");
-                // Trigger Preview Refresh
-                setIsRefreshing(true);
-                setTimeout(() => setIsRefreshing(false), 800);
+            // Build the prompt with context and generation type
+            let fullPrompt = prompt;
+            if (context) {
+                fullPrompt = `Context:\n${context}\n\nUser Request:\n${prompt}`;
+            }
+            if (generationType === 'app') {
+                fullPrompt += '\n\nGenerate a mobile app UI with iOS-style design.';
             } else {
-                showToast("AI Assistant responded");
+                fullPrompt += '\n\nGenerate a modern, responsive web page.';
             }
 
-        }, 2000);
+            const response = await fetch(`${apiUrl}/api/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: fullPrompt,
+                    model: model,
+                    history: []
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+
+            if (!reader) {
+                throw new Error('No response body');
+            }
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6);
+                        if (data === '[DONE]') {
+                            break;
+                        }
+                        try {
+                            const parsed = JSON.parse(data);
+                            if (parsed.content) {
+                                accumulatedCode += parsed.content;
+                                // Update code in realtime as it streams
+                                setCode(accumulatedCode);
+                            }
+                            if (parsed.error) {
+                                console.error('Stream error:', parsed.error);
+                                showToast(`Error: ${parsed.error}`);
+                            }
+                        } catch {
+                            // Skip non-JSON lines
+                        }
+                    }
+                }
+            }
+
+            // Clean up the accumulated code (remove markdown code blocks if present)
+            let cleanCode = accumulatedCode;
+            if (cleanCode.includes('```html')) {
+                cleanCode = cleanCode.replace(/```html\n?/g, '').replace(/```\n?/g, '');
+            }
+            if (cleanCode.includes('```')) {
+                cleanCode = cleanCode.replace(/```[a-z]*\n?/g, '').replace(/```\n?/g, '');
+            }
+            cleanCode = cleanCode.trim();
+
+            if (cleanCode) {
+                updateCode(cleanCode);
+                showToast("Code generated successfully!");
+                setIsRefreshing(true);
+                setTimeout(() => setIsRefreshing(false), 800);
+            }
+
+            setPrompt('');
+            setImage(null);
+            setContext(null);
+
+        } catch (error) {
+            console.error('Generation error:', error);
+            showToast(`Generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     const handleAddToChat = () => {
@@ -204,9 +340,9 @@ export const Workbench = () => {
                         <span className="text-white font-bold tracking-tight text-lg">Noir <span className="text-neutral-400 font-normal">Code</span></span>
                     </div>
                     <div className="flex items-center text-sm font-medium text-neutral-500 ml-4 border-l border-neutral-800 pl-4">
-                        <span className="hover:text-white cursor-pointer transition-colors" onClick={() => showToast("Project settings")}>Fokasu</span>
+                        <span className="hover:text-white cursor-pointer transition-colors" onClick={() => showToast("Project settings")}>{previewAppName}</span>
                         <span className="mx-2 text-neutral-700">/</span>
-                        <span className="text-neutral-300">Mobile App</span>
+                        <span className="text-neutral-300">{generationType === 'app' ? 'Mobile App' : 'Web App'}</span>
                         <button className="ml-2 text-neutral-600 hover:text-primary transition-colors" onClick={() => showToast("Settings opened")}>
                             <span className="material-symbols-outlined text-base">settings</span>
                         </button>
@@ -387,7 +523,7 @@ export const Workbench = () => {
                                             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                                             <div className="w-3 h-3 rounded-full bg-green-500"></div>
                                         </div>
-                                        <span className="ml-3 text-xs text-neutral-400 font-mono">GeneratedComponent.tsx</span>
+                                        <span className="ml-3 text-xs text-neutral-400 font-mono">index.html</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <button

@@ -11,6 +11,8 @@ interface HeroProps {
     setModel: (m: string) => void;
     prompt: string;
     setPrompt: (p: string) => void;
+    generationType: 'web' | 'app';
+    setGenerationType: (t: 'web' | 'app') => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({
@@ -21,10 +23,12 @@ export const Hero: React.FC<HeroProps> = ({
     model,
     setModel,
     prompt,
-    setPrompt
+    setPrompt,
+    generationType,
+    setGenerationType
 }) => {
     return (
-        <section className="relative pt-32 pb-12 md:pt-40 overflow-hidden">
+        <section className="relative pt-20 pb-12 md:pt-28 overflow-hidden">
             {/* Background Gradients */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-lime-500/10 blur-[120px] rounded-full pointer-events-none opacity-30"></div>
 
@@ -42,6 +46,24 @@ export const Hero: React.FC<HeroProps> = ({
                 <p className="text-lg text-zinc-200/90 max-w-xl mx-auto mb-10 leading-relaxed font-light drop-shadow">
                     Upload a design mock or screenshot. Our AI architect builds the frontend for you instantly.
                 </p>
+
+                {/* App/Web Toggle */}
+                <div className="flex justify-center mb-6">
+                    <div className="p-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-full flex items-center gap-1">
+                        <button
+                            onClick={() => setGenerationType('web')}
+                            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${generationType === 'web' ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-neutral-400 hover:text-white'}`}
+                        >
+                            Web App
+                        </button>
+                        <button
+                            onClick={() => setGenerationType('app')}
+                            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${generationType === 'app' ? 'bg-white text-black shadow-lg shadow-white/10' : 'text-neutral-400 hover:text-white'}`}
+                        >
+                            Mobile App
+                        </button>
+                    </div>
+                </div>
 
                 <div className="w-full max-w-2xl mx-auto">
                     <ChatInput
