@@ -6,6 +6,11 @@ import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Redo, Cam
 import { toPng } from 'html-to-image';
 import { projectService } from '../lib/projectService';
 import { useAuth } from '../context/AuthContext';
+import Editor from 'react-simple-code-editor';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-css';
+import 'prismjs/themes/prism-tomorrow.css';
 
 type ViewMode = 'Preview' | 'Code' | 'Integrations' | 'APIs';
 type Device = 'iPhone 17 Pro' | 'Desktop' | 'Tablet';
@@ -52,6 +57,7 @@ export const Workbench = () => {
             const project = await projectService.getProject(id);
             if (project) {
                 setCode(project.code);
+                if (project.prompt) setPrompt(project.prompt);
                 showToast(`Loaded: ${project.name}`);
             }
         } catch (err) {
@@ -657,12 +663,22 @@ export const Workbench = () => {
                                     </div>
                                 </div>
                                 {/* Editable Code Area */}
-                                <textarea
-                                    className="w-full h-[400px] bg-transparent text-sm font-mono text-neutral-300 p-4 resize-none focus:outline-none"
-                                    value={code}
-                                    onChange={(e) => updateCode(e.target.value)}
-                                    spellCheck={false}
-                                />
+                                {/* Editable Code Area with Syntax Highlighting */}
+                                <div className="w-full h-[400px] border border-neutral-800 rounded-lg overflow-auto bg-[#1d1d1d] relative custom-scrollbar">
+                                    <Editor
+                                        value={code}
+                                        onValueChange={code => updateCode(code)}
+                                        highlight={code => Prism.highlight(code, Prism.languages.markup, 'markup')}
+                                        padding={20}
+                                        className="font-mono min-h-full"
+                                        style={{
+                                            fontFamily: '"Fira Code", monospace',
+                                            fontSize: 14,
+                                            backgroundColor: 'transparent',
+                                            color: '#f8f8f2'
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div>
                     )}
