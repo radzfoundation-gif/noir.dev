@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatInput } from './ChatInput';
-import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Camera } from 'lucide-react';
+import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Camera, Save } from 'lucide-react';
 import { toPng } from 'html-to-image';
+import { projectService } from '../lib/projectService';
+import { useAuth } from '../context/AuthContext';
 
 type ViewMode = 'Preview' | 'Code' | 'Integrations' | 'APIs';
 type Device = 'iPhone 17 Pro' | 'Desktop' | 'Tablet';
@@ -14,6 +16,10 @@ export const Workbench = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: '', show: false });
     const [showDeviceMenu, setShowDeviceMenu] = useState(false);
+    const [searchParams] = useSearchParams();
+    const [projectId, setProjectId] = useState<string | null>(searchParams.get('project'));
+    const [isSaving, setIsSaving] = useState(false);
+    const { user } = useAuth();
 
     // Chat State
     // Chat State
@@ -29,10 +35,53 @@ export const Workbench = () => {
     useEffect(() => {
         if (location.state?.autoGenerate && prompt) {
             handleGenerate();
-            // Optional: clear state to prevent regeneration on refresh, 
-            // but for now let's just trigger it.
         }
     }, []);
+
+    // Load project if projectId is set
+    useEffect(() => {
+        if (projectId && user) {
+            loadProject(projectId);
+        }
+    }, [projectId, user]);
+
+    const loadProject = async (id: string) => {
+        try {
+            const project = await projectService.getProject(id);
+            if (project) {
+                setCode(project.code);
+                showToast(`Loaded: ${project.name}`);
+            }
+        } catch (err) {
+            console.error('Failed to load project:', err);
+            showToast('Failed to load project');
+        }
+    };
+
+    const handleSaveProject = async () => {
+        if (!user) {
+            showToast('Please login to save projects');
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const project = await projectService.saveOrUpdate(projectId, {
+                name: previewAppName || 'Untitled Project',
+                code,
+                generation_type: generationType,
+                prompt: prompt || null
+            });
+
+            setProjectId(project.id);
+            showToast(projectId ? 'Project saved!' : 'Project created!');
+        } catch (err) {
+            console.error('Failed to save project:', err);
+            showToast('Failed to save project');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     // Code & Preview State
     // Code & Preview State
@@ -360,6 +409,18 @@ export const Workbench = () => {
                     ))}
                 </nav>
                 <div className="flex items-center gap-3">
+                    <button
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-white border border-neutral-700 rounded-lg hover:bg-white/10 transition-colors uppercase tracking-wider disabled:opacity-50"
+                        onClick={handleSaveProject}
+                        disabled={isSaving}
+                    >
+                        {isSaving ? (
+                            <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                        ) : (
+                            <Save size={14} strokeWidth={2} />
+                        )}
+                        {projectId ? 'Save' : 'Save Project'}
+                    </button>
                     <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-primary border border-primary rounded-lg hover:bg-primary/10 transition-colors uppercase tracking-wider" onClick={() => showToast("Upgrade plan feature")}>
                         <span className="material-symbols-outlined text-sm">workspace_premium</span>
                         Upgrade
