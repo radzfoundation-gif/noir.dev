@@ -1,9 +1,6 @@
 import { Wand2, Clock, ShieldCheck as ShieldIcon } from 'lucide-react';
 import { ChatInput } from './ChatInput';
 import { FlipWords } from './FlipWords';
-import { useNavigate } from 'react-router-dom';
-import type { Project } from '../lib/projectService';
-import type { User } from '@supabase/supabase-js';
 
 interface HeroProps {
     onGenerate: () => void;
@@ -16,8 +13,6 @@ interface HeroProps {
     setPrompt: (p: string) => void;
     generationType: 'web' | 'app';
     setGenerationType: (t: 'web' | 'app') => void;
-    recentProjects: Project[];
-    user: User | null;
 }
 
 export const Hero: React.FC<HeroProps> = ({
@@ -30,12 +25,8 @@ export const Hero: React.FC<HeroProps> = ({
     prompt,
     setPrompt,
     generationType,
-    setGenerationType,
-    recentProjects,
-    user
+    setGenerationType
 }) => {
-    const navigate = useNavigate();
-
     return (
         <section className="relative pt-20 pb-12 md:pt-28 overflow-hidden">
             {/* Background Gradients */}
@@ -109,82 +100,44 @@ export const Hero: React.FC<HeroProps> = ({
                             <ShieldIcon size={12} /> Private mode
                         </span>
                     </div>
+                </div>
+                {/* Mac-style Video Demo Embed */}
 
-                    {/* Recent Projects Section */}
-                    {user && recentProjects.length > 0 && (
-                        <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            <div className="flex items-center gap-2 mb-3 px-1">
-                                <span className="text-lime-400/70 text-xs font-mono tracking-widest uppercase">Select Recent</span>
-                                <div className="h-px bg-lime-500/20 flex-1"></div>
+                <div className="mt-32 md:mt-48 relative group">
+
+
+
+
+                    {/* Glow Effect specific to video */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-lime-500/20 via-emerald-500/20 to-lime-500/20 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-700"></div>
+
+                    <div className="relative rounded-xl border border-white/10 bg-black/50 backdrop-blur-sm shadow-2xl overflow-hidden">
+                        {/* Window Header */}
+                        <div className="h-8 bg-zinc-900/80 border-b border-white/5 flex items-center px-4 gap-2">
+                            <div className="flex gap-1.5">
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57] shadow-sm"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E] shadow-sm"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#28C840] shadow-sm"></div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                {recentProjects.map(project => (
-                                    <button
-                                        key={project.id}
-                                        onClick={() => navigate(`/editor?project=${project.id}`)}
-                                        className="group relative p-3 rounded-lg border border-lime-500/20 bg-black/80 backdrop-blur-sm hover:border-lime-500/60 hover:shadow-[0_0_15px_-3px_rgba(132,204,22,0.3)] transition-all duration-300 cursor-pointer text-left overflow-hidden w-full"
-                                    >
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className={`text-[10px] px-1.5 py-0.5 rounded border ${project.generation_type === 'app'
-                                                ? 'border-blue-500/30 text-blue-400 bg-blue-500/10'
-                                                : 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10'
-                                                }`}>
-                                                {project.generation_type === 'app' ? 'APP' : 'WEB'}
-                                            </span>
-                                            <span className="text-[10px] text-zinc-600 font-mono">
-                                                {new Date(project.updated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                            </span>
-                                        </div>
-                                        <h3 className="text-lime-100 font-medium text-xs truncate w-full group-hover:text-lime-300 transition-colors">
-                                            {project.name || 'Untitled Project'}
-                                        </h3>
-                                        <p className="text-zinc-500 text-[10px] truncate w-full mt-0.5 opacity-60">
-                                            {project.prompt || 'No prompt'}
-                                        </p>
-                                    </button>
-                                ))}
+                            <div className="flex-1 text-center">
+                                <span className="text-[10px] font-medium text-zinc-500">demo_preview.mp4</span>
                             </div>
+                            <div className="w-10"></div> {/* Spacer for centering */}
                         </div>
-                    )}
 
-                    {/* Mac-style Video Demo Embed */}
-
-                    <div className="mt-32 md:mt-48 relative group">
-
-
-
-
-                        {/* Glow Effect specific to video */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-lime-500/20 via-emerald-500/20 to-lime-500/20 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-700"></div>
-
-                        <div className="relative rounded-xl border border-white/10 bg-black/50 backdrop-blur-sm shadow-2xl overflow-hidden">
-                            {/* Window Header */}
-                            <div className="h-8 bg-zinc-900/80 border-b border-white/5 flex items-center px-4 gap-2">
-                                <div className="flex gap-1.5">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57] shadow-sm"></div>
-                                    <div className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E] shadow-sm"></div>
-                                    <div className="w-2.5 h-2.5 rounded-full bg-[#28C840] shadow-sm"></div>
-                                </div>
-                                <div className="flex-1 text-center">
-                                    <span className="text-[10px] font-medium text-zinc-500">demo_preview.mp4</span>
-                                </div>
-                                <div className="w-10"></div> {/* Spacer for centering */}
-                            </div>
-
-                            {/* Video Placeholder Container */}
-                            <div className="aspect-video bg-zinc-900 relative flex items-center justify-center overflow-hidden">
-                                <iframe
-                                    src="https://drive.google.com/file/d/12UDZVp9ize7lQY6zXGzOYOCK0Rjf6tva/preview"
-                                    className="w-full h-full"
-                                    allow="autoplay"
-                                    title="Demo Video"
-                                ></iframe>
-                            </div>
-
+                        {/* Video Placeholder Container */}
+                        <div className="aspect-video bg-zinc-900 relative flex items-center justify-center overflow-hidden">
+                            <iframe
+                                src="https://drive.google.com/file/d/12UDZVp9ize7lQY6zXGzOYOCK0Rjf6tva/preview"
+                                className="w-full h-full"
+                                allow="autoplay"
+                                title="Demo Video"
+                            ></iframe>
                         </div>
+
                     </div>
                 </div>
             </div>
-        </section >
+        </section>
     );
 };

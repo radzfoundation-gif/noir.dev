@@ -5,6 +5,7 @@ import type { Project } from '../lib/projectService';
 import { Layout } from '../components/Layout';
 import { Hero } from '../components/Hero';
 import { Testimonials } from '../components/Testimonials';
+import { RecentProjects } from '../components/RecentProjects';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 // ... rest of imports
@@ -90,8 +91,6 @@ export const LandingPage = () => {
                         setPrompt={setPrompt}
                         generationType={generationType}
                         setGenerationType={setGenerationType}
-                        recentProjects={recentProjects}
-                        user={user}
                     />
                 </motion.div>
             </div>
@@ -100,7 +99,7 @@ export const LandingPage = () => {
             <div
                 className="relative w-full min-h-screen flex items-center"
                 style={{
-                    backgroundImage: `url('/landing-bg-2.png')`,
+                    backgroundImage: user ? `url('/recent-bg.png')` : `url('/landing-bg-2.png')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat'
@@ -108,7 +107,7 @@ export const LandingPage = () => {
             >
                 <div className="absolute inset-0 bg-black/40 pointer-events-none" /> {/* Optional overlay for readability */}
                 <div className="relative z-10 w-full">
-                    <Testimonials />
+                    {user ? <RecentProjects projects={recentProjects} /> : <Testimonials />}
                 </div>
             </div>
         </Layout>

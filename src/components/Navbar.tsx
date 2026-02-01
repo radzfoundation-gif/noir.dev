@@ -48,12 +48,9 @@ export const Navbar: React.FC = () => {
                 <div className="flex items-center gap-4">
                     {user ? (
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
-                                <User size={16} className="text-lime-400" />
-                                <span className="text-sm font-medium text-white/80 max-w-[150px] truncate">
-                                    {user.email}
-                                </span>
-                            </div>
+                            <Link to="/projects" className="flex items-center justify-center size-9 rounded-full bg-white/5 border border-white/10 hover:bg-lime-500/20 hover:border-lime-500/50 hover:text-lime-400 text-white/80 transition-all" title="My Projects">
+                                <User size={18} />
+                            </Link>
                             <button
                                 onClick={handleLogout}
                                 className="group px-4 py-2 text-sm font-semibold text-white/80 bg-white/5 border border-white/10 rounded-full hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-400 transition-all"
