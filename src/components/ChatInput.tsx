@@ -79,6 +79,7 @@ interface ChatInputProps {
     prompt: string;
     setPrompt: (p: string) => void;
     context?: string | null;
+    onClearContext?: () => void;
     onEnhancePrompt?: () => void;
     onMention?: () => void;
     variant?: 'hero' | 'sidebar';

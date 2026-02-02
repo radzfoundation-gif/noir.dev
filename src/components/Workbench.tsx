@@ -45,7 +45,6 @@ export const Workbench = () => {
     // Hierarchy State
     const [generatedSteps, setGeneratedSteps] = useState<{ title: string; desc: string }[]>([]);
     const [isCodeVisible, setIsCodeVisible] = useState(true);
-    const [rawStream, setRawStream] = useState('');
     // Framework State
     const [framework, setFramework] = useState<'html' | 'react' | 'astro'>(location.state?.framework || 'html');
 
@@ -203,7 +202,7 @@ export const Workbench = () => {
         setStreamingMessage('');
         setGeneratedSteps([]);
         setIsCodeVisible(false); // Hide code/preview initially
-        setRawStream('');
+        // setRawStream(''); removed
         let accumulatedStream = '';
         let accumulatedCode = '';
 
@@ -230,8 +229,6 @@ export const Workbench = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    prompt: fullPrompt,
-                    model: model,
                     prompt: fullPrompt,
                     model: model,
                     image: image, // Send the image data
@@ -268,7 +265,7 @@ export const Workbench = () => {
                             const parsed = JSON.parse(data);
                             if (parsed.content) {
                                 accumulatedStream += parsed.content;
-                                setRawStream(accumulatedStream);
+                                // setRawStream removed
 
                                 // Parse Steps
                                 const stepRegex = /\/\/\/ STEP: (.*?) \/\/\/([\s\S]*?)(?=(\/\/\/ STEP:|$|\/\/\/ CODE \/\/\/))/g;
