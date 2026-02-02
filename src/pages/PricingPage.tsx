@@ -1,6 +1,16 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { LogOut, User } from 'lucide-react';
 
 export const PricingPage = () => {
+    const { user, signOut } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await signOut();
+        navigate('/');
+    };
+
     return (
         <div className="bg-[#f5f8f6] dark:bg-[#0a0a0a] min-h-screen font-display text-slate-900 dark:text-white transition-colors duration-300 dark">
             <style>{`
@@ -23,18 +33,34 @@ export const PricingPage = () => {
                         <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Noir Code</h2>
                     </Link>
                     <nav className="hidden md:flex items-center gap-10">
-                        <a className="text-sm font-medium hover:text-[#25f46a] transition-colors" href="#">Product</a>
+                        <Link className="text-sm font-medium hover:text-[#25f46a] transition-colors" to="/how-it-works">How it Works</Link>
                         <a className="text-sm font-medium hover:text-[#25f46a] transition-colors" href="#">Features</a>
                         <a className="text-sm font-medium hover:text-[#25f46a] transition-colors" href="#">Docs</a>
-                        <a className="text-sm font-medium hover:text-[#25f46a] transition-colors" href="#">Showcase</a>
                     </nav>
-                    <div className="flex gap-3">
-                        <Link to="/login" className="hidden sm:flex h-10 px-5 items-center justify-center rounded-lg border border-slate-300 dark:border-white/20 text-sm font-bold hover:bg-white/5 transition-all text-slate-900 dark:text-white">
-                            Log in
-                        </Link>
-                        <Link to="/register" className="h-10 px-5 items-center justify-center rounded-lg bg-[#25f46a] text-[#0a0a0a] text-sm font-bold hover:brightness-110 transition-all shadow-lg shadow-[#25f46a]/20">
-                            Get Started
-                        </Link>
+                    <div className="flex gap-3 items-center">
+                        {user ? (
+                            <>
+                                <Link to="/projects" className="flex items-center justify-center size-9 rounded-full bg-white/5 border border-white/10 hover:bg-[#25f46a]/20 hover:border-[#25f46a]/50 hover:text-[#25f46a] text-white/80 transition-all" title="My Projects">
+                                    <User size={18} />
+                                </Link>
+                                <button
+                                    onClick={handleLogout}
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white/80 bg-white/5 border border-white/10 rounded-lg hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-400 transition-all"
+                                >
+                                    Log out
+                                    <LogOut size={16} />
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/login" className="hidden sm:flex h-10 px-5 items-center justify-center rounded-lg border border-slate-300 dark:border-white/20 text-sm font-bold hover:bg-white/5 transition-all text-slate-900 dark:text-white">
+                                    Log in
+                                </Link>
+                                <Link to="/register" className="h-10 px-5 items-center justify-center rounded-lg bg-[#25f46a] text-[#0a0a0a] text-sm font-bold hover:brightness-110 transition-all shadow-lg shadow-[#25f46a]/20">
+                                    Get Started
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </header>
                 <main className="flex-1 flex flex-col items-center py-16 px-6 lg:px-20">
