@@ -535,7 +535,7 @@ export const Workbench = () => {
                     </button>
                     <button className="flex items-center gap-2 px-4 py-1.5 text-xs font-black bg-primary text-noir-black rounded-lg hover:bg-opacity-90 transition-colors uppercase tracking-wider" onClick={handleDownload}>
                         <Download size={16} strokeWidth={3} />
-                        Download HTML
+                        Export
                     </button>
                 </div>
             </header>
