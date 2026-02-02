@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatInput } from './ChatInput';
 import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Redo, Camera, Save } from 'lucide-react';
@@ -17,6 +17,7 @@ type Device = 'iPhone 17 Pro' | 'Desktop' | 'Tablet';
 
 export const Workbench = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [generationType, setGenerationType] = useState<'web' | 'app'>(location.state?.generationType || 'web');
 
     // Auto-set device based on initial generation type
@@ -528,7 +529,7 @@ export const Workbench = () => {
                         )}
                         {projectId ? 'Save' : 'Save Project'}
                     </button>
-                    <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-primary border border-primary rounded-lg hover:bg-primary/10 transition-colors uppercase tracking-wider" onClick={() => showToast("Upgrade plan feature")}>
+                    <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-primary border border-primary rounded-lg hover:bg-primary/10 transition-colors uppercase tracking-wider" onClick={() => navigate('/pricing')}>
                         <span className="material-symbols-outlined text-sm">workspace_premium</span>
                         Upgrade
                     </button>
