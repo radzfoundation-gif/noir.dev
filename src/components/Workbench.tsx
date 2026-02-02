@@ -16,8 +16,14 @@ type ViewMode = 'Preview' | 'Code' | 'Integrations' | 'APIs';
 type Device = 'iPhone 17 Pro' | 'Desktop' | 'Tablet';
 
 export const Workbench = () => {
+    const location = useLocation();
+    const [generationType, setGenerationType] = useState<'web' | 'app'>(location.state?.generationType || 'web');
+
+    // Auto-set device based on initial generation type
     const [activeTab, setActiveTab] = useState<ViewMode>('Preview');
-    const [device, setDevice] = useState<Device>('iPhone 17 Pro');
+    const [device, setDevice] = useState<Device>(
+        location.state?.generationType === 'web' ? 'Desktop' : 'iPhone 17 Pro'
+    );
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: '', show: false });
     const [showDeviceMenu, setShowDeviceMenu] = useState(false);
@@ -27,16 +33,21 @@ export const Workbench = () => {
     const { user } = useAuth();
 
     // Chat State
-    // Chat State
-    const location = useLocation();
+    // const location = useLocation(); // Moved up
     const [model, setModel] = useState(location.state?.model || 'gemini/gemini-2.5-flash-lite');
     const [prompt, setPrompt] = useState(location.state?.prompt || '');
     const [image, setImage] = useState<string | null>(location.state?.image || null);
-    const [generationType, setGenerationType] = useState<'web' | 'app'>(location.state?.generationType || 'web');
+    // const [generationType, setGenerationType] ... // Moved up
     const [isGenerating, setIsGenerating] = useState(false);
     const [context, setContext] = useState<string | null>(null);
     const [streamingMessage, setStreamingMessage] = useState<string>('');
     const [currentPrompt, setCurrentPrompt] = useState<string>('');
+    // Hierarchy State
+    const [generatedSteps, setGeneratedSteps] = useState<{ title: string; desc: string }[]>([]);
+    const [isCodeVisible, setIsCodeVisible] = useState(true);
+    const [rawStream, setRawStream] = useState('');
+    // Framework State
+    const [framework, setFramework] = useState<'html' | 'react' | 'astro'>(location.state?.framework || 'html');
 
     // Auto-generate if triggered from Landing Page
     useEffect(() => {
@@ -187,9 +198,13 @@ export const Workbench = () => {
         if (!prompt.trim() && !image) return;
 
         setIsGenerating(true);
-        setCurrentPrompt(prompt); // Save the prompt being processed
-        setPrompt(''); // Clear input immediately
+        setCurrentPrompt(prompt);
+        setPrompt('');
         setStreamingMessage('');
+        setGeneratedSteps([]);
+        setIsCodeVisible(false); // Hide code/preview initially
+        setRawStream('');
+        let accumulatedStream = '';
         let accumulatedCode = '';
 
         try {
@@ -217,8 +232,11 @@ export const Workbench = () => {
                 body: JSON.stringify({
                     prompt: fullPrompt,
                     model: model,
+                    prompt: fullPrompt,
+                    model: model,
                     image: image, // Send the image data
-                    history: []
+                    history: [],
+                    framework: framework
                 })
             });
 
@@ -249,10 +267,34 @@ export const Workbench = () => {
                         try {
                             const parsed = JSON.parse(data);
                             if (parsed.content) {
-                                accumulatedCode += parsed.content;
-                                // Update code and streaming message in realtime
-                                setCode(accumulatedCode);
-                                setStreamingMessage(accumulatedCode);
+                                accumulatedStream += parsed.content;
+                                setRawStream(accumulatedStream);
+
+                                // Parse Steps
+                                const stepRegex = /\/\/\/ STEP: (.*?) \/\/\/([\s\S]*?)(?=(\/\/\/ STEP:|$|\/\/\/ CODE \/\/\/))/g;
+                                const newSteps = [];
+                                let match;
+                                while ((match = stepRegex.exec(accumulatedStream)) !== null) {
+                                    newSteps.push({ title: match[1].trim(), desc: match[2].trim() });
+                                }
+                                if (newSteps.length > 0) {
+                                    setGeneratedSteps(newSteps);
+                                }
+
+                                // Check for Code Start
+                                if (accumulatedStream.includes('/// CODE ///')) {
+                                    setIsCodeVisible(true);
+                                    const parts = accumulatedStream.split('/// CODE ///');
+                                    let codePart = parts[1];
+
+                                    // Clean code part
+                                    if (codePart.includes('```html')) {
+                                        codePart = codePart.replace(/```html\n?/g, '').replace(/```\n?/g, '');
+                                    }
+                                    accumulatedCode = codePart;
+                                    setCode(accumulatedCode);
+                                    setStreamingMessage(accumulatedCode); // Only for text view?
+                                }
                             }
                             if (parsed.error) {
                                 console.error('Stream error:', parsed.error);
@@ -430,6 +472,20 @@ export const Workbench = () => {
                         <button className="ml-2 text-neutral-600 hover:text-primary transition-colors" onClick={() => showToast("Settings opened")}>
                             <span className="material-symbols-outlined text-base">settings</span>
                         </button>
+
+                        {/* Framework Selector */}
+                        <div className="relative ml-4 pl-4 border-l border-neutral-800">
+                            <select
+                                value={framework}
+                                onChange={(e) => setFramework(e.target.value as any)}
+                                className="bg-transparent text-xs font-medium text-neutral-400 hover:text-white focus:outline-none cursor-pointer appearance-none pr-4"
+                            >
+                                <option value="html">HTML</option>
+                                <option value="react">React</option>
+                                <option value="astro">Astro</option>
+                            </select>
+                            <span className="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-sm text-neutral-500 pointer-events-none">expand_more</span>
+                        </div>
                     </div>
                 </div>
                 <nav className="flex items-center bg-neutral-900 rounded-lg p-1 border border-neutral-800">
@@ -616,13 +672,52 @@ export const Workbench = () => {
                                         <p className="text-neutral-400 text-sm">Refreshing Preview...</p>
                                     </div>
                                 ) : code ? (
-                                    <div className={`${currentDeviceClass[device]} device-mockup overflow-hidden transition-all duration-500 ${device === 'iPhone 17 Pro' ? 'notch' : ''}`}>
+                                    <div className={`${currentDeviceClass[device]} device-mockup overflow-hidden transition-all duration-500 relative ${device === 'iPhone 17 Pro' ? 'notch' : ''}`}>
                                         <iframe
                                             srcDoc={code}
-                                            className="w-full h-full border-0 bg-white"
+                                            className={`w-full h-full border-0 bg-white transition-opacity duration-300 ${!isCodeVisible && isGenerating ? 'opacity-10' : 'opacity-100'}`}
                                             title="Preview"
                                             sandbox="allow-scripts allow-same-origin"
                                         />
+
+                                        {!isCodeVisible && isGenerating && (
+                                            <div className="absolute inset-0 z-20 bg-noir-black/95 backdrop-blur-sm flex items-center justify-center p-8">
+                                                <div className="w-full max-w-sm">
+                                                    <div className="flex items-center gap-4 mb-8">
+                                                        <div className="relative">
+                                                            <div className="absolute inset-0 bg-lime-500 blur-xl opacity-20 animate-pulse"></div>
+                                                            <RefreshCw className="relative text-lime-400 animate-spin" size={28} />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-white font-bold text-base tracking-tight">AI Architect</h3>
+                                                            <p className="text-neutral-500 text-xs mt-0.5">Building your solution...</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-0 relative">
+                                                        {/* Connector Line */}
+                                                        <div className="absolute left-[9px] top-2 bottom-6 w-px bg-neutral-800"></div>
+
+                                                        {generatedSteps.map((step, idx) => (
+                                                            <motion.div
+                                                                key={idx}
+                                                                initial={{ opacity: 0, x: -10 }}
+                                                                animate={{ opacity: 1, x: 0 }}
+                                                                className="relative pl-8 pb-6"
+                                                            >
+                                                                <div className={`absolute left-0 top-1.5 w-[19px] h-[19px] rounded-full border-[3px] z-10 ${idx === generatedSteps.length - 1 ? 'border-lime-500 bg-noir-black shadow-[0_0_15px_rgba(132,204,22,0.4)]' : 'border-neutral-800 bg-neutral-900'}`}></div>
+                                                                <h4 className={`text-sm font-semibold transition-colors ${idx === generatedSteps.length - 1 ? 'text-white' : 'text-neutral-500'}`}>{step.title}</h4>
+                                                                <p className="text-xs text-neutral-600 mt-1 leading-relaxed line-clamp-2">{step.desc}</p>
+                                                            </motion.div>
+                                                        ))}
+
+                                                        {generatedSteps.length === 0 && (
+                                                            <div className="pl-8 text-neutral-600 text-sm italic animate-pulse">Analyzing requirements...</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className={`${currentDeviceClass[device]} device-mockup flex flex-col items-center justify-center text-center px-8 transition-all duration-500 ${device === 'iPhone 17 Pro' ? 'notch' : ''}`}>

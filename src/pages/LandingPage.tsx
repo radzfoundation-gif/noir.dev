@@ -20,6 +20,7 @@ export const LandingPage = () => {
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
     const [generationType, setGenerationType] = useState<'web' | 'app'>('web');
+    const [framework, setFramework] = useState<'html' | 'react' | 'astro'>('html');
     const [recentProjects, setRecentProjects] = useState<Project[]>([]);
 
     // Fetch recent projects if user is logged in
@@ -54,6 +55,7 @@ export const LandingPage = () => {
                     image,
                     model,
                     generationType,
+                    framework,
                     autoGenerate: true // Flag to trigger generation on load
                 }
             });
@@ -91,6 +93,10 @@ export const LandingPage = () => {
                         setPrompt={setPrompt}
                         generationType={generationType}
                         setGenerationType={setGenerationType}
+
+                        // Pass framework props
+                        framework={framework}
+                        setFramework={setFramework}
                     />
                 </motion.div>
             </div>

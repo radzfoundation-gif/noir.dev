@@ -1,4 +1,4 @@
-import { Wand2, Clock, ShieldCheck as ShieldIcon } from 'lucide-react';
+import { Wand2, Clock, ShieldCheck as ShieldIcon, Globe, User, ShoppingCart, LayoutDashboard, MessageSquare, CheckSquare, Activity, Smartphone } from 'lucide-react';
 import { ChatInput } from './ChatInput';
 import { FlipWords } from './FlipWords';
 
@@ -13,6 +13,8 @@ interface HeroProps {
     setPrompt: (p: string) => void;
     generationType: 'web' | 'app';
     setGenerationType: (t: 'web' | 'app') => void;
+    framework: 'html' | 'react' | 'astro';
+    setFramework: (f: 'html' | 'react' | 'astro') => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({
@@ -25,8 +27,12 @@ export const Hero: React.FC<HeroProps> = ({
     prompt,
     setPrompt,
     generationType,
-    setGenerationType
+    setGenerationType,
+    framework,
+    setFramework
 }) => {
+    const chipClass = "flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-black/40 backdrop-blur-md hover:bg-black/60 hover:border-lime-500 transition-all text-xs font-semibold text-white shadow-lg hover:shadow-[0_0_15px_rgba(132,204,22,0.3)] hover:-translate-y-0.5 active:scale-95";
+
     return (
         <section className="relative pt-20 pb-12 md:pt-28 overflow-hidden">
             {/* Background Gradients */}
@@ -89,6 +95,8 @@ export const Hero: React.FC<HeroProps> = ({
                         prompt={prompt}
                         setPrompt={setPrompt}
                         variant="hero"
+                        framework={framework}
+                        setFramework={setFramework}
                     />
 
 
@@ -101,7 +109,46 @@ export const Hero: React.FC<HeroProps> = ({
                         </span>
                     </div>
                 </div>
-                {/* Mac-style Video Demo Embed */}
+
+                {/* Suggestions Chips */}
+                <div className="mt-12 max-w-3xl mx-auto">
+                    <p className="text-zinc-400 text-xs font-medium mb-4 uppercase tracking-wider">
+                        {generationType === 'web' ? 'Website Ideas' : 'App Concepts'}
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-3">
+                        {generationType === 'web' ? (
+                            <>
+                                <button onClick={() => setPrompt("Create a high-converting SaaS landing page with a sticky transparent navbar, hero section with glowing gradient text and floating elements, feature grid with hover effects using framer-motion, interactive pricing toggle, and a minimal footer. Use a dark theme with zinc-900 background and lime-500 accents.")} className={chipClass}>
+                                    <Globe size={14} /> SaaS Landing Page
+                                </button>
+                                <button onClick={() => setPrompt("Design a minimalist portfolio for a developer. Include a large typographic hero, a masonry grid for projects with modal previews, an 'About Me' section with a timeline of experience, and a contact form with floating labels. Use a clean, monochromatic color scheme.")} className={chipClass}>
+                                    <User size={14} /> Portfolio
+                                </button>
+                                <button onClick={() => setPrompt("Build a premium product page for a luxury sneaker brand. Features: Full-screen image gallery with zoom, size selector with stock indicators, sticky 'Add to Cart' bar, customer reviews with star ratings, and a 'Related Products' carousel.")} className={chipClass}>
+                                    <ShoppingCart size={14} /> E-commerce
+                                </button>
+                                <button onClick={() => setPrompt("Create a comprehensive admin dashboard layout. Sidebar navigation with collapsible groups, top header with search, and a main grid containing a revenue chart, recent activity list, and key metric cards with percentage growth indicators.")} className={chipClass}>
+                                    <LayoutDashboard size={14} /> Dashboard
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button onClick={() => setPrompt("Design a modern social media feed screen. Top stories bar with circular avatars, infinite scroll feed with image posts, like/comment/share actions, and a bottom tab bar with glassmorphism effect. Use animations for heart interactions.")} className={chipClass}>
+                                    <Smartphone size={14} /> Social Feed
+                                </button>
+                                <button onClick={() => setPrompt("Create a productivity app interface. Header with date and progress ring, draggable task list with priority badges (High/Med/Low), swipe-to-delete gestures, and a floating action button (FAB) for adding tasks.")} className={chipClass}>
+                                    <CheckSquare size={14} /> Task Manager
+                                </button>
+                                <button onClick={() => setPrompt("Build a fitness tracking dashboard for mobile. Display a central circular progress ring for daily steps, a weekly activity bar chart, and a list of recent workouts with icons. Include a bottom navigation.")} className={chipClass}>
+                                    <Activity size={14} /> Fitness Tracker
+                                </button>
+                                <button onClick={() => setPrompt("Design a clean chat conversation screen. Header with user online status, message bubbles (green for sent, gray for received) with timestamps, support for image attachments, and a bottom input field with emoji picker.")} className={chipClass}>
+                                    <MessageSquare size={14} /> Chat App
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
 
                 <div className="mt-32 md:mt-48 relative group">
 

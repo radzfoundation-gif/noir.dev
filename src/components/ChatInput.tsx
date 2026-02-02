@@ -1,9 +1,73 @@
 import React, { useState } from 'react';
-import { Wand2, Image as ImageIcon, ArrowUp, X, FileCode, ArrowRight } from 'lucide-react';
+import { Wand2, Image as ImageIcon, ArrowUp, X, FileCode, ArrowRight, Code2, Atom, Rocket } from 'lucide-react';
 import clsx from 'clsx';
 import { ModelSelector } from './ModelSelector';
 import { ImageUpload } from './ImageUpload';
+import { FigmaImport } from './FigmaImport';
 import { AnimatePresence, motion } from 'framer-motion';
+
+const FrameworkDropdown = ({ framework, setFramework }: { framework: 'html' | 'react' | 'astro', setFramework: (f: 'html' | 'react' | 'astro') => void }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const frameworks = [
+        { id: 'html', label: 'HTML', icon: Code2, color: 'text-orange-400' },
+        { id: 'react', label: 'React', icon: Atom, color: 'text-cyan-400' },
+        { id: 'astro', label: 'Astro', icon: Rocket, color: 'text-purple-400' },
+    ];
+
+    const current = frameworks.find(f => f.id === framework) || frameworks[0];
+    const Icon = current.icon;
+
+    return (
+        <div className="relative ml-2">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 hover:border-lime-500/30 hover:bg-zinc-800 transition-all group"
+            >
+                <Icon size={12} className={current.color} />
+                <span className="text-[10px] font-bold text-zinc-300 group-hover:text-white">{current.label}</span>
+                <span className="material-symbols-outlined text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">expand_more</span>
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 5 }}
+                            transition={{ duration: 0.1 }}
+                            className="absolute bottom-full left-0 mb-2 w-32 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50 p-1"
+                        >
+                            {frameworks.map((fw) => {
+                                const FwIcon = fw.icon;
+                                const isSelected = framework === fw.id;
+                                return (
+                                    <button
+                                        key={fw.id}
+                                        onClick={() => {
+                                            setFramework(fw.id as any);
+                                            setIsOpen(false);
+                                        }}
+                                        className={clsx(
+                                            "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all text-left",
+                                            isSelected ? "bg-white/10 text-white" : "text-zinc-400 hover:text-white hover:bg-white/5"
+                                        )}
+                                    >
+                                        <FwIcon size={12} className={isSelected ? fw.color : "text-zinc-500"} />
+                                        {fw.label}
+                                        {isSelected && <div className="ml-auto w-1 h-1 rounded-full bg-lime-500" />}
+                                    </button>
+                                );
+                            })}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
 
 interface ChatInputProps {
     onGenerate: () => void;
@@ -15,10 +79,11 @@ interface ChatInputProps {
     prompt: string;
     setPrompt: (p: string) => void;
     context?: string | null;
-    onClearContext?: () => void;
     onEnhancePrompt?: () => void;
     onMention?: () => void;
     variant?: 'hero' | 'sidebar';
+    framework?: 'html' | 'react' | 'astro';
+    setFramework?: (f: 'html' | 'react' | 'astro') => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
@@ -34,7 +99,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     onClearContext,
     onEnhancePrompt,
     onMention,
-    variant = 'sidebar'
+    variant = 'sidebar',
+    framework,
+    setFramework
 }) => {
     const [showContext, setShowContext] = useState(false);
 
@@ -73,7 +140,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             <div className={clsx(
                 "border border-zinc-800 rounded-xl transition-all duration-300 relative group",
                 variant === 'hero'
-                    ? "bg-black p-2.5 shadow-lg focus-within:border-lime-500/50 focus-within:shadow-[0_0_10px_rgba(163,230,53,0.05)]"
+                    ? "bg-black/60 backdrop-blur-md p-2.5 shadow-lg focus-within:border-lime-500/50 focus-within:shadow-[0_0_10px_rgba(163,230,53,0.05)]"
                     : "bg-zinc-900/50 p-1.5 focus-within:border-lime-500/30"
             )}>
 
@@ -164,7 +231,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                             align={variant === 'sidebar' ? 'left' : 'right'}
                         />
 
+                        {/* Framework Selector (Hero Only) */}
+                        {variant === 'hero' && setFramework && framework && (
+                            <FrameworkDropdown framework={framework} setFramework={setFramework} />
+                        )}
+
                         <div className="h-3 w-[1px] bg-zinc-800 mx-0.5"></div>
+
+                        <FigmaImport onImageImport={(url) => setImage(url)} />
 
                         <button
                             onClick={() => document.getElementById('chat-image-upload')?.click()}

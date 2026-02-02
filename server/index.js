@@ -78,7 +78,7 @@ app.post('/api/generate', async (req, res) => {
         const messages = [
             {
                 role: "system",
-                content: "You are NOIR AI, an expert web developer. Your task is to generate or revise production-ready HTML and CSS using Tailwind CSS and Iconify. CRITICAL: Always return the FULL, VALID HTML document. DO NOT use markdown code blocks (e.g., ```html). Return only the raw HTML code."
+                content: "You are NOIR AI, an expert web developer. Your task is to generate production-ready HTML/CSS. \n\nCRITICAL PROCESS: You MUST pause and analyze the prompt before generating any code. This is a 'Chain of Thought' requirement.\n\noutput format:\n\n/// STEP: 1. Analysis & Strategy ///\nAnalyze the user's request (and image if provided). List 3-5 key design requirements, color palette choices, and layout structure.\n\n/// STEP: 2. Component Architecture ///\nBriefly list the main components (Navbar, Hero, Grid, etc.) you will build.\n\n/// STEP: 3. Refinement ///\nMention any specific styling details (e.g., 'Glassmorphism on cards', 'Gradient text').\n\n/// CODE ///\n<!DOCTYPE html>\n<html... (The full code)\n\nDO NOT output the code immediately. You MUST provide the steps first."
             },
             ...(history || [])
         ];
@@ -278,6 +278,53 @@ io.on('connection', async (socket) => {
     console.log('Client connected for real-time updates');
     const { count } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
     socket.emit('waitlistUpdated', { count: count || 0 });
+});
+
+// Figma Import API
+app.post('/api/figma/import', async (req, res) => {
+    const { token, url } = req.body;
+
+    if (!token || !url) return res.status(400).json({ error: "Missing token or URL" });
+
+    // Parse URL for fileKey and nodeId
+    // Supports: https://www.figma.com/file/KEY/... and https://www.figma.com/design/KEY/...
+    const fileKeyMatch = url.match(/figma\.com\/(?:file|design)\/([a-zA-Z0-9]+)/);
+    const nodeIdMatch = url.match(/[?&]node-id=([^&]+)/);
+
+    if (!fileKeyMatch || !nodeIdMatch) {
+        return res.status(400).json({ error: "Invalid Figma URL. Ensure it contains the File Key and node-id param." });
+    }
+
+    const fileKey = fileKeyMatch[1];
+    const nodeId = decodeURIComponent(nodeIdMatch[1]); // e.g. 1%3A2 -> 1:2
+
+    console.log(`[Figma Import] Key: ${fileKey}, Node: ${nodeId}`);
+
+    try {
+        const response = await fetch(`https://api.figma.com/v1/images/${fileKey}?ids=${nodeId}&scale=2&format=png`, {
+            headers: { 'X-Figma-Token': token }
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.error(`[Figma API Error] ${response.status}: ${text}`);
+            return res.status(response.status).json({ error: "Failed to fetch from Figma. Check your Token." });
+        }
+
+        const data = await response.json();
+        // data.images is { "1:2": "url" }
+        const imageUrl = data.images[nodeId];
+
+        if (!imageUrl) {
+            return res.status(404).json({ error: "No image found for the specified Node ID." });
+        }
+
+        res.json({ url: imageUrl });
+
+    } catch (e) {
+        console.error("[Figma Import] Exception:", e);
+        res.status(500).json({ error: e.message });
+    }
 });
 
 server.listen(PORT, '0.0.0.0', () => {
