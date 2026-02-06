@@ -1,18 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase'; // Direct access for public data
+import { useParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import { Layout } from '../components/Layout';
-import { Globe, Smartphone, Clock, FileCode, Copy, ExternalLink, Code2 } from 'lucide-react';
+import { Clock, FileCode, Code2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Project } from '../lib/projectService';
 
 export const PortfolioPage = () => {
     const { userId } = useParams();
-    const navigate = useNavigate();
     const [projects, setProjects] = useState<Project[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [portfolioOwner, setPortfolioOwner] = useState<{ email: string } | null>(null);
 
 
 
