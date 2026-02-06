@@ -22,25 +22,25 @@ export interface Model {
 
 const MODELS: Model[] = [
     {
-        id: 'gemini/gemini-2.5-flash-lite',
-        name: 'Gemini 2.5 Flash Lite',
+        id: 'google/gemini-3-pro-preview',
+        name: 'Gemini 3 Pro Preview',
         logo: googleLogo,
         category: 'HTML GENERATION',
-        badge: 'Free'
+        badge: 'Intelligence'
     },
     {
-        id: 'anthropic/claude-sonnet-4-5',
-        name: 'Claude Sonnet 4.5',
+        id: 'anthropic/claude-opus-4.5',
+        name: 'Claude Opus 4.5',
         logo: anthropicLogo,
         category: 'HTML GENERATION',
-        badge: 'Best Quality'
+        badge: 'Elite Quality'
     },
     {
         id: 'openai/gpt-5',
         name: 'GPT-5',
         logo: openaiLogo,
         category: 'HTML GENERATION',
-        badge: 'Reasoning'
+        badge: 'Best for Vision'
     }
 ];
 

@@ -118,31 +118,31 @@ export const Hero: React.FC<HeroProps> = ({
                     <div className="flex flex-wrap justify-center gap-3">
                         {generationType === 'web' ? (
                             <>
-                                <button onClick={() => setPrompt("Create a high-converting SaaS landing page with a sticky transparent navbar, hero section with glowing gradient text and floating elements, feature grid with hover effects using framer-motion, interactive pricing toggle, and a minimal footer. Use a dark theme with zinc-900 background and lime-500 accents.")} className={chipClass}>
+                                <button onClick={() => setPrompt("Create a premium SaaS Landing Page. Structure: Sticky glassmorphism navbar, Hero section with animated gradient text and 3D floating elements, Features grid using hover-scale cards, Interactive Pricing toggle (Monthly/Yearly) with a 'Most Popular' highlighted plan, and a dark-themed Footer. Design: Use Tailwind CSS, Zinc-950 background, Lime-400 accents, and smooth Framer Motion entrance animations.")} className={chipClass}>
                                     <Globe size={14} /> SaaS Landing Page
                                 </button>
-                                <button onClick={() => setPrompt("Design a minimalist portfolio for a developer. Include a large typographic hero, a masonry grid for projects with modal previews, an 'About Me' section with a timeline of experience, and a contact form with floating labels. Use a clean, monochromatic color scheme.")} className={chipClass}>
+                                <button onClick={() => setPrompt("Design an Elite Portfolio for a Creative Developer. Layout: Full-screen typographic hero with parallax effect, 'Work' section featuring a masonry grid with magnetic hover effects, 'About' section with a clean timeline, and a functional Contact form with floating labels. Style: Minimalist B&W aesthetic with subtle gold accents, high-quality typography, and ultra-smooth transitions.")} className={chipClass}>
                                     <User size={14} /> Portfolio
                                 </button>
-                                <button onClick={() => setPrompt("Build a premium product page for a luxury sneaker brand. Features: Full-screen image gallery with zoom, size selector with stock indicators, sticky 'Add to Cart' bar, customer reviews with star ratings, and a 'Related Products' carousel.")} className={chipClass}>
+                                <button onClick={() => setPrompt("Build a high-conversion E-commerce Product Page. Features: Interactive image gallery with zoom functionality, dynamic Size/Color selectors with stock status badges, sticky 'Add to Cart' bar for mobile, integrated Customer Reviews with star ratings, and a 'Complete the Look' recommendation carousel. Design: Clean white layout, premium typography, and trust-building security badges.")} className={chipClass}>
                                     <ShoppingCart size={14} /> E-commerce
                                 </button>
-                                <button onClick={() => setPrompt("Create a comprehensive admin dashboard layout. Sidebar navigation with collapsible groups, top header with search, and a main grid containing a revenue chart, recent activity list, and key metric cards with percentage growth indicators.")} className={chipClass}>
+                                <button onClick={() => setPrompt("Create a Data-Driven Analytics Dashboard. Components: Collapsible sidebar navigation, Top header with global search and user notifications, Main grid featuring Area Charts (Revenue), Bar Charts (Traffic), and real-time KPI cards with percentage growth indicators. Style: Professional Slate/Indigo theme, clean card borders, and high information density layout.")} className={chipClass}>
                                     <LayoutDashboard size={14} /> Dashboard
                                 </button>
                             </>
                         ) : (
                             <>
-                                <button onClick={() => setPrompt("Design a modern social media feed screen. Top stories bar with circular avatars, infinite scroll feed with image posts, like/comment/share actions, and a bottom tab bar with glassmorphism effect. Use animations for heart interactions.")} className={chipClass}>
+                                <button onClick={() => setPrompt("Design a modern Social Media Feed (App). UI: Top stories bar with circular active-status avatars, infinite scroll feed with card-based posts, interactive Like/Comment/Share actions with haptic-feedback feel, and a bottom navigation tab bar with glassmorphism. Style: iOS-inspired clean design, vibrant accent colors, and smooth image loading transitions.")} className={chipClass}>
                                     <Smartphone size={14} /> Social Feed
                                 </button>
-                                <button onClick={() => setPrompt("Create a productivity app interface. Header with date and progress ring, draggable task list with priority badges (High/Med/Low), swipe-to-delete gestures, and a floating action button (FAB) for adding tasks.")} className={chipClass}>
+                                <button onClick={() => setPrompt("Create a Productivity Task Manager (App). Structure: Dynamic header with current date and circular goal-progress ring, draggable task list with priority-coded badges, swipe-to-complete gestures, and a prominent Floating Action Button (FAB). Design: Neumorphic elements, soft shadows, pastel color palette for task categories, and clean sans-serif typography.")} className={chipClass}>
                                     <CheckSquare size={14} /> Task Manager
                                 </button>
-                                <button onClick={() => setPrompt("Build a fitness tracking dashboard for mobile. Display a central circular progress ring for daily steps, a weekly activity bar chart, and a list of recent workouts with icons. Include a bottom navigation.")} className={chipClass}>
+                                <button onClick={() => setPrompt("Build a Health & Fitness Tracker (App). View: Central 'Activity Ring' for daily steps/calories, weekly progress bar charts, a 'Recent Workouts' list with activity-specific icons, and a heart-rate monitor visualization. Style: Dark mode optimized, neon-green accents for high visibility, and energetic motion graphics.")} className={chipClass}>
                                     <Activity size={14} /> Fitness Tracker
                                 </button>
-                                <button onClick={() => setPrompt("Design a clean chat conversation screen. Header with user online status, message bubbles (green for sent, gray for received) with timestamps, support for image attachments, and a bottom input field with emoji picker.")} className={chipClass}>
+                                <button onClick={() => setPrompt("Design a Real-time Chat Conversation (App). Features: Header with user presence and video call icons, message bubbles with smart-tail design (Green for Sent, Gray for Received), integrated image attachment preview, and a bottom input bar with emoji/voice-note shortcuts. Style: Clean, focus on readability, smooth message-entry animations.")} className={chipClass}>
                                     <MessageSquare size={14} /> Chat App
                                 </button>
                             </>

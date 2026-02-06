@@ -9,6 +9,11 @@ import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { PricingPage } from './pages/PricingPage';
 import { HowItWorksPage } from './pages/HowItWorksPage';
 import { ProjectsPage } from './pages/ProjectsPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { SharedProjectPage } from './pages/SharedProjectPage';
+import { PortfolioPage } from './pages/PortfolioPage';
+import { StandalonePreviewPage } from './pages/StandalonePreviewPage';
+
 
 function App() {
   return (
@@ -24,6 +29,10 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/pricing" element={<ProtectedRoute><PricingPage /></ProtectedRoute>} />
           <Route path="/how-it-works" element={<ProtectedRoute><HowItWorksPage /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+          <Route path="/share/:token" element={<SharedProjectPage />} />
+          <Route path="/portfolio/:userId" element={<PortfolioPage />} />
+          <Route path="/preview/:projectId" element={<StandalonePreviewPage />} />
         </Routes>
       </Router>
     </AuthProvider>

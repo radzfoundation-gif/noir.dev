@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Wand2, Image as ImageIcon, ArrowUp, X, FileCode, ArrowRight, Code2, Atom, Rocket } from 'lucide-react';
 import clsx from 'clsx';
 import { ModelSelector } from './ModelSelector';
-import { ImageUpload } from './ImageUpload';
 import { FigmaImport } from './FigmaImport';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -85,6 +84,7 @@ interface ChatInputProps {
     variant?: 'hero' | 'sidebar';
     framework?: 'html' | 'react' | 'astro';
     setFramework?: (f: 'html' | 'react' | 'astro') => void;
+    updateCode?: (newCode: string) => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
@@ -249,10 +249,25 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                             <ImageIcon size={14} strokeWidth={1.5} />
                         </button>
 
-                        {/* Hidden Input */}
-                        <div className="hidden">
-                            <ImageUpload onImageSelect={setImage} inputId="chat-image-upload" />
-                        </div>
+                        {/* Hidden File Input */}
+                        <input
+                            id="chat-image-upload"
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file && file.type.startsWith('image/')) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                        setImage(reader.result as string);
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                                // Reset input so same file can be selected again
+                                e.target.value = '';
+                            }}
+                        />
                     </div>
 
                     {/* Generate Button */}

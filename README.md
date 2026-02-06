@@ -15,6 +15,7 @@
 - **💎 Premium UI/UX**: "Noir" aesthetic featuring glassmorphism, smooth Framer Motion animations, and a responsive dark mode interface.
 - **⚡ Live Preview**: Real-time rendering of generated code in a secure sandbox.
 - **🔧 Customizable Output**: Add specific instructions (e.g., "Make it mobile responsive", "Use grid layout") to guide the AI.
+- **📧 Email Notifications**: Automated email notifications sent on login and waitlist join (powered by Resend).
 
 ## 🛠️ Tech Stack
 
@@ -50,8 +51,16 @@
     ```env
     # .env
     OPENROUTER_API_KEY=sk-or-your-api-key-here
+    SUMOPOD_API_KEY=your_sumopod_api_key
+    RESEND_API_KEY=your_resend_api_key
     VITE_API_URL=http://localhost:3001
     PORT=3001
+    
+    # Supabase (Required for auth and database)
+    SUPABASE_URL=your_supabase_project_url
+    SUPABASE_ANON_KEY=your_supabase_anon_key
+    VITE_SUPABASE_URL=your_supabase_project_url
+    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
     ```
 
 4.  **Run Development Server**:

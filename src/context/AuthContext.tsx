@@ -38,7 +38,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const signIn = async (email: string, password: string) => {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+        
+        // Kirim email notifikasi login jika berhasil
+        if (!error && data.user) {
+            try {
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+                await fetch(`${apiUrl}/api/auth/login-notification`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: data.user.email,
+                        name: data.user.user_metadata?.name || data.user.email?.split('@')[0]
+                    })
+                });
+            } catch (emailError) {
+                console.error('Failed to send login notification email:', emailError);
+                // Tidak mengembalikan error ke user karena login sudah berhasil
+            }
+        }
+        
         return { error };
     };
 

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import { Server } from 'socket.io';
 import http from 'http';
 import { createClient } from '@supabase/supabase-js';
+// Xendit SDK will be imported dynamically below
 
 dotenv.config();
 
@@ -34,8 +35,8 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
 const client = new OpenAI({
-    baseURL: "https://ai.sumopod.com/v1",
-    apiKey: process.env.SUMOPOD_API_KEY || "dummy-key",
+    baseURL: "https://api.apifree.ai/v1",
+    apiKey: "sk-pf0Nk9Xt2DW2HaGJtEJKf1hQdzRJr",
 });
 
 app.get('/api/health', (req, res) => {
@@ -78,7 +79,40 @@ app.post('/api/generate', async (req, res) => {
         const messages = [
             {
                 role: "system",
-                content: "You are NOIR AI, an expert web developer. Your task is to generate production-ready HTML/CSS. \n\nCRITICAL PROCESS: You MUST pause and analyze the prompt before generating any code. This is a 'Chain of Thought' requirement.\n\noutput format:\n\n/// STEP: 1. Analysis & Strategy ///\nAnalyze the user's request (and image if provided). List 3-5 key design requirements, color palette choices, and layout structure.\n\n/// STEP: 2. Component Architecture ///\nBriefly list the main components (Navbar, Hero, Grid, etc.) you will build.\n\n/// STEP: 3. Refinement ///\nMention any specific styling details (e.g., 'Glassmorphism on cards', 'Gradient text').\n\n/// CODE ///\n<!DOCTYPE html>\n<html... (The full code)\n\nDO NOT output the code immediately. You MUST provide the steps first."
+                content: `You are NOIR AI, an expert web developer with vision capabilities.
+
+WHEN YOU RECEIVE AN IMAGE:
+First, analyze the image in detail:
+/// ANALYSIS ///
+1. Layout Structure: (describe the overall layout - header, sections, footer)
+2. Color Palette: (list main colors used)
+3. Typography: (describe font styles, sizes)
+4. Key Components: (list buttons, cards, forms, images, etc.)
+5. Style Theme: (modern, minimal, corporate, creative, etc.)
+/// END ANALYSIS ///
+
+Then generate the HTML code that replicates the design:
+
+RULES:
+1. Include <script src="https://cdn.tailwindcss.com"></script> in head
+2. Replicate the EXACT layout and visual style from the image
+3. Match colors as closely as possible using Tailwind classes
+4. FOR IMAGES: Use 'https://image.pollinations.ai/prompt/{description}?width={w}&height={h}&nologo=true' (e.g., 'office meeting', 'modern building'). DO NOT use source.unsplash.com (it is down).
+5. ALWAYS complete the full HTML from <!DOCTYPE html> to </html>
+6. DO NOT output '/// END CODE ///' at the end of the response.
+
+OUTPUT FORMAT:
+/// ANALYSIS ///
+[Your detailed analysis of the image]
+/// END ANALYSIS ///
+
+/// CODE ///
+<!DOCTYPE html>
+<html>
+...complete code that matches the image...
+</html>
+
+Generate code that looks EXACTLY like the screenshot.`
             },
             ...(history || [])
         ];
@@ -87,7 +121,7 @@ app.post('/api/generate', async (req, res) => {
             messages.push({
                 role: "user",
                 content: [
-                    { type: "text", text: prompt || "Generate code based on this image." },
+                    { type: "text", text: prompt || "Analyze this screenshot and convert it to a responsive HTML page. First describe what you see, then generate the code." },
                     {
                         type: "image_url",
                         image_url: {
@@ -101,16 +135,16 @@ app.post('/api/generate', async (req, res) => {
         }
 
         const stream = await client.chat.completions.create({
-            model: model || "google/gemini-2.0-flash-exp:free",
+            model: model || "openai/gpt-5",
             messages: messages,
-            stream: true,
-            max_tokens: 4000 // Ensure enough tokens for full code
+            stream: true
         });
 
         for await (const chunk of stream) {
             const content = chunk.choices[0]?.delta?.content || "";
-            if (content) {
-                res.write(`data: ${JSON.stringify({ content })}\n\n`);
+            const thinking = chunk.choices[0]?.delta?.reasoning_content || "";
+            if (content || thinking) {
+                res.write(`data: ${JSON.stringify({ content, thinking })}\n\n`);
             }
         }
 
@@ -188,10 +222,16 @@ app.post('/api/waitlist/join', async (req, res) => {
         try {
             console.log(`[Email] Starting background send for: ${email}`);
 
+            const resendApiKey = process.env.RESEND_API_KEY;
+            if (!resendApiKey) {
+                console.error("[Email] RESEND_API_KEY not found in environment variables");
+                return;
+            }
+
             const emailResponse = await fetch("https://api.resend.com/emails", {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer re_b2M5xmcK_9wpCLjMgqi2t7XXCwNjjnWjG`,
+                    'Authorization': `Bearer ${resendApiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -325,6 +365,270 @@ app.post('/api/figma/import', async (req, res) => {
         console.error("[Figma Import] Exception:", e);
         res.status(500).json({ error: e.message });
     }
+});
+
+// Login Notification Email API
+app.post('/api/auth/login-notification', async (req, res) => {
+    const { email, name } = req.body;
+
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    console.log(`\n[Login Notification] Sending login email to: ${email}`);
+
+    try {
+        const resendApiKey = process.env.RESEND_API_KEY;
+
+        if (!resendApiKey) {
+            console.error("[Login Notification] RESEND_API_KEY not found in environment variables");
+            return res.status(500).json({ error: 'Email service not configured' });
+        }
+
+        const loginTime = new Date().toLocaleString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        const emailResponse = await fetch("https://api.resend.com/emails", {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${resendApiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                from: "Noir <onboarding@resend.dev>",
+                to: email,
+                subject: "🔐 Login Notification - Noir Code",
+                html: `
+                    <div style="font-family: sans-serif; background: #000; color: #fff; padding: 40px; border-radius: 12px; max-width: 600px; margin: auto; border: 1px solid #333;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h1 style="color: #a3e635; margin: 0; font-size: 28px;">Noir Code</h1>
+                        </div>
+                        
+                        <h2 style="color: #fff; margin-bottom: 20px;">Login Berhasil!</h2>
+                        
+                        <p style="font-size: 16px; line-height: 1.6;">Halo ${name || 'Pengguna Noir'},</p>
+                        
+                        <p style="font-size: 16px; line-height: 1.6;">Kami mendeteksi login baru ke akun Anda.</p>
+                        
+                        <div style="background: #171717; padding: 20px; border-radius: 8px; margin: 24px 0; border: 1px solid #333;">
+                            <p style="margin: 0 0 10px 0; color: #888; font-size: 14px;">Detail Login:</p>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Waktu:</strong> ${loginTime}</p>
+                            <p style="margin: 5px 0; font-size: 14px;"><strong>Email:</strong> ${email}</p>
+                        </div>
+                        
+                        <p style="font-size: 14px; line-height: 1.6; color: #888;">
+                            Jika ini bukan Anda, silakan segera ubah password Anda atau hubungi tim support kami.
+                        </p>
+                        
+                        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #333; font-size: 12px; color: #666; text-align: center;">
+                            <p>© 2026 Noir Code - AI-Powered Design to Code Platform</p>
+                            <p style="margin-top: 10px;">Email ini dikirim secara otomatis, mohon tidak membalas.</p>
+                        </div>
+                    </div>
+                `
+            })
+        });
+
+        const responseData = await emailResponse.json().catch(() => ({}));
+
+        if (!emailResponse.ok) {
+            console.error("[Login Notification] Resend API Error:", responseData);
+            return res.status(500).json({ error: 'Failed to send email', details: responseData });
+        }
+
+        console.log("[Login Notification] Email sent successfully! ID:", responseData.id);
+        res.json({ success: true, message: 'Login notification sent' });
+
+    } catch (error) {
+        console.error("[Login Notification] Error:", error.message);
+        res.status(500).json({ error: 'Internal server error', message: error.message });
+    }
+});
+
+// Xendit Integration - Using REST API directly
+// This implementation uses Xendit's REST API instead of the SDK to avoid compatibility issues
+
+const XENDIT_API_KEY = process.env.XENDIT_SECRET_KEY;
+const XENDIT_API_URL = 'https://api.xendit.co';
+
+const xenditApiRequest = async (endpoint, method = 'GET', data = null) => {
+    const url = `${XENDIT_API_URL}${endpoint}`;
+    const options = {
+        method,
+        headers: {
+            'Authorization': `Basic ${Buffer.from(XENDIT_API_KEY + ':').toString('base64')}`,
+            'Content-Type': 'application/json',
+        },
+    };
+
+    if (data) {
+        options.body = JSON.stringify(data);
+    }
+
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Xendit API error: ${response.status}`);
+    }
+
+    return response.json();
+};
+
+// Invoice service using Xendit REST API
+const Invoice = {
+    createInvoice: async ({ data }) => {
+        const result = await xenditApiRequest('/v2/invoices', 'POST', {
+            external_id: data.externalId,
+            amount: data.amount,
+            currency: data.currency,
+            payer_email: data.customer?.email,
+            description: data.description,
+            success_redirect_url: data.successUrl,
+            failure_redirect_url: data.failureUrl,
+            callback_url: data.callbackUrl,
+            payment_methods: data.paymentMethods,
+            should_send_email: data.shouldSendEmail,
+        });
+
+        return {
+            id: result.id,
+            invoiceUrl: result.invoice_url,
+            externalId: result.external_id,
+            status: result.status,
+        };
+    },
+    listInvoices: async (filters = {}) => {
+        const queryParams = new URLSearchParams();
+        if (filters.externalId) queryParams.append('external_id', filters.externalId);
+        if (filters.status) queryParams.append('status', filters.status);
+
+        const queryString = queryParams.toString();
+        const endpoint = `/v2/invoices${queryString ? '?' + queryString : ''}`;
+
+        return await xenditApiRequest(endpoint, 'GET');
+    },
+    getInvoice: async (invoiceId) => {
+        return await xenditApiRequest(`/v2/invoices/${invoiceId}`, 'GET');
+    },
+    expireInvoice: async (invoiceId) => {
+        return await xenditApiRequest(`/v2/invoices/${invoiceId}/expire!`, 'POST');
+    }
+};
+
+if (!XENDIT_API_KEY) {
+    console.error('[Xendit] WARNING: XENDIT_SECRET_KEY not set. Payment features will not work.');
+} else {
+    console.log('[Xendit] REST API integration loaded successfully');
+}
+
+const PLANS = {
+    pro: {
+        name: 'Noir Pro',
+        price: 50000,
+        currency: 'IDR',
+        interval: 'MONTH',
+        description: 'Unlimited generations, priority AI processing, all frameworks',
+    },
+    enterprise: {
+        name: 'Noir Enterprise',
+        price: 500000,
+        currency: 'IDR',
+        interval: 'MONTH',
+        description: 'Team management, SSO, dedicated account manager',
+    },
+};
+
+app.post('/api/xendit/create-invoice', async (req, res) => {
+    try {
+        const { planId, email, name } = req.body;
+
+        if (!planId || !PLANS[planId]) {
+            return res.status(400).json({ error: 'Invalid plan ID' });
+        }
+
+        const plan = PLANS[planId];
+        const invoiceExternalId = `noir_${planId}_${Date.now()}`;
+
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+
+        const invoiceParams = {
+            externalId: invoiceExternalId,
+            amount: plan.price,
+            currency: plan.currency,
+            customer: {
+                givenNames: name || 'Noir User',
+                email: email,
+            },
+            description: `${plan.name} - ${plan.description}`,
+            callbackUrl: `${process.env.VITE_API_URL}/api/xendit/callback`,
+            successUrl: `${process.env.VITE_API_URL}/payment-success?external_id=${invoiceExternalId}`,
+            failureUrl: `${process.env.VITE_API_URL}/payment-failure`,
+            shouldSendEmail: true,
+            paymentMethods: ['BANK_TRANSFER', 'CREDIT_CARD', 'EWALLET', 'OVO', 'DANA', 'LINKAJA', 'SHOPEEPAY'],
+        };
+
+        const invoice = await Invoice.createInvoice({ data: invoiceParams });
+
+        res.json({
+            success: true,
+            invoiceId: invoice.id,
+            invoiceUrl: invoice.invoiceUrl,
+            externalId: invoiceExternalId,
+        });
+    } catch (error) {
+        console.error('Xendit create invoice error:', error);
+        res.status(500).json({ error: 'Failed to create invoice' });
+    }
+});
+
+app.post('/api/xendit/callback', async (req, res) => {
+    try {
+        const { external_id, status, payment_method, paid_at } = req.body;
+
+        console.log('Xendit callback received:', { external_id, status, payment_method, paid_at });
+
+        if (status === 'PAID') {
+            console.log(`Payment successful for invoice: ${external_id}`);
+        }
+
+        res.json({ received: true });
+    } catch (error) {
+        console.error('Callback error:', error);
+        res.status(500).json({ error: 'Callback processing failed' });
+    }
+});
+
+app.get('/api/xendit/invoice/:externalId', async (req, res) => {
+    try {
+        const { externalId } = req.params;
+        const invoices = await Invoice.listInvoices({ externalId });
+
+        if (invoices.length === 0) {
+            return res.status(404).json({ error: 'Invoice not found' });
+        }
+
+        res.json({ invoice: invoices[0] });
+    } catch (error) {
+        console.error('Get invoice error:', error);
+        res.status(500).json({ error: 'Failed to get invoice status' });
+    }
+});
+
+app.get('/api/xendit/plans', (req, res) => {
+    res.json({
+        plans: Object.entries(PLANS).map(([id, plan]) => ({
+            id,
+            ...plan,
+            priceIdr: plan.price.toLocaleString('id-ID'),
+        })),
+    });
 });
 
 server.listen(PORT, '0.0.0.0', () => {

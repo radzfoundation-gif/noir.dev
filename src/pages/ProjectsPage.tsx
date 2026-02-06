@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { projectService } from '../lib/projectService';
 import type { Project } from '../lib/projectService';
 import { Layout } from '../components/Layout';
-import { Plus, Trash2, Globe, Smartphone, Clock, FileCode } from 'lucide-react';
+import { Plus, Trash2, Globe, Smartphone, Clock, FileCode, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const ProjectsPage = () => {
@@ -14,6 +14,7 @@ export const ProjectsPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [showToast, setShowToast] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -27,7 +28,8 @@ export const ProjectsPage = () => {
             const data = await projectService.getProjects();
             setProjects(data);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load projects');
+            // setError(err instanceof Error ? err.message : 'Failed to load projects'); // Don't show error to public if unexpected
+            // Just fail silently or show empty state if RLS blocks
         } finally {
             setIsLoading(false);
         }
@@ -68,13 +70,40 @@ export const ProjectsPage = () => {
                             <h1 className="text-3xl font-bold text-white">My Projects</h1>
                             <p className="text-white/60 mt-1">Manage your saved projects</p>
                         </div>
-                        <Link
-                            to="/editor"
-                            className="flex items-center gap-2 px-4 py-2.5 bg-lime-400 text-black font-semibold rounded-lg hover:bg-lime-300 transition-colors"
-                        >
-                            <Plus size={18} />
-                            New Project
-                        </Link>
+                        <div className="flex items-center gap-3">
+                            <Link
+                                to="/settings"
+                                className="flex items-center gap-2 px-4 py-2.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                                <Settings size={18} />
+                                Settings
+                            </Link>
+
+
+                            {/* Share Portfolio (Admin Only) */}
+                            {user?.email === 'radzfoundation@gmail.com' && (
+                                <button
+                                    onClick={() => {
+                                        const url = `${window.location.origin}/portfolio/${user.id}`;
+                                        navigator.clipboard.writeText(url);
+                                        setShowToast(true);
+                                        setTimeout(() => setShowToast(false), 2000);
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition-colors border border-white/10"
+                                >
+                                    <Globe size={18} />
+                                    Share Portfolio
+                                </button>
+                            )}
+
+                            <Link
+                                to="/editor"
+                                className="flex items-center gap-2 px-4 py-2.5 bg-lime-400 text-black font-semibold rounded-lg hover:bg-lime-300 transition-colors"
+                            >
+                                <Plus size={18} />
+                                New Project
+                            </Link>
+                        </div>
                     </div>
 
                     {/* Error */}
@@ -135,8 +164,8 @@ export const ProjectsPage = () => {
                                             <div className="flex items-start justify-between mb-2">
                                                 <h3 className="font-semibold text-white truncate flex-1">{project.name}</h3>
                                                 <span className={`ml-2 px-2 py-0.5 text-xs font-medium rounded ${project.generation_type === 'app'
-                                                        ? 'bg-purple-500/20 text-purple-400'
-                                                        : 'bg-blue-500/20 text-blue-400'
+                                                    ? 'bg-purple-500/20 text-purple-400'
+                                                    : 'bg-blue-500/20 text-blue-400'
                                                     }`}>
                                                     {project.generation_type === 'app' ? (
                                                         <span className="flex items-center gap-1"><Smartphone size={12} /> App</span>
@@ -175,6 +204,22 @@ export const ProjectsPage = () => {
                     )}
                 </div>
             </div>
-        </Layout>
+
+
+            {/* Toast Notification */}
+            <AnimatePresence>
+                {showToast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="fixed bottom-6 right-6 bg-green-500 text-black font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 z-50"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                        Link portfolio berhasil disalin!
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </Layout >
     );
 };

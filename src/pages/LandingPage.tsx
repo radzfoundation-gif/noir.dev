@@ -16,7 +16,7 @@ export const LandingPage = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [image, setImage] = useState<string | null>(null);
-    const [model, setModel] = useState('gemini/gemini-2.5-flash-lite');
+    const [model, setModel] = useState('google/gemini-3-pro-preview');
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
     const [generationType, setGenerationType] = useState<'web' | 'app'>('web');
@@ -48,18 +48,17 @@ export const LandingPage = () => {
 
         setLoading(true);
         // Navigate immediately, passing state
-        setTimeout(() => {
-            navigate('/editor', {
-                state: {
-                    prompt,
-                    image,
-                    model,
-                    generationType,
-                    framework,
-                    autoGenerate: true // Flag to trigger generation on load
-                }
-            });
-        }, 100);
+        // Navigate immediately, passing state
+        navigate('/editor', {
+            state: {
+                prompt,
+                image,
+                model,
+                generationType,
+                framework,
+                autoGenerate: true // Flag to trigger generation on load
+            }
+        });
     };
 
     return (
