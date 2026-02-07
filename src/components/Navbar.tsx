@@ -39,6 +39,7 @@ export const Navbar: React.FC = () => {
                 </div>
 
                 <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/90 drop-shadow-md">
+                    <Link to="/editor" className="hover:text-lime-400 transition-colors">Start Building</Link>
                     <Link to="/how-it-works" className="hover:text-lime-400 transition-colors">How it works</Link>
                     <Link to="/pricing" className="hover:text-lime-400 transition-colors">Pricing</Link>
                     {user && <Link to="/projects" className="hover:text-lime-400 transition-colors">My Projects</Link>}

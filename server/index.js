@@ -36,7 +36,7 @@ app.use(express.json({ limit: '50mb' }));
 
 const client = new OpenAI({
     baseURL: "https://api.apifree.ai/v1",
-    apiKey: "sk-pf0Nk9Xt2DW2HaGJtEJKf1hQdzRJr",
+    apiKey: "sk-pwRrxPfrtYG9j04Es3408CfdN0pp0",
 });
 
 app.get('/api/health', (req, res) => {
@@ -60,6 +60,284 @@ app.get('/api/diag', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ status: 'error', message: err.message });
+    }
+});
+
+app.post('/api/generate-fullstack', async (req, res) => {
+    const { prompt, appType, customSpec, mode = 'fullstack' } = req.body;
+
+    try {
+        console.log(`[Fullstack] Generating ${mode} app from prompt`);
+
+        let spec;
+        if (customSpec) {
+            spec = customSpec;
+        } else if (prompt) {
+            const response = await client.chat.completions.create({
+                model: 'anthropic/claude-3.5-sonnet',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are an AI app architect. Analyze the user's description and create an app specification.
+Output JSON format (no markdown):
+{
+  "type": "saas|blog|ecommerce|dashboard|portfolio|crm|chat|cms|landing|admin|ecommerce-ui|blog-ui|portfolio-ui|social",
+  "name": "App Name",
+  "description": "Brief description",
+  "features": ["feature1", "feature2"],
+  "pages": ["page1", "page2"],
+  "database": "postgresql|mysql|mongodb|none",
+  "auth": true|false,
+  "ui": "tailwind|shadcn",
+  "deployment": "vercel|netlify|none",
+  "mode": "fullstack|frontend|backend-only"
+}`
+                    },
+                    { role: 'user', content: prompt }
+                ]
+            });
+            spec = JSON.parse(response.choices[0].message.content);
+            spec.mode = mode;
+        } else {
+            return res.status(400).json({ error: 'Prompt or customSpec is required' });
+        }
+
+        res.setHeader('Content-Type', 'application/json');
+        res.write(JSON.stringify({ status: 'analyzing', message: 'Analyzing app requirements...' }) + '\n\n');
+
+        const fs = await import('fs');
+        const generatorPath = path.join(__dirname, '../src/lib/fullstackGeneratorService.ts');
+        const generator = await import(generatorPath);
+
+        const generatorService = generator.fullstackGeneratorService;
+
+        if (spec.mode === 'frontend') {
+            spec.database = 'none';
+            spec.auth = false;
+        } else if (spec.mode === 'backend-only') {
+            spec.features = [];
+            spec.pages = [];
+        }
+
+        res.write(JSON.stringify({ status: 'generating', message: 'Generating application files...' }) + '\n\n');
+
+        const generatedApp = await generatorService.generateApp(spec);
+
+        res.write(JSON.stringify({ status: 'complete', spec, filesCount: Object.keys(generatedApp.frontend || {}).length + Object.keys(generatedApp.backend || {}).length }) + '\n\n');
+        res.write(JSON.stringify({ data: generatedApp }) + '\n\n');
+
+        res.end();
+        console.log(`[Fullstack] Generated successfully`);
+
+    } catch (error) {
+        console.error('[Fullstack] Error:', error);
+        res.write(JSON.stringify({ error: error.message }) + '\n\n');
+        res.end();
+    }
+});
+
+app.post('/api/generate-template', async (req, res) => {
+    const { type, mode = 'fullstack', config } = req.body;
+
+    const templates = {
+        saas: {
+            name: 'SaaS Application',
+            type: 'saas',
+            description: 'Full-featured SaaS with authentication, dashboard, and billing',
+            features: ['Authentication', 'Dashboard', 'User Management', 'Settings', 'Billing', 'API Routes'],
+            pages: ['Landing', 'Login', 'Register', 'Dashboard', 'Settings', 'Pricing'],
+            database: 'postgresql',
+            auth: true,
+            ui: 'tailwind',
+            deployment: 'vercel',
+            mode: 'fullstack'
+        },
+        blog: {
+            name: 'Blog Platform',
+            type: 'blog',
+            description: 'Content management system with posts, categories, and comments',
+            features: ['Posts', 'Categories', 'Comments', 'Search', 'Tags', 'RSS Feed'],
+            pages: ['Home', 'Blog', 'Post Detail', 'About', 'Contact', 'Categories'],
+            database: 'postgresql',
+            auth: false,
+            ui: 'tailwind',
+            deployment: 'vercel',
+            mode: 'fullstack'
+        },
+        ecommerce: {
+            name: 'E-commerce Store',
+            type: 'ecommerce',
+            description: 'Online store with products, cart, checkout, and payments',
+            features: ['Products', 'Cart', 'Checkout', 'Payments', 'Orders', 'Inventory'],
+            pages: ['Home', 'Shop', 'Product Detail', 'Cart', 'Checkout', 'Account'],
+            database: 'postgresql',
+            auth: true,
+            ui: 'tailwind',
+            deployment: 'vercel',
+            mode: 'fullstack'
+        },
+        dashboard: {
+            name: 'Admin Dashboard',
+            type: 'dashboard',
+            description: 'Analytics dashboard with charts, tables, and reports',
+            features: ['Analytics', 'Charts', 'Tables', 'Reports', 'Export', 'Real-time Data'],
+            pages: ['Dashboard', 'Analytics', 'Users', 'Settings', 'Reports', 'Activity'],
+            database: 'postgresql',
+            auth: true,
+            ui: 'shadcn',
+            deployment: 'vercel',
+            mode: 'fullstack'
+        },
+        portfolio: {
+            name: 'Portfolio Website',
+            type: 'portfolio',
+            description: 'Personal portfolio with projects, skills, and contact',
+            features: ['Projects', 'Skills', 'Timeline', 'Contact Form', 'Resume', 'Testimonials'],
+            pages: ['Home', 'About', 'Projects', 'Blog', 'Contact', 'Resume'],
+            database: 'none',
+            auth: false,
+            ui: 'tailwind',
+            deployment: 'netlify',
+            mode: 'frontend'
+        },
+        crm: {
+            name: 'CRM System',
+            type: 'crm',
+            description: 'Customer relationship management with contacts, deals, and tasks',
+            features: ['Contacts', 'Deals', 'Tasks', 'Notes', 'Pipeline', 'Reports'],
+            pages: ['Dashboard', 'Contacts', 'Deals', 'Tasks', 'Calendar', 'Reports'],
+            database: 'postgresql',
+            auth: true,
+            ui: 'shadcn',
+            deployment: 'vercel',
+            mode: 'fullstack'
+        },
+        chat: {
+            name: 'Chat Application',
+            type: 'chat',
+            description: 'Real-time messaging with channels, DMs, and notifications',
+            features: ['Real-time Chat', 'Channels', 'Direct Messages', 'File Sharing', 'Notifications', 'Online Status'],
+            pages: ['Login', 'Chat', 'Channels', 'Direct Messages', 'Settings', 'Profile'],
+            database: 'mongodb',
+            auth: true,
+            ui: 'tailwind',
+            deployment: 'railway',
+            mode: 'fullstack'
+        },
+        cms: {
+            name: 'Content Management',
+            type: 'cms',
+            description: 'Headless CMS with content types, media library, and API',
+            features: ['Content Types', 'Media Library', 'API', 'Users', 'Roles', 'Versioning'],
+            pages: ['Admin', 'Content', 'Media', 'Users', 'Settings', 'API Docs'],
+            database: 'postgresql',
+            auth: true,
+            ui: 'shadcn',
+            deployment: 'railway',
+            mode: 'fullstack'
+        },
+        landing: {
+            name: 'Landing Page',
+            type: 'landing',
+            description: 'Marketing landing page with hero, features, pricing, and CTA',
+            features: ['Hero Section', 'Features Grid', 'Pricing Table', 'Testimonials', 'FAQ', 'Footer'],
+            pages: ['Home'],
+            database: 'none',
+            auth: false,
+            ui: 'tailwind',
+            deployment: 'netlify',
+            mode: 'frontend'
+        },
+        admin: {
+            name: 'Admin Panel',
+            type: 'admin',
+            description: 'Admin dashboard with sidebar, charts, and data tables',
+            features: ['Sidebar Navigation', 'Data Tables', 'Charts', 'User Management', 'Settings', 'Analytics'],
+            pages: ['Dashboard', 'Users', 'Settings', 'Reports', 'Activity', 'Analytics'],
+            database: 'none',
+            auth: false,
+            ui: 'tailwind',
+            deployment: 'vercel',
+            mode: 'frontend'
+        },
+        'ecommerce-ui': {
+            name: 'E-commerce UI',
+            type: 'ecommerce-ui',
+            description: 'Online store UI with product grid, cart, and checkout',
+            features: ['Product Grid', 'Product Detail', 'Shopping Cart', 'Checkout Form', 'User Account', 'Wishlist'],
+            pages: ['Home', 'Shop', 'Product', 'Cart', 'Checkout', 'Account'],
+            database: 'none',
+            auth: false,
+            ui: 'tailwind',
+            deployment: 'vercel',
+            mode: 'frontend'
+        },
+        'blog-ui': {
+            name: 'Blog UI',
+            type: 'blog-ui',
+            description: 'Blog interface with posts, categories, and comments',
+            features: ['Post Grid', 'Single Post', 'Categories', 'Comments', 'Author Profile', 'Newsletter'],
+            pages: ['Home', 'Blog', 'Post', 'Category', 'Author', 'Contact'],
+            database: 'none',
+            auth: false,
+            ui: 'tailwind',
+            deployment: 'netlify',
+            mode: 'frontend'
+        },
+        'portfolio-ui': {
+            name: 'Portfolio',
+            type: 'portfolio-ui',
+            description: 'Personal portfolio with projects, skills, and contact form',
+            features: ['Hero', 'Projects Gallery', 'Skills Section', 'About Me', 'Contact Form', 'Resume Download'],
+            pages: ['Home', 'About', 'Projects', 'Skills', 'Contact', 'Resume'],
+            database: 'none',
+            auth: false,
+            ui: 'tailwind',
+            deployment: 'netlify',
+            mode: 'frontend'
+        },
+        social: {
+            name: 'Social Feed',
+            type: 'social',
+            description: 'Social media feed with posts, likes, and comments',
+            features: ['Feed', 'Posts', 'Comments', 'Likes', 'User Profiles', 'Notifications'],
+            pages: ['Feed', 'Profile', 'Notifications', 'Messages', 'Search', 'Settings'],
+            database: 'none',
+            auth: false,
+            ui: 'tailwind',
+            deployment: 'vercel',
+            mode: 'frontend'
+        }
+    };
+
+    let spec = templates[type];
+    if (!spec) {
+        return res.status(400).json({ error: 'Invalid template type' });
+    }
+
+    spec = { ...spec, mode };
+
+    if (config) {
+        if (config.framework) spec.framework = config.framework;
+        if (config.ui) spec.ui = config.ui;
+        if (config.database) spec.database = config.database;
+        if (config.auth !== undefined) spec.auth = config.auth;
+    }
+
+    if (mode === 'frontend') {
+        spec.database = 'none';
+        spec.auth = false;
+    }
+
+    try {
+        const generatorPath = path.join(__dirname, '../src/lib/fullstackGeneratorService.ts');
+        const generator = await import(generatorPath);
+        const generatedApp = await generator.fullstackGeneratorService.generateApp(spec);
+
+        res.json({ success: true, spec, app: generatedApp, mode });
+    } catch (error) {
+        console.error('[Template] Error:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -629,6 +907,54 @@ app.get('/api/xendit/plans', (req, res) => {
             priceIdr: plan.price.toLocaleString('id-ID'),
         })),
     });
+});
+
+app.post('/api/download-app', async (req, res) => {
+    const { app } = req.body;
+
+    if (!app) {
+        return res.status(400).json({ error: 'App data is required' });
+    }
+
+    try {
+        const JSZip = (await import('jszip')).default;
+        const zip = new JSZip();
+
+        Object.entries(app.frontend || {}).forEach(([path, content]) => {
+            zip.file(path, content);
+        });
+
+        if (app.backend) {
+            Object.entries(app.backend).forEach(([path, content]) => {
+                zip.file(`server/${path}`, content);
+            });
+        }
+
+        if (app.config) {
+            zip.file('package.json', app.config.packageJson);
+            zip.file('.env.example', app.config.envExample);
+            zip.file('README.md', app.config.readme);
+            if (app.config.dockerfile) {
+                zip.file('Dockerfile', app.config.dockerfile);
+            }
+        }
+
+        if (app.deployment?.vercel) {
+            Object.entries(app.deployment.vercel).forEach(([path, content]) => {
+                zip.file(`.vercel/${path}`, content);
+            });
+        }
+
+        const buffer = await zip.generateAsync({ type: 'nodebuffer' });
+
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename=noir-app-${Date.now()}.zip`);
+        res.send(buffer);
+
+    } catch (error) {
+        console.error('[Download] Error:', error);
+        res.status(500).json({ error: 'Failed to create download' });
+    }
 });
 
 server.listen(PORT, '0.0.0.0', () => {

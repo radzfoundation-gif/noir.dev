@@ -1,6 +1,7 @@
-import { Wand2, Clock, ShieldCheck as ShieldIcon, Globe, User, ShoppingCart, LayoutDashboard, MessageSquare, CheckSquare, Activity, Smartphone } from 'lucide-react';
+import { Wand2, Clock, ShieldCheck as ShieldIcon, Globe, User, ShoppingCart, LayoutDashboard, MessageSquare, CheckSquare, Activity, Smartphone, Layers, Cpu, Palette, Zap } from 'lucide-react';
 import { ChatInput } from './ChatInput';
 import { FlipWords } from './FlipWords';
+import { Link } from 'react-router-dom';
 
 interface HeroProps {
     onGenerate: () => void;
@@ -147,6 +148,48 @@ export const Hero: React.FC<HeroProps> = ({
                                 </button>
                             </>
                         )}
+                    </div>
+                </div>
+
+                <div className="mt-12 max-w-4xl mx-auto">
+                    <div className="relative p-1 bg-gradient-to-r from-lime-500/20 via-emerald-500/20 to-lime-500/20 rounded-2xl">
+                        <div className="absolute inset-0 bg-gradient-to-r from-lime-500/5 via-emerald-500/5 to-lime-500/5 rounded-2xl blur-xl"></div>
+                        <Link 
+                            to="/editor"
+                            className="relative block p-8 bg-black/60 backdrop-blur-xl rounded-xl border border-white/10 hover:border-lime-500/30 transition-all group"
+                        >
+                            <div className="flex flex-col md:flex-row items-center gap-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-lime-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-lime-500/20 group-hover:shadow-lime-500/40 transition-shadow">
+                                        <Layers className="w-8 h-8 text-white" />
+                                    </div>
+                                    <div className="text-left">
+                                        <h3 className="text-xl font-bold text-white">AI Code Builder</h3>
+                                        <p className="text-gray-400 text-sm">Generate frontend or full-stack apps with AI</p>
+                                    </div>
+                                </div>
+                                <div className="flex-1 flex flex-wrap gap-3 justify-center md:justify-end">
+                                    <span className="px-3 py-1 bg-lime-500/20 text-lime-300 rounded-full text-xs font-medium border border-lime-500/30">
+                                        <Palette className="inline w-3 h-3 mr-1" />
+                                        Frontend Only
+                                    </span>
+                                    <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-medium border border-purple-500/30">
+                                        <Cpu className="inline w-3 h-3 mr-1" />
+                                        Full-Stack
+                                    </span>
+                                    <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-xs font-medium border border-cyan-500/30">
+                                        <Zap className="inline w-3 h-3 mr-1" />
+                                        AI Powered
+                                    </span>
+                                </div>
+                                <div className="hidden md:block">
+                                    <div className="flex items-center gap-2 text-lime-400 font-medium group-hover:text-lime-300 transition-colors">
+                                        Start Building
+                                        <Layers className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>
                     </div>
                 </div>
 

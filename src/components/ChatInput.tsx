@@ -1,75 +1,13 @@
-import React, { useState } from 'react';
-import { Wand2, Image as ImageIcon, ArrowUp, X, FileCode, ArrowRight, Code2, Atom, Rocket } from 'lucide-react';
-import clsx from 'clsx';
+import React, { useState, useRef } from 'react';
+import { Wand2, Image as ImageIcon, ArrowUp, X, FileCode, Code2, Atom, Rocket } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import { ModelSelector } from './ModelSelector';
 import { FigmaImport } from './FigmaImport';
-import { AnimatePresence, motion } from 'framer-motion';
-
-const FrameworkDropdown = ({ framework, setFramework }: { framework: 'html' | 'react' | 'astro', setFramework: (f: 'html' | 'react' | 'astro') => void }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    const frameworks = [
-        { id: 'html', label: 'HTML', icon: Code2, color: 'text-orange-400' },
-        { id: 'react', label: 'React', icon: Atom, color: 'text-cyan-400' },
-        { id: 'astro', label: 'Astro', icon: Rocket, color: 'text-purple-400' },
-    ];
-
-    const current = frameworks.find(f => f.id === framework) || frameworks[0];
-    const Icon = current.icon;
-
-    return (
-        <div className="relative ml-2">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 hover:border-lime-500/30 hover:bg-zinc-800 transition-all group"
-            >
-                <Icon size={12} className={current.color} />
-                <span className="text-[10px] font-bold text-zinc-300 group-hover:text-white">{current.label}</span>
-                <span className="material-symbols-outlined text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">expand_more</span>
-            </button>
-
-            <AnimatePresence>
-                {isOpen && (
-                    <>
-                        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 5 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 5 }}
-                            transition={{ duration: 0.1 }}
-                            className="absolute bottom-full left-0 mb-2 w-32 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50 p-1"
-                        >
-                            {frameworks.map((fw) => {
-                                const FwIcon = fw.icon;
-                                const isSelected = framework === fw.id;
-                                return (
-                                    <button
-                                        key={fw.id}
-                                        onClick={() => {
-                                            setFramework(fw.id as any);
-                                            setIsOpen(false);
-                                        }}
-                                        className={clsx(
-                                            "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all text-left",
-                                            isSelected ? "bg-white/10 text-white" : "text-zinc-400 hover:text-white hover:bg-white/5"
-                                        )}
-                                    >
-                                        <FwIcon size={12} className={isSelected ? fw.color : "text-zinc-500"} />
-                                        {fw.label}
-                                        {isSelected && <div className="ml-auto w-1 h-1 rounded-full bg-lime-500" />}
-                                    </button>
-                                );
-                            })}
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-};
 
 interface ChatInputProps {
     onGenerate: () => void;
+    onStop?: () => void;
     loading: boolean;
     image: string | null;
     setImage: (img: string | null) => void;
@@ -79,16 +17,13 @@ interface ChatInputProps {
     setPrompt: (p: string) => void;
     context?: string | null;
     onClearContext?: () => void;
-    onEnhancePrompt?: () => void;
-    onMention?: () => void;
-    variant?: 'hero' | 'sidebar';
     framework?: 'html' | 'react' | 'astro';
     setFramework?: (f: 'html' | 'react' | 'astro') => void;
-    updateCode?: (newCode: string) => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
     onGenerate,
+    onStop,
     loading,
     image,
     setImage,
@@ -98,13 +33,22 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     setPrompt,
     context,
     onClearContext,
-    onEnhancePrompt,
-    onMention,
-    variant = 'sidebar',
     framework,
     setFramework
 }) => {
-    const [showContext, setShowContext] = useState(false);
+    const [showFrameworkDropdown, setShowFrameworkDropdown] = useState(false);
+    const frameworkButtonRef = useRef<HTMLButtonElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    const getFrameworkDropdownPos = () => {
+        if (!frameworkButtonRef.current) return { top: 0, left: 0 };
+        const rect = frameworkButtonRef.current.getBoundingClientRect();
+        const dropdownHeight = 140; // Approximate height
+        return {
+            top: rect.top - dropdownHeight - 8,
+            left: rect.left
+        };
+    };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -113,143 +57,175 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
+    const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setPrompt(e.target.value);
+        // Auto-resize
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+        }
+    };
+
+    const frameworks = [
+        { id: 'html', label: 'HTML', icon: Code2 },
+        { id: 'react', label: 'React', icon: Atom },
+        { id: 'astro', label: 'Astro', icon: Rocket },
+    ];
+
+    const currentFramework = frameworks.find(f => f.id === framework) || frameworks[0];
+
     return (
         <div className="w-full relative">
-            {/* Context Viewer Overlay */}
-            <AnimatePresence>
-                {showContext && context && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute bottom-[calc(100%+8px)] left-0 w-full bg-zinc-900 border border-zinc-700/50 rounded-lg shadow-2xl z-50 overflow-hidden"
-                    >
-                        <div className="flex items-center justify-between px-3 py-2 bg-zinc-900 border-b border-zinc-800">
-                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">CODE CONTEXT</span>
-                            <button onClick={() => setShowContext(false)} className="text-zinc-500 hover:text-white">
-                                <X size={12} />
-                            </button>
-                        </div>
-                        <div className="max-h-[300px] overflow-auto p-3 bg-black/50">
-                            <pre className="text-[10px] font-mono text-zinc-300 whitespace-pre-wrap">{context}</pre>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Gradient Background Effects */}
+            <div className="absolute -inset-1 overflow-hidden rounded-2xl opacity-60">
+                {/* Lime accent gradient */}
+                <div className="absolute -top-10 -right-10 w-[200px] h-[200px] bg-lime-400/10 rounded-full blur-[60px] animate-pulse" style={{ animationDuration: '3s' }} />
+                {/* Purple accent */}
+                <div className="absolute -bottom-10 -left-10 w-[180px] h-[180px] bg-purple-500/10 rounded-full blur-[50px]" />
+                {/* Blue accent */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-[80px]" />
+            </div>
 
-            {/* Input Container */}
-            <div className={clsx(
-                "border border-zinc-800 rounded-xl transition-all duration-300 relative group",
-                variant === 'hero'
-                    ? "bg-black/60 backdrop-blur-md p-2.5 shadow-lg focus-within:border-lime-500/50 focus-within:shadow-[0_0_10px_rgba(163,230,53,0.05)]"
-                    : "bg-zinc-900/50 p-1.5 focus-within:border-lime-500/30"
-            )}>
-
-                {/* Active Context Badge */}
+            {/* Main Input Container */}
+            <div className="relative bg-neutral-900/90 backdrop-blur-sm border border-neutral-800 rounded-2xl overflow-hidden focus-within:border-lime-500/50 focus-within:ring-1 focus-within:ring-lime-500/30 focus-within:shadow-[0_0_20px_rgba(163,230,53,0.15)] transition-all z-10">
+                
+                {/* Context Badge */}
                 {context && (
-                    <div className="flex items-center gap-2 mb-2 px-1">
-                        <button
-                            onClick={() => setShowContext(!showContext)}
-                            className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-lime-500/10 border border-lime-500/20 hover:bg-lime-500/20 transition-all group/badge max-w-full"
-                        >
-                            <FileCode size={12} className="text-lime-400 flex-shrink-0" />
-                            <span className="text-[11px] font-medium text-lime-100 truncate">
-                                {context.substring(0, 40).replace(/\n/g, ' ')}...
+                    <div className="flex items-center gap-2 px-4 pt-3 pb-2">
+                        <div className="flex items-center gap-2 px-2.5 py-1 bg-lime-500/10 border border-lime-500/20 rounded-lg">
+                            <FileCode size={12} className="text-lime-400" />
+                            <span className="text-[11px] text-lime-200 truncate max-w-[200px]">
+                                {context.substring(0, 35)}...
                             </span>
-                        </button>
+                        </div>
                         <button
                             onClick={() => onClearContext && onClearContext()}
-                            className="text-zinc-600 hover:text-red-400 transition-colors p-1 rounded hover:bg-white/5"
-                            title="Remove Context"
+                            className="p-1 text-neutral-500 hover:text-red-400 transition-colors"
                         >
                             <X size={12} />
                         </button>
                     </div>
                 )}
 
-                {/* Prompt Input */}
-                <div className="relative">
+                {/* Textarea with subtle gradient background */}
+                <div className="px-4 pb-2 relative">
+                    {/* Subtle inner gradient */}
+                    <div className="absolute inset-x-4 inset-y-0 bg-gradient-to-b from-transparent via-transparent to-neutral-800/20 pointer-events-none rounded-lg" />
                     <textarea
+                        ref={textareaRef}
                         value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
+                        onChange={handleTextareaChange}
                         onKeyDown={handleKeyDown}
-                        placeholder="Describe your design or paste a screenshot..."
-                        className="w-full bg-transparent text-white text-sm font-light placeholder:text-zinc-600 resize-none h-12 focus:outline-none p-1.5 leading-relaxed overflow-y-auto custom-scrollbar"
+                        placeholder="Describe what you want to build..."
+                        className="relative w-full bg-transparent text-white text-sm placeholder:text-neutral-500 resize-none min-h-[44px] max-h-[200px] focus:outline-none py-2 z-10"
+                        rows={1}
                         spellCheck={false}
-                        autoComplete="off"
                     />
-
-                    {/* Image Preview Overlay */}
-                    {image && (
-                        <div className="absolute top-0 right-0 w-10 h-10 rounded-lg overflow-hidden border border-lime-500/30 group/img shadow-lg shadow-lime-900/20">
-                            <img src={image} alt="Preview" className="w-full h-full object-cover" />
-                            <button
-                                onClick={() => setImage(null)}
-                                className="absolute top-0.5 right-0.5 bg-black/50 p-0.5 rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-black/80"
-                            >
-                                <ArrowRight size={8} className="rotate-45 text-white" />
-                            </button>
-                        </div>
-                    )}
                 </div>
 
-                {/* Bottom Toolbar */}
-                <div className="flex items-center justify-between mt-2 px-0.5">
-                    <div className="flex items-center gap-1.5">
-                        {/* Prompt Builder/Enhancer */}
-                        {onEnhancePrompt && (
+                {/* Image Preview */}
+                {image && (
+                    <div className="px-4 pb-3">
+                        <div className="relative inline-block">
+                            <img 
+                                src={image} 
+                                alt="Upload" 
+                                className="h-16 w-auto rounded-lg border border-neutral-700 object-cover"
+                            />
                             <button
-                                onClick={onEnhancePrompt}
-                                disabled={loading || !prompt.trim()}
-                                className={clsx(
-                                    "flex items-center gap-1 px-2 py-1 rounded-full border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-lime-500/30 text-[10px] font-medium text-zinc-400 hover:text-white transition-all disabled:opacity-30",
-                                    variant === 'sidebar' && "p-1.5 min-w-[28px] justify-center"
-                                )}
-                                title="Enhance Prompt"
+                                onClick={() => setImage(null)}
+                                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-neutral-800 border border-neutral-700 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 transition-colors"
                             >
-                                <Wand2 size={12} className="text-lime-400" />
-                                {variant !== 'sidebar' && <span className="hidden md:inline">Enhance</span>}
+                                <X size={10} />
                             </button>
-                        )}
+                        </div>
+                    </div>
+                )}
 
-                        {/* Mention Button */}
-                        {onMention && (
-                            <button
-                                onClick={onMention}
-                                className="p-1.5 text-zinc-500 hover:text-lime-400 transition-colors rounded-full hover:bg-zinc-900"
-                                title="Add Context"
-                            >
-                                <span className="text-[14px] font-bold">@</span>
-                            </button>
-                        )}
-
+                {/* Bottom Toolbar with Gradient */}
+                <div className="flex items-center justify-between px-3 py-2 border-t border-neutral-800/50 bg-gradient-to-r from-neutral-900/80 via-neutral-900/60 to-neutral-900/80 backdrop-blur-sm relative overflow-hidden">
+                    {/* Subtle gradient accent in toolbar */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div className="absolute left-0 bottom-0 w-[100px] h-[30px] bg-lime-400/5 rounded-full blur-[20px]" />
+                        <div className="absolute right-0 bottom-0 w-[80px] h-[20px] bg-purple-500/5 rounded-full blur-[15px]" />
+                    </div>
+                    <div className="flex items-center gap-1">
                         {/* Model Selector */}
                         <ModelSelector
                             selectedId={model}
                             onSelect={setModel}
-                            variant="pill"
-                            iconOnly={variant === 'sidebar'}
-                            align={variant === 'sidebar' ? 'left' : 'right'}
+                            variant="compact"
                         />
 
-                        {/* Framework Selector (Hero Only) */}
-                        {variant === 'hero' && setFramework && framework && (
-                            <FrameworkDropdown framework={framework} setFramework={setFramework} />
+                        {/* Framework Selector */}
+                        {setFramework && framework && (
+                            <div className="relative inline-block">
+                                <button
+                                    ref={frameworkButtonRef}
+                                    onClick={() => setShowFrameworkDropdown(!showFrameworkDropdown)}
+                                    type="button"
+                                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 transition-colors"
+                                >
+                                    <currentFramework.icon size={14} className="text-neutral-400" />
+                                    <span className="text-[11px] text-neutral-300">{currentFramework.label}</span>
+                                </button>
+
+                                {showFrameworkDropdown && createPortal(
+                                    <>
+                                        <div 
+                                            className="fixed inset-0 z-[9998]" 
+                                            onClick={() => setShowFrameworkDropdown(false)} 
+                                        />
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                            style={{
+                                                position: 'fixed',
+                                                ...getFrameworkDropdownPos(),
+                                                zIndex: 9999
+                                            }}
+                                            className="w-[140px] bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl overflow-hidden"
+                                        >
+                                            <div className="py-1">
+                                                {frameworks.map((fw) => (
+                                                    <button
+                                                        key={fw.id}
+                                                        onClick={() => {
+                                                            setFramework(fw.id as any);
+                                                            setShowFrameworkDropdown(false);
+                                                        }}
+                                                        className={`w-full flex items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-neutral-800 ${
+                                                            framework === fw.id 
+                                                                ? 'bg-lime-500/10 text-lime-400' 
+                                                                : 'text-neutral-300'
+                                                        }`}
+                                                    >
+                                                        <fw.icon size={14} />
+                                                        <span className="text-sm">{fw.label}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </motion.div>
+                                    </>,
+                                    document.body
+                                )}
+                            </div>
                         )}
 
-                        <div className="h-3 w-[1px] bg-zinc-800 mx-0.5"></div>
+                        <div className="w-px h-4 bg-neutral-800 mx-1" />
 
+                        {/* Figma Import */}
                         <FigmaImport onImageImport={(url) => setImage(url)} />
 
+                        {/* Image Upload */}
                         <button
                             onClick={() => document.getElementById('chat-image-upload')?.click()}
-                            className="p-1.5 text-zinc-500 hover:text-lime-400 transition-colors rounded-full hover:bg-zinc-900"
-                            title="Attach Image"
+                            className="p-1.5 text-neutral-500 hover:text-lime-400 hover:bg-neutral-800 rounded-lg transition-colors"
+                            title="Upload Image"
                         >
-                            <ImageIcon size={14} strokeWidth={1.5} />
+                            <ImageIcon size={16} />
                         </button>
-
-                        {/* Hidden File Input */}
                         <input
                             id="chat-image-upload"
                             type="file"
@@ -259,32 +235,34 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                                 const file = e.target.files?.[0];
                                 if (file && file.type.startsWith('image/')) {
                                     const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                        setImage(reader.result as string);
-                                    };
+                                    reader.onloadend = () => setImage(reader.result as string);
                                     reader.readAsDataURL(file);
                                 }
-                                // Reset input so same file can be selected again
                                 e.target.value = '';
                             }}
                         />
                     </div>
 
-                    {/* Generate Button */}
+                    {/* Generate/Stop Button */}
                     <button
-                        onClick={() => onGenerate()}
-                        disabled={(!image && !prompt.trim()) || loading}
-                        className="p-1.5 rounded-lg bg-lime-400 hover:bg-lime-300 text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_10px_rgba(163,230,53,0.2)] flex items-center justify-center min-w-[32px] min-h-[32px] relative z-50"
+                        onClick={loading && onStop ? onStop : onGenerate}
+                        disabled={(!image && !prompt.trim()) && !loading}
+                        className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all ${
+                            loading 
+                                ? 'bg-gradient-to-r from-red-500 to-red-400 hover:from-red-400 hover:to-red-300 text-white shadow-[0_0_15px_rgba(239,68,68,0.3)]'
+                                : 'bg-gradient-to-r from-lime-400 to-lime-300 hover:from-lime-300 hover:to-lime-200 disabled:opacity-40 disabled:cursor-not-allowed text-black shadow-[0_0_15px_rgba(163,230,53,0.3)]'
+                        } rounded-lg`}
                     >
                         {loading ? (
-                            <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            >
-                                <ArrowUp size={14} className="opacity-50" />
-                            </motion.div>
+                            <>
+                                <X size={14} />
+                                <span>Stop</span>
+                            </>
                         ) : (
-                            <ArrowUp size={14} strokeWidth={2.5} />
+                            <>
+                                <ArrowUp size={14} />
+                                <span>Generate</span>
+                            </>
                         )}
                     </button>
                 </div>

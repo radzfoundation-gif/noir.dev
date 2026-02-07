@@ -13,6 +13,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { SharedProjectPage } from './pages/SharedProjectPage';
 import { PortfolioPage } from './pages/PortfolioPage';
 import { StandalonePreviewPage } from './pages/StandalonePreviewPage';
+import { TeamPage } from './pages/TeamPage';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <Route path="/pricing" element={<ProtectedRoute><PricingPage /></ProtectedRoute>} />
           <Route path="/how-it-works" element={<ProtectedRoute><HowItWorksPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+          <Route path="/teams" element={<ProtectedRoute><TeamPage /></ProtectedRoute>} />
           <Route path="/share/:token" element={<SharedProjectPage />} />
           <Route path="/portfolio/:userId" element={<PortfolioPage />} />
           <Route path="/preview/:projectId" element={<StandalonePreviewPage />} />
