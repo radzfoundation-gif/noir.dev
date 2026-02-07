@@ -135,6 +135,10 @@ class FullstackGeneratorService {
     }
   };
 
+  getTemplates(): Record<AppType, AppSpec> {
+    return this._appTemplates;
+  }
+
   async generateApp(spec: AppSpec): Promise<GeneratedApp> {
     const frontend = this.generateFrontend(spec);
     const backend = spec.database !== 'none' ? await this.generateBackend(spec) : {};
@@ -502,7 +506,6 @@ export default {
 
   private generatePage(spec: AppSpec, page: string): string {
     const pageName = page.replace(/\s+/g, '');
-    const _pageLower = page.toLowerCase().replace(/\s+/g, '-');
 
     if (page === 'Landing' || page === 'Home') {
       return `import { Link } from 'react-router-dom';

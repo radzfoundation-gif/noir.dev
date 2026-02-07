@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Wand2, Image as ImageIcon, ArrowUp, X, FileCode, Code2, Atom, Rocket } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Image as ImageIcon, ArrowUp, X, FileCode, Code2, Atom, Rocket } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { ModelSelector } from './ModelSelector';
 import { FigmaImport } from './FigmaImport';
@@ -88,7 +88,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
             {/* Main Input Container */}
             <div className="relative bg-neutral-900/90 backdrop-blur-sm border border-neutral-800 rounded-2xl overflow-hidden focus-within:border-lime-500/50 focus-within:ring-1 focus-within:ring-lime-500/30 focus-within:shadow-[0_0_20px_rgba(163,230,53,0.15)] transition-all z-10">
-                
+
                 {/* Context Badge */}
                 {context && (
                     <div className="flex items-center gap-2 px-4 pt-3 pb-2">
@@ -127,9 +127,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 {image && (
                     <div className="px-4 pb-3">
                         <div className="relative inline-block">
-                            <img 
-                                src={image} 
-                                alt="Upload" 
+                            <img
+                                src={image}
+                                alt="Upload"
                                 className="h-16 w-auto rounded-lg border border-neutral-700 object-cover"
                             />
                             <button
@@ -172,9 +172,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
                                 {showFrameworkDropdown && createPortal(
                                     <>
-                                        <div 
-                                            className="fixed inset-0 z-[9998]" 
-                                            onClick={() => setShowFrameworkDropdown(false)} 
+                                        <div
+                                            className="fixed inset-0 z-[9998]"
+                                            onClick={() => setShowFrameworkDropdown(false)}
                                         />
                                         <motion.div
                                             initial={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -195,11 +195,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                                                             setFramework(fw.id as any);
                                                             setShowFrameworkDropdown(false);
                                                         }}
-                                                        className={`w-full flex items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-neutral-800 ${
-                                                            framework === fw.id 
-                                                                ? 'bg-lime-500/10 text-lime-400' 
+                                                        className={`w-full flex items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-neutral-800 ${framework === fw.id
+                                                                ? 'bg-lime-500/10 text-lime-400'
                                                                 : 'text-neutral-300'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <fw.icon size={14} />
                                                         <span className="text-sm">{fw.label}</span>
@@ -247,11 +246,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                     <button
                         onClick={loading && onStop ? onStop : onGenerate}
                         disabled={(!image && !prompt.trim()) && !loading}
-                        className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all ${
-                            loading 
+                        className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all ${loading
                                 ? 'bg-gradient-to-r from-red-500 to-red-400 hover:from-red-400 hover:to-red-300 text-white shadow-[0_0_15px_rgba(239,68,68,0.3)]'
                                 : 'bg-gradient-to-r from-lime-400 to-lime-300 hover:from-lime-300 hover:to-lime-200 disabled:opacity-40 disabled:cursor-not-allowed text-black shadow-[0_0_15px_rgba(163,230,53,0.3)]'
-                        } rounded-lg`}
+                            } rounded-lg`}
                     >
                         {loading ? (
                             <>

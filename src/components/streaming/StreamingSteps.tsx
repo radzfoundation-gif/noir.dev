@@ -89,7 +89,6 @@ export const StreamingSteps: React.FC<StreamingStepsProps> = ({
 
     // 4. Steps: Active if generating & steps started & no code yet. Done if code starts.
     const stepsActive = isGenerating && hasSteps && !hasCode;
-    const _stepsDone = hasCode || (hasSteps && !isGenerating);
 
     // 5. Code: Active if generating & code started. Done if stopped.
     const codeActive = isGenerating && hasCode;
