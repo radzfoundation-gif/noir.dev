@@ -496,8 +496,8 @@ export const Workbench = () => {
         let accumulatedThinking = '';
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-            console.log('[DEBUG] API URL:', apiUrl);
+            const apiUrl = import.meta.env.VITE_API_URL || '';
+            console.log('[DEBUG] API URL:', apiUrl || '(relative)');
 
             let fullPrompt = promptToUse;
             const systemPrompt = brandService.generateSystemPrompt(brandIdentity);

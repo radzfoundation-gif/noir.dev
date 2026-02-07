@@ -35,8 +35,8 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
 const client = new OpenAI({
-    baseURL: "https://api.apifree.ai/v1",
-    apiKey: "sk-pwRrxPfrtYG9j04Es3408CfdN0pp0",
+    baseURL: process.env.SUMOPOD_BASE_URL || "https://api.apifree.ai/v1",
+    apiKey: process.env.SUMOPOD_API_KEY,
 });
 
 app.get('/api/health', (req, res) => {

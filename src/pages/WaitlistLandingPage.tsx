@@ -6,24 +6,28 @@ import { NoirLogo } from '../components/NoirLogo';
 import { InteractiveDemo } from '../components/InteractiveDemo';
 import { ShieldCheck, Code2, Layers, Sparkles } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export const WaitlistLandingPage = () => {
     const [stats, setStats] = useState({ total: 0 });
     const navigate = useNavigate();
 
     useEffect(() => {
-        const socket = io(API_URL);
-        socket.on('waitlistUpdated', (data) => {
-            setStats(prev => ({ ...prev, total: data.count }));
-        });
+        // Socket.io only works in development (Vercel doesn't support persistent WebSocket connections)
+        let socket: ReturnType<typeof io> | null = null;
+        if (import.meta.env.DEV && API_URL) {
+            socket = io(API_URL);
+            socket.on('waitlistUpdated', (data) => {
+                setStats(prev => ({ ...prev, total: data.count }));
+            });
+        }
 
         fetch(`${API_URL}/api/waitlist/stats`)
             .then(res => res.json())
             .then(data => setStats({ total: data.total }))
             .catch(console.error);
 
-        return () => { socket.disconnect(); };
+        return () => { socket?.disconnect(); };
     }, []);
 
     const handleJoinClick = () => navigate('/join');

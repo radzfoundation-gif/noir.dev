@@ -17,7 +17,7 @@ const SubViewHeader = ({ title, subtitle, actions }: any) => (
     </div>
 );
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export const AdminPage = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,13 +42,17 @@ export const AdminPage = () => {
 
         fetchData();
 
-        const socket = io(API_URL);
-        socket.on('waitlistUpdated', () => {
-            console.log("Real-time Update Received via Socket");
-            fetchData();
-        });
+        // Socket.io only works in development (Vercel doesn't support persistent WebSocket connections)
+        let socket: ReturnType<typeof io> | null = null;
+        if (import.meta.env.DEV && API_URL) {
+            socket = io(API_URL);
+            socket.on('waitlistUpdated', () => {
+                console.log("Real-time Update Received via Socket");
+                fetchData();
+            });
+        }
 
-        return () => { socket.disconnect(); };
+        return () => { socket?.disconnect(); };
     }, [isAuthenticated, fetchData]);
 
     const handleLogin = (e: React.FormEvent) => {

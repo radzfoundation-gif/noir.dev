@@ -21,21 +21,9 @@ export const FigmaImport: React.FC<FigmaImportProps> = ({ onImageImport }) => {
         localStorage.setItem('figma_token', token);
 
         try {
-            // Determine API URL (Local vs Prod) - Assuming local for dev, but relative path is safer
-            // Using relative path assuming Vite proxies or same domain? 
-            // NOIR dev runs backend on 3001, frontend 5173. 
-            // ChatInput uses likely no prefix (or fetch fails). The 'fetch' in ChatInput or API calls usually needs base.
-            // server/index.js is on 3001. Frontend vite.config proxy?
-            // Assuming localhost:3001 for now or relative if proxy set.
-            // Existing app likely uses direct localhost:3001 or logic.
-            // I'll use http://localhost:3001 for safety as per other parts if visible.
-            // Actually, `ChatInput` doesn't fetch. `Workbench` calls `fetch('/api/generate')`? No, `fetch` via `projectService`?
-            // Let's use relative `/api/figma/import` and assume proxy is set up or I'll check `vite.config.ts`.
-            // Wait, package.json scripts: `"dev": "concurrently \"vite\" \"node server/index.js\""`.
-            // Usually valid Vite setup proxies /api to backend.
-            // If not, I'll default to `http://localhost:3001`.
-
-            const apiUrl = import.meta.env.PROD ? '/api/figma/import' : 'http://localhost:3001/api/figma/import';
+            // Use relative path for production compatibility
+            const baseUrl = import.meta.env.VITE_API_URL || '';
+            const apiUrl = `${baseUrl}/api/figma/import`;
 
             const res = await fetch(apiUrl, {
                 method: 'POST',

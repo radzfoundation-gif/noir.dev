@@ -1302,18 +1302,16 @@ dist
   }
 
   async generateFromPrompt(prompt: string): Promise<AppSpec> {
-    const response = await fetch('https://api.apifree.ai/v1/chat/completions', {
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+
+    // Use the generate API endpoint which handles the AI call server-side
+    const response = await fetch(`${apiUrl}/api/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer sk-pwRrxPfrtYG9j04Es3408CfdN0pp0`
       },
       body: JSON.stringify({
-        model: 'anthropic/claude-3.5-sonnet',
-        messages: [
-          {
-            role: 'system',
-            content: `You are an AI app architect. Analyze the user's description and create an app specification.
+        prompt: `You are an AI app architect. Analyze the user's description and create an app specification.
             
 Output JSON format:
 {
@@ -1323,18 +1321,25 @@ Output JSON format:
   "features": ["feature1", "feature2", ...],
   "pages": ["page1", "page2", ...],
   "database": "postgresql|mysql|mongodb|none",
-  "auth": true|false,
+  "auth": true or false,
   "ui": "tailwind|shadcn",
   "deployment": "vercel|netlify|railway|render|none"
-}`
-          },
-          { role: 'user', content: prompt }
-        ]
+}
+
+User request: ${prompt}`,
+        model: 'anthropic/claude-3.5-sonnet'
       })
     });
 
-    const data = await response.json();
-    const content = JSON.parse(data.choices[0].message.content);
+    const text = await response.text();
+    // Parse the streamed response - extract JSON from the response
+    let content;
+    try {
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      content = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+    } catch {
+      content = {};
+    }
 
     return {
       name: content.name || 'My App',

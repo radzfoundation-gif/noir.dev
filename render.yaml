@@ -1,0 +1,37 @@
+# Render Blueprint - Infrastructure as Code
+# See https://render.com/docs/blueprint-spec
+
+services:
+  # Frontend - Static Site
+  - type: web
+    name: noir-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://noir-api.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # Backend - Web Service
+  - type: web
+    name: noir-api
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUMOPOD_API_KEY
+        sync: false  # Set manually in dashboard
+      - key: SUMOPOD_BASE_URL
+        value: https://api.apifree.ai/v1
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
