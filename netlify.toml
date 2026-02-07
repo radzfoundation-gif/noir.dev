@@ -9,7 +9,7 @@
 # These VITE_* variables are intentionally embedded in the frontend build
 # and are not sensitive secrets (they are public keys for client-side use)
 [context.production.environment]
-  SECRETS_SCAN_OMIT_KEYS = "VITE_API_URL,VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,SUMOPOD_BASE_URL"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_API_URL,VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY,SUMOPOD_BASE_URL,SUPABASE_URL,SUPABASE_ANON_KEY"
 
 [[redirects]]
   from = "/api/*"
