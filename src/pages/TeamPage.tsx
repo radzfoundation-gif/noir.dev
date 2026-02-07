@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Users, Plus, Settings, Crown, User, MoreVertical, Shield } from 'lucide-react';
+import { ArrowLeft, Users, Plus, Settings, Crown, User, Shield } from 'lucide-react';
 import { teamService, type Team, type TeamMember, type TeamRole } from '../lib/teamService';
 import { useAuth } from '../context/AuthContext';
 import { TeamSettingsModal } from '../components/team/TeamSettingsModal';
@@ -22,7 +21,7 @@ const roleLabels: Record<TeamRole, string> = {
 
 export function TeamPage() {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { } = useAuth();
     const [teams, setTeams] = useState<Team[]>([]);
     const [currentTeamId, setCurrentTeamId] = useState<string | undefined>();
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -78,7 +77,7 @@ export function TeamPage() {
                         <p className="text-neutral-400">Manage your teams and collaborate with others</p>
                     </div>
                     <button
-                        onClick={() => {}}
+                        onClick={() => { }}
                         className="flex items-center gap-2 px-4 py-2 bg-lime-400 hover:bg-lime-300 text-black font-medium rounded-lg transition-colors"
                     >
                         <Plus size={18} />
@@ -94,7 +93,7 @@ export function TeamPage() {
                         <h2 className="text-xl font-semibold text-white mb-2">No teams yet</h2>
                         <p className="text-neutral-400 mb-6">Create a team to start collaborating with others</p>
                         <button
-                            onClick={() => {}}
+                            onClick={() => { }}
                             className="inline-flex items-center gap-2 px-4 py-2 bg-lime-400 hover:bg-lime-300 text-black font-medium rounded-lg transition-colors"
                         >
                             <Plus size={18} />
@@ -155,10 +154,10 @@ export function TeamPage() {
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden">
-                                                            {member.user?.avatar_url ? (
+                                                            {member.user?.user_metadata?.avatar_url ? (
                                                                 <img
-                                                                    src={member.user.avatar_url}
-                                                                    alt={member.user?.name || member.email}
+                                                                    src={member.user.user_metadata.avatar_url}
+                                                                    alt={member.user?.user_metadata?.full_name || member.user?.email || 'User'}
                                                                     className="w-full h-full object-cover"
                                                                 />
                                                             ) : (
@@ -167,9 +166,9 @@ export function TeamPage() {
                                                         </div>
                                                         <div>
                                                             <p className="text-white font-medium">
-                                                                {member.user?.name || 'Unknown'}
+                                                                {member.user?.user_metadata?.full_name || 'Unknown'}
                                                             </p>
-                                                            <p className="text-neutral-500 text-sm">{member.email}</p>
+                                                            <p className="text-neutral-500 text-sm">{member.user?.email || 'No email'}</p>
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-3">
@@ -199,11 +198,10 @@ export function TeamPage() {
                                                 setCurrentTeamId(team.id);
                                                 teamService.getTeamMembers(team.id).then(setTeamMembers);
                                             }}
-                                            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                                                team.id === currentTeamId
-                                                    ? 'bg-lime-500/10 border border-lime-500/30'
-                                                    : 'hover:bg-neutral-800'
-                                            }`}
+                                            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${team.id === currentTeamId
+                                                ? 'bg-lime-500/10 border border-lime-500/30'
+                                                : 'hover:bg-neutral-800'
+                                                }`}
                                         >
                                             <div className="w-10 h-10 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0">
                                                 {team.avatar_url ? (

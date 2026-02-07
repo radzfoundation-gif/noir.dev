@@ -9,7 +9,7 @@ export interface AppSpec {
   description: string;
   features: string[];
   pages: string[];
-  database: 'postgresql' | 'mysql' | 'mongodb' | 'supabase';
+  database: 'postgresql' | 'mysql' | 'mongodb' | 'supabase' | 'none';
   auth: boolean;
   ui: 'tailwind' | 'shadcn' | 'material' | 'chakra';
   deployment: 'vercel' | 'netlify' | 'railway' | 'render' | 'none';
@@ -225,7 +225,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   }
 
   private generateAppTsx(spec: AppSpec): string {
-    const imports = spec.pages.map(p => 
+    const imports = spec.pages.map(p =>
       `import ${p.replace(/\s+/g, '')}Page from './pages/${p.replace(/\s+/g, '')}Page';`
     ).join('\n');
 
@@ -964,18 +964,19 @@ export default function Header() {
 }`;
   }
 
-  private generateBackend(spec: AppSpec): Record<string, string> {
+  private async generateBackend(spec: AppSpec): Promise<Record<string, string>> {
     const backendProject = {
       name: spec.name.toLowerCase().replace(/\s+/g, '-'),
       framework: 'express' as const,
-      database: spec.database,
+      database: spec.database as 'postgresql' | 'mysql' | 'mongodb' | 'supabase',
       tables: this.generateTablesForApp(spec),
       endpoints: this.generateEndpointsForApp(spec),
       authentication: spec.auth,
       port: 3000
     };
 
-    return backendGeneratorService.generateBackend(backendProject).files;
+    const result = await backendGeneratorService.generateBackend(backendProject);
+    return result.files;
   }
 
   private generateTablesForApp(spec: AppSpec): any[] {
@@ -1331,7 +1332,7 @@ Output JSON format:
 
     const data = await response.json();
     const content = JSON.parse(data.choices[0].message.content);
-    
+
     return {
       name: content.name || 'My App',
       type: content.type || 'custom',
