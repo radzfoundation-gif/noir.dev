@@ -20,10 +20,10 @@ export interface GeneratedApp {
   backend: Record<string, string>;
   config: {
     packageJson: string;
-    tailwindConfig?: string;
-    tsConfig?: string;
     envExample: string;
     readme: string;
+    tailwindConfig?: string;
+    tsConfig?: string;
     dockerfile?: string;
   };
   deployment: {
@@ -33,7 +33,7 @@ export interface GeneratedApp {
 }
 
 class FullstackGeneratorService {
-  private appTemplates: Record<AppType, AppSpec> = {
+  private readonly _appTemplates: Record<AppType, AppSpec> = {
     saas: {
       name: 'SaaS Application',
       type: 'saas',
@@ -137,7 +137,7 @@ class FullstackGeneratorService {
 
   async generateApp(spec: AppSpec): Promise<GeneratedApp> {
     const frontend = this.generateFrontend(spec);
-    const backend = spec.database !== 'none' ? this.generateBackend(spec) : {};
+    const backend = spec.database !== 'none' ? await this.generateBackend(spec) : {};
     const config = this.generateConfig(spec);
     const deployment = this.generateDeploymentConfig(spec);
 
@@ -502,7 +502,7 @@ export default {
 
   private generatePage(spec: AppSpec, page: string): string {
     const pageName = page.replace(/\s+/g, '');
-    const pageLower = page.toLowerCase().replace(/\s+/g, '-');
+    const _pageLower = page.toLowerCase().replace(/\s+/g, '-');
 
     if (page === 'Landing' || page === 'Home') {
       return `import { Link } from 'react-router-dom';
@@ -1134,7 +1134,7 @@ export default function Header() {
     return endpoints;
   }
 
-  private generateConfig(spec: AppSpec): Record<string, any> {
+  private generateConfig(spec: AppSpec): { packageJson: string; envExample: string; readme: string; dockerfile?: string } {
     const packageJson = {
       name: spec.name.toLowerCase().replace(/\s+/g, '-'),
       version: '0.1.0',

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Code2, Sparkles, Download, Layout, Server, Database, Globe, Layers, Zap, ChevronRight, X, Check, Monitor, Cpu, Palette, ShoppingCart, Users, User, MessageCircle } from 'lucide-react';
+import { Code2, Sparkles, Download, Layout, Server, Database, Globe, Layers, Zap, ChevronRight, X, Check, Monitor, Cpu, ShoppingCart, Users, User, MessageCircle } from 'lucide-react';
 
 interface FullstackGeneratorProps {
   onGenerate?: (app: any) => void;
@@ -68,7 +68,7 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
   });
   const [prompt, setPrompt] = useState('');
   const [generatedApp, setGeneratedApp] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
   const [progress, setProgress] = useState('');
 
   const handleModeSelect = (selectedMode: GeneratorMode) => {
@@ -90,8 +90,8 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
       const response = await fetch('/api/generate-fullstack', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          type: selectedType, 
+        body: JSON.stringify({
+          type: selectedType,
           mode,
           config: mode === 'frontend' ? { framework: config.framework, ui: config.ui } : config
         })
@@ -149,7 +149,7 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
                   setGeneratedApp(data.data);
                   setStep('complete');
                 }
-              } catch (e) {}
+              } catch (e) { }
             }
           }
         }
@@ -376,11 +376,10 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
                           <button
                             key={fw.id}
                             onClick={() => setConfig({ ...config, framework: fw.id })}
-                            className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${
-                              config.framework === fw.id
-                                ? 'bg-purple-500/20 border-purple-500 text-white'
-                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-                            }`}
+                            className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${config.framework === fw.id
+                              ? 'bg-purple-500/20 border-purple-500 text-white'
+                              : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                              }`}
                           >
                             <fw.icon className="w-5 h-5" />
                             {fw.name}
@@ -397,11 +396,10 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
                             <button
                               key={ui.id}
                               onClick={() => setConfig({ ...config, ui: ui.id })}
-                              className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${
-                                config.ui === ui.id
-                                  ? 'bg-purple-500/20 border-purple-500 text-white'
-                                  : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-                              }`}
+                              className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${config.ui === ui.id
+                                ? 'bg-purple-500/20 border-purple-500 text-white'
+                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                                }`}
                             >
                               <div className={`w-5 h-5 rounded ${ui.color}`} />
                               {ui.name}
@@ -422,11 +420,10 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
                           <button
                             key={fw.id}
                             onClick={() => setConfig({ ...config, backend: fw.id })}
-                            className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${
-                              config.backend === fw.id
-                                ? 'bg-purple-500/20 border-purple-500 text-white'
-                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-                            }`}
+                            className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${config.backend === fw.id
+                              ? 'bg-purple-500/20 border-purple-500 text-white'
+                              : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                              }`}
                           >
                             <fw.icon className="w-5 h-5" />
                             {fw.name}
@@ -442,11 +439,10 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
                           <button
                             key={db.id}
                             onClick={() => setConfig({ ...config, database: db.id })}
-                            className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${
-                              config.database === db.id
-                                ? 'bg-purple-500/20 border-purple-500 text-white'
-                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-                            }`}
+                            className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${config.database === db.id
+                              ? 'bg-purple-500/20 border-purple-500 text-white'
+                              : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                              }`}
                           >
                             <db.icon className="w-5 h-5" />
                             {db.name}
@@ -466,11 +462,10 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
                           <button
                             key={fw.id}
                             onClick={() => setConfig({ ...config, backend: fw.id })}
-                            className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${
-                              config.backend === fw.id
-                                ? 'bg-purple-500/20 border-purple-500 text-white'
-                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-                            }`}
+                            className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${config.backend === fw.id
+                              ? 'bg-purple-500/20 border-purple-500 text-white'
+                              : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                              }`}
                           >
                             <fw.icon className="w-5 h-5" />
                             {fw.name}
@@ -486,11 +481,10 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
                           <button
                             key={db.id}
                             onClick={() => setConfig({ ...config, database: db.id })}
-                            className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${
-                              config.database === db.id
-                                ? 'bg-purple-500/20 border-purple-500 text-white'
-                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-                            }`}
+                            className={`p-4 rounded-lg border transition-colors flex items-center gap-3 ${config.database === db.id
+                              ? 'bg-purple-500/20 border-purple-500 text-white'
+                              : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                              }`}
                           >
                             <db.icon className="w-5 h-5" />
                             {db.name}
@@ -505,7 +499,7 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
                   <div>
                     <label className="text-white font-medium mb-3 block">Features</label>
                     <div className="space-y-3">
-                      {mode !== 'frontend-only' && (
+                      {mode !== 'frontend' && (
                         <label className="flex items-center gap-3 p-4 bg-white/5 rounded-lg cursor-pointer">
                           <input
                             type="checkbox"
@@ -708,7 +702,7 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
                 <ChevronRight className="w-5 h-5 rotate-180" />
                 Generate Another App
               </button>
-              </motion.div>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

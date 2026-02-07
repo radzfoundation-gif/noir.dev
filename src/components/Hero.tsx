@@ -95,7 +95,6 @@ export const Hero: React.FC<HeroProps> = ({
                         setModel={setModel}
                         prompt={prompt}
                         setPrompt={setPrompt}
-                        variant="hero"
                         framework={framework}
                         setFramework={setFramework}
                     />
@@ -154,7 +153,7 @@ export const Hero: React.FC<HeroProps> = ({
                 <div className="mt-12 max-w-4xl mx-auto">
                     <div className="relative p-1 bg-gradient-to-r from-lime-500/20 via-emerald-500/20 to-lime-500/20 rounded-2xl">
                         <div className="absolute inset-0 bg-gradient-to-r from-lime-500/5 via-emerald-500/5 to-lime-500/5 rounded-2xl blur-xl"></div>
-                        <Link 
+                        <Link
                             to="/editor"
                             className="relative block p-8 bg-black/60 backdrop-blur-xl rounded-xl border border-white/10 hover:border-lime-500/30 transition-all group"
                         >

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
@@ -16,9 +16,16 @@ const MODELS = [
 
 const REASONING_LEVELS = ['Low', 'Medium', 'High', 'Max'];
 
-export const ModelSelector = ({ selectedId, onSelect, variant = 'default', align = 'right' }) => {
+interface ModelSelectorProps {
+    selectedId: string;
+    onSelect: (modelId: string) => void;
+    variant?: 'default' | 'compact';
+    align?: 'left' | 'right';
+}
+
+export const ModelSelector = ({ selectedId, onSelect, variant = 'default', align = 'right' }: ModelSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false);
-    const buttonRef = useRef(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
     const selectedModel = MODELS.find(m => m.id === selectedId) || MODELS[0];
 
     const handleClick = () => setIsOpen(!isOpen);
@@ -73,10 +80,10 @@ export const ModelSelector = ({ selectedId, onSelect, variant = 'default', align
                             onClick={() => model.available && handleSelect(model.id)}
                             disabled={!model.available}
                             className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-all ${model.available
-                                    ? model.id === selectedId
-                                        ? 'bg-lime-500/10 text-lime-400'
-                                        : 'hover:bg-white/5 text-neutral-300'
-                                    : 'opacity-40 cursor-not-allowed text-neutral-500'
+                                ? model.id === selectedId
+                                    ? 'bg-lime-500/10 text-lime-400'
+                                    : 'hover:bg-white/5 text-neutral-300'
+                                : 'opacity-40 cursor-not-allowed text-neutral-500'
                                 }`}
                         >
                             <div className={compact ? 'w-5 h-5' : 'w-6 h-6'}>{renderLogo(model.logo)}</div>
@@ -109,8 +116,8 @@ export const ModelSelector = ({ selectedId, onSelect, variant = 'default', align
             onClick={handleClick}
             type="button"
             className={`flex items-center gap-1.5 rounded-md transition-all ${variant === 'compact'
-                    ? 'px-2 py-1 bg-neutral-800/80 hover:bg-neutral-800'
-                    : 'px-2.5 py-1.5 bg-neutral-800/80 hover:bg-neutral-800'
+                ? 'px-2 py-1 bg-neutral-800/80 hover:bg-neutral-800'
+                : 'px-2.5 py-1.5 bg-neutral-800/80 hover:bg-neutral-800'
                 }`}
         >
             <div className={variant === 'compact' ? 'w-4 h-4' : 'w-5 h-5'}>{renderLogo(selectedModel.logo)}</div>

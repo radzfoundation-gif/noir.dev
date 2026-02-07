@@ -3,7 +3,7 @@ import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { ChatInput } from './ChatInput';
-import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Redo, Camera, Save, LayoutGrid, History, Smartphone, MessageSquare, Users, Palette, Server, KeyRound, Rocket, ShieldCheck, Sparkles, Zap, Code2, ChevronDown, Monitor, Tablet, Play, Layers, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
+import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Redo, Camera, Save, LayoutGrid, History, Smartphone, MessageSquare, Palette, Server, KeyRound, Rocket, ShieldCheck, Sparkles, Zap, ChevronDown, Monitor, Tablet, Play, Layers, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { projectService } from '../lib/projectService';
 import { useAuth } from '../context/AuthContext';
@@ -17,7 +17,6 @@ import { ComponentGallery } from './ComponentGallery';
 import { VersionHistoryModal } from './VersionHistoryModal';
 import { ToolbarDropdown } from './ToolbarDropdown';
 import type { ComponentTemplate } from '../lib/templateService';
-import { TeamSwitcher } from './team/TeamSwitcher';
 import { TeamSettingsModal } from './team/TeamSettingsModal';
 import { ShareProjectModal } from './team/ShareProjectModal';
 import { CommentThread } from './comments/CommentThread';
@@ -214,7 +213,7 @@ export const Workbench = () => {
 
     // Team & Collaboration
     const [teams, setTeams] = useState<Team[]>([]);
-    const [currentTeamId, setCurrentTeamId] = useState<string | undefined>();
+    const [currentTeamId, _setCurrentTeamId] = useState<string | undefined>();
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
     const [isTeamSettingsOpen, setIsTeamSettingsOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
