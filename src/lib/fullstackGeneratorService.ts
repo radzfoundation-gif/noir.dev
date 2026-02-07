@@ -1301,7 +1301,7 @@ dist
     return deployment;
   }
 
-  async generateFromPrompt(prompt: string): Promise<AppSpec> {
+  async generateFromPrompt(prompt: string, model: string = 'anthropic/claude-opus-4.5'): Promise<AppSpec> {
     const apiUrl = import.meta.env.VITE_API_URL || '';
 
     // Use the generate API endpoint which handles the AI call server-side
@@ -1327,7 +1327,7 @@ Output JSON format:
 }
 
 User request: ${prompt}`,
-        model: 'anthropic/claude-3.5-sonnet'
+        model: model
       })
     });
 

@@ -35,6 +35,7 @@ import { DeploymentModal } from './deploy/DeploymentModal';
 import type { DesignSystemLibrary } from '../lib/designSystemService';
 import StreamingSteps from './streaming/StreamingSteps';
 import WorkingIndicator from './streaming/WorkingIndicator';
+import { fullstackGeneratorService } from '../lib/fullstackGeneratorService';
 
 type ViewMode = 'Preview' | 'Code' | 'Integrations' | 'APIs';
 type Device = 'mobile' | 'desktop' | 'tablet';
@@ -191,7 +192,7 @@ export const Workbench = () => {
     const [projectId, setProjectId] = useState<string | null>(searchParams.get('project'));
     const [isSaving, setIsSaving] = useState(false);
     const { user } = useAuth();
-    const [model, setModel] = useState(location.state?.model || 'google/gemini-3-pro-preview');
+    const [model, setModel] = useState(location.state?.model || 'anthropic/claude-opus-4.5');
     const [prompt, setPrompt] = useState(location.state?.prompt || '');
     const [image, setImage] = useState<string | null>(location.state?.image || null);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -498,6 +499,12 @@ export const Workbench = () => {
         try {
             const apiUrl = import.meta.env.VITE_API_URL || '';
             console.log('[DEBUG] API URL:', apiUrl || '(relative)');
+
+            if (buildMode === 'fullstack') {
+                const spec = await fullstackGeneratorService.generateFromPrompt(promptToUse, model);
+                console.log('[DEBUG] Generated Spec:', spec);
+                // Further logic for fullstack generation would go here
+            }
 
             let fullPrompt = promptToUse;
             const systemPrompt = brandService.generateSystemPrompt(brandIdentity);
@@ -992,9 +999,9 @@ export const Workbench = () => {
 
                         {/* User Input */}
                         {(currentPrompt || currentImage) && (
-                            <div className="p-4 border-b border-white/5">
+                            <div className="p-4">
                                 <div className="flex gap-3">
-                                    <div className="w-6 h-6 rounded-full bg-neutral-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <div className="w-6 h-6 rounded-full bg-transparent flex items-center justify-center flex-shrink-0 mt-0.5">
                                         <span className="text-[10px] text-neutral-400">You</span>
                                     </div>
                                     <div className="flex-1">
@@ -1031,7 +1038,7 @@ export const Workbench = () => {
 
                     {/* Streaming Output Area - FIXED above input */}
                     {isGenerating && (
-                        <div className="flex-shrink-0 border-t border-white/5 bg-neutral-900/50 backdrop-blur-sm flex flex-col">
+                        <div className="flex-shrink-0 flex flex-col">
                             <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
                                 <StreamingSteps
                                     analysis={analysis}

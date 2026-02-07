@@ -29,7 +29,7 @@ export const StreamingSteps: React.FC<StreamingStepsProps> = ({
         isActive,
         isCompleted,
         color = "text-neutral-400",
-        bgColor = "bg-neutral-800"
+        bgColor = "bg-transparent"
     }: {
         icon: any,
         label: string,
@@ -40,8 +40,8 @@ export const StreamingSteps: React.FC<StreamingStepsProps> = ({
         bgColor?: string
     }) => (
         <div className="flex gap-4 relative group">
-            {/* Timeline Line */}
-            <div className="absolute left-[11px] top-8 bottom-[-16px] w-[2px] bg-neutral-800 group-last:hidden" />
+            {/* Timeline Line - Removed for transparency */}
+            {/* <div className="absolute left-[11px] top-8 bottom-[-16px] w-[2px] bg-neutral-800 group-last:hidden" /> */}
 
             {/* Icon */}
             <div className={`
@@ -143,10 +143,10 @@ export const StreamingSteps: React.FC<StreamingStepsProps> = ({
 
             {/* 4. Plan Steps */}
             {(hasSteps || stepsActive) && (
-                <div className="pl-2 border-l border-neutral-800 ml-3 space-y-2">
+                <div className="pl-2 ml-3 space-y-2">
                     {steps.map((step, idx) => (
                         <div key={idx} className="flex items-start gap-2 text-xs text-neutral-400">
-                            <div className="w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center shrink-0 mt-0.5 text-[10px]">{idx + 1}</div>
+                            <div className="w-4 h-4 rounded-full bg-transparent flex items-center justify-center shrink-0 mt-0.5 text-[10px]">{idx + 1}</div>
                             <span>{step.title}</span>
                         </div>
                     ))}

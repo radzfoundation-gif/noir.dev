@@ -74,7 +74,7 @@ app.post('/api/generate-fullstack', async (req, res) => {
             spec = customSpec;
         } else if (prompt) {
             const response = await client.chat.completions.create({
-                model: 'anthropic/claude-3.5-sonnet',
+                model: 'anthropic/claude-opus-4.5',
                 messages: [
                     {
                         role: 'system',
