@@ -1,4 +1,4 @@
-import { Wand2, Clock, ShieldCheck as ShieldIcon, Globe, User, ShoppingCart, LayoutDashboard, MessageSquare, CheckSquare, Activity, Smartphone, Layers, Cpu, Palette, Zap } from 'lucide-react';
+import { Clock, ShieldCheck as ShieldIcon, Globe, User, ShoppingCart, LayoutDashboard, MessageSquare, CheckSquare, Activity, Smartphone, Layers, Cpu, Palette, Zap } from 'lucide-react';
 import { ChatInput } from './ChatInput';
 import { FlipWords } from './FlipWords';
 import { Link } from 'react-router-dom';

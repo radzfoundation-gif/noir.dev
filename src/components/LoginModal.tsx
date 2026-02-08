@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, LogIn } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { RegisterModal } from './RegisterModal';
