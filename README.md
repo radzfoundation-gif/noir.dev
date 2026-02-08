@@ -1,27 +1,28 @@
-# NOIR AI - SaaS Design-to-Code Platform
+# NOIR AI - SaaS Fullstack AI Web Generator
 
 ![NOIR AI Badge](https://img.shields.io/badge/Status-Beta-blueviolet?style=for-the-badge&logo=react)
 ![Tech Stack](https://img.shields.io/badge/Stack-React%20|%20Vite%20|%20Tailwind%20|%20Express-blue?style=for-the-badge)
 
-**NOIR AI** is a premium SaaS application that transforms UI design images into production-ready code using advanced AI models. It leverages the power of Multimodal LLMs (via OpenRouter) to understand visual designs and generate clean, responsive HTML/TailwindCSS or React code.
+**NOIR AI** is a premium SaaS application that transforms your ideas into complete, production-ready fullstack web applications using advanced AI models. It leverages the power of Multimodal LLMs to generate high-quality code across frontend and backend.
 
 ## ✨ Features
 
-- **🎨 Design to Code**: Drag & Drop any UI screenshot or design mockup, and get the code instantly.
+- **🚀 Prompt-to-App**: Describe your vision in plain English, and get a fully functional fullstack app instantly.
+- **🏗️ Fullstack Generation**: Automatically generates React frontends, Express/Node.js backends, and database schemas.
 - **🧠 Multi-Model Support**: Switch between top-tier models:
-  - **Claude 3.5 Sonnet**: Fast, intelligent, and free (via OpenRouter).
-  - **Claude 3 Opus (Pro)**: Maximum reasoning for complex layouts.
+  - **Claude 3.5 Sonnet**: Fast, intelligent, and precise.
+  - **Claude 3 Opus (Pro)**: Maximum reasoning for complex architectures.
   - **Gemini 2.0 Flash**: Ultra-fast, low latency generation.
 - **💎 Premium UI/UX**: "Noir" aesthetic featuring glassmorphism, smooth Framer Motion animations, and a responsive dark mode interface.
-- **⚡ Live Preview**: Real-time rendering of generated code in a secure sandbox.
-- **🔧 Customizable Output**: Add specific instructions (e.g., "Make it mobile responsive", "Use grid layout") to guide the AI.
-- **📧 Email Notifications**: Automated email notifications sent on login and waitlist join (powered by Resend).
+- **⚡ Live Workbench**: Real-time editing and previewing of generated applications in a secure sandbox.
+- **🔧 Integrated Backend**: Built-in support for API generation, authentication, and database migrations.
+- **📧 Automated Workflow**: Seamless transition from design concept to deployed application.
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 19, Vite, TypeScript, TailwindCSS v3, Framer Motion, Lucide React.
-- **Backend**: Node.js, Express.
-- **AI Integration**: OpenAI SDK (compatible with OpenRouter API).
+- **Backend**: Node.js, Express, Supabase.
+- **AI Integration**: OpenAI SDK (compatible with OpenRouter & Sumopod API).
 - **Styling**: PostCSS, Autoprefixer, Custom Tailwind Theme.
 
 ## 🚀 Getting Started
@@ -30,33 +31,31 @@
 
 - Node.js (v18 or higher)
 - npm or yarn
-- An **OpenRouter API Key** (Get one at [openrouter.ai](https://openrouter.ai))
+- A Supabase Project (for Auth & Database)
 
 ### Installation
 
-1.  **Clone the repository** (if you haven't already):
+1.  **Clone the repository**:
     ```bash
     git clone https://github.com/your-username/noir-ai.git
     cd noir-ai
     ```
 
 2.  **Install Dependencies**:
-    This will install packages for both frontend and backend.
     ```bash
     npm install
     ```
 
 3.  **Environment Setup**:
-    Create a `.env` file in the root directory (or edit the existing one):
+    Create a `.env` file in the root directory:
     ```env
     # .env
-    OPENROUTER_API_KEY=sk-or-your-api-key-here
     SUMOPOD_API_KEY=your_sumopod_api_key
     RESEND_API_KEY=your_resend_api_key
     VITE_API_URL=http://localhost:3001
     PORT=3001
     
-    # Supabase (Required for auth and database)
+    # Supabase
     SUPABASE_URL=your_supabase_project_url
     SUPABASE_ANON_KEY=your_supabase_anon_key
     VITE_SUPABASE_URL=your_supabase_project_url
@@ -64,22 +63,20 @@
     ```
 
 4.  **Run Development Server**:
-    Start both the frontend (Vite) and backend (Express) concurrently:
     ```bash
     npm run dev
     ```
 
 5.  **Access the App**:
-    Open your browser and navigate to `http://localhost:5173`.
+    Open `http://localhost:5173`.
 
 ## 📖 Usage Guide
 
-1.  **Upload Design**: Drag and drop your UI image (screenshot, Figma export, etc.) into the upload zone.
-2.  **Select Model**: Use the dropdown to choose your preferred AI model.
-    - *Tip: Start with Gemini Flash for speed, or Claude Opus for precision.*
-3.  **Add Instructions**: (Optional) Type specific requirements like "Use blue gradients for buttons" or "Add a navbar".
-4.  **Generate**: Click the **"Generate Code"** button. The AI will process the image and stream the code back.
-5.  **Preview & Copy**: Switch between the "Code" and "Preview" tabs. Click "Copy" to use the code in your project.
+1.  **Describe Your App**: Enter your application requirements in the prompt box (e.g., "A modern CRM for real estate agents").
+2.  **Select Model**: Choose the AI brain that best fits your project's complexity.
+3.  **Generate**: Click the **"Generate Application"** button. The AI will architect the frontend, backend, and database.
+4.  **Preview & Edit**: Use the Workbench to see your app in action and make real-time adjustments.
+5.  **Export**: Download the full source code as a ZIP file, ready for deployment.
 
 ## 📂 Project Structure
 

@@ -34,8 +34,8 @@ const STEPS = [
     {
         id: 4,
         title: "Ship It",
-        description: "Export clean React/Tailwind code ready to deploy.",
-        details: "Noir exports standard React & Tailwind CSS that drops directly into your existing project—no lock-in, no black boxes.",
+        description: "Export fullstack React/Node.js apps ready to deploy.",
+        details: "Noir exports standard React frontends, Express backends, and SQL migrations that are ready for production—no lock-in, no black boxes.",
         icon: Download,
         color: "bg-orange-500",
         imageGradient: "from-orange-500/20 to-red-500/20"

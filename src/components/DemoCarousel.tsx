@@ -7,8 +7,8 @@ import { IPhoneMockup } from './IPhoneMockup';
 const DEMO_SLIDES = [
     {
         id: 1,
-        title: "Instant Code Generation",
-        description: "Transform your ideas or screenshots into production-ready React code in seconds. No more boilerplate.",
+        title: "Fullstack App Generation",
+        description: "Transform your ideas or prompts into production-ready fullstack applications with React and Express in seconds.",
         icon: Zap,
         content: (
             <div className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden flex flex-col border border-white/10 shadow-2xl">

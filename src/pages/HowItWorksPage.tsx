@@ -74,10 +74,10 @@ export const HowItWorksPage = () => {
                     <div className="max-w-4xl mx-auto text-center relative z-10">
                         <span className="inline-block px-4 py-1 rounded-full border border-[#25f46a]/30 bg-[#25f46a]/10 text-[#25f46a] text-xs font-bold tracking-widest uppercase mb-6">Process Pipeline</span>
                         <h1 className="text-5xl md:text-7xl font-black leading-none tracking-tighter mb-6 uppercase text-white">
-                            From Pixels to <br /><span className="text-[#25f46a] italic">Production</span>
+                            From Vision to <br /><span className="text-[#25f46a] italic">Live Apps</span>
                         </h1>
                         <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                            Noir Code leverages proprietary neural engines to deconstruct your visual designs into clean, scalable React components with Tailwind CSS utility classes.
+                            Noir Code leverages proprietary neural engines to deconstruct your ideas or designs into clean, scalable fullstack applications with React frontends and Node.js backends.
                         </p>
                     </div>
                     {/* Decorative background element */}
@@ -94,9 +94,9 @@ export const HowItWorksPage = () => {
                         <div className="relative flex flex-col lg:flex-row items-center gap-12 mb-32 group">
                             <div className="flex-1 lg:text-right">
                                 <div className="inline-flex items-center justify-center size-14 rounded-xl bg-[#25f46a] text-[#0a0f0b] text-2xl font-black mb-6 glow-border">01</div>
-                                <h3 className="text-3xl font-bold mb-4 text-white">Upload Your Screenshot</h3>
+                                <h3 className="text-3xl font-bold mb-4 text-white">Define Your Application</h3>
                                 <p className="text-slate-400 leading-relaxed text-lg">
-                                    Drag and drop any UI design, hand-drawn sketch, or high-fidelity mockup directly into our engine. We support PNG, JPG, and Figma exports.
+                                    Describe your app requirements in plain English or upload a design mockup. Noir interprets your intent to architect the entire system.
                                 </p>
                             </div>
                             <div className="flex-1 w-full">
@@ -152,9 +152,9 @@ export const HowItWorksPage = () => {
                         <div className="relative flex flex-col lg:flex-row items-center gap-12 group">
                             <div className="flex-1 lg:text-right">
                                 <div className="inline-flex items-center justify-center size-14 rounded-xl bg-[#25f46a] text-[#0a0f0b] text-2xl font-black mb-6 glow-border">03</div>
-                                <h3 className="text-3xl font-bold mb-4 text-white">Export Clean Code</h3>
+                                <h3 className="text-3xl font-bold mb-4 text-white">Export Fullstack Project</h3>
                                 <p className="text-slate-400 leading-relaxed text-lg">
-                                    Receive a ZIP file with modular React components, clean Tailwind utility classes, and optimized assets. Ready for production, zero bloat.
+                                    Receive a ZIP file with modular React components, Express API routes, database schemas, and optimized assets. Ready for production.
                                 </p>
                             </div>
                             <div className="flex-1 w-full">

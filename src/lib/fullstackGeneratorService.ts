@@ -1,18 +1,22 @@
 import { backendGeneratorService } from './backendGeneratorService';
 
-export type AppType = 'saas' | 'blog' | 'ecommerce' | 'dashboard' | 'portfolio' | 'crm' | 'chat' | 'cms' | 'custom';
-export type AppFramework = 'react-vite' | 'nextjs' | 'remix' | 'astro';
+export type AppType = 'saas' | 'blog' | 'ecommerce' | 'dashboard' | 'portfolio' | 'crm' | 'chat' | 'cms' | 'landing' | 'admin' | 'ecommerce-ui' | 'blog-ui' | 'portfolio-ui' | 'social' | 'custom';
+export type AppFramework = 'react-vite' | 'nextjs' | 'remix' | 'astro' | 'react-native';
+export type GeneratorMode = 'fullstack' | 'frontend' | 'backend-only' | 'mobile';
 
 export interface AppSpec {
   name: string;
   type: AppType;
   description: string;
   features: string[];
-  pages: string[];
-  database: 'postgresql' | 'mysql' | 'mongodb' | 'supabase' | 'none';
+  pages?: string[];
+  screens?: string[];
+  database: 'postgresql' | 'mysql' | 'mongodb' | 'supabase' | 'sqlite' | 'firebase' | 'none';
   auth: boolean;
-  ui: 'tailwind' | 'shadcn' | 'material' | 'chakra';
-  deployment: 'vercel' | 'netlify' | 'railway' | 'render' | 'none';
+  ui: 'tailwind' | 'shadcn' | 'material' | 'chakra' | 'native-base' | 'expo';
+  deployment: 'vercel' | 'netlify' | 'railway' | 'render' | 'none' | 'expo' | 'app-store';
+  mode: GeneratorMode;
+  platform?: 'web' | 'mobile';
 }
 
 export interface GeneratedApp {
@@ -43,7 +47,8 @@ class FullstackGeneratorService {
       database: 'postgresql',
       auth: true,
       ui: 'tailwind',
-      deployment: 'vercel'
+      deployment: 'vercel',
+      mode: 'fullstack'
     },
     blog: {
       name: 'Blog Platform',
@@ -54,7 +59,8 @@ class FullstackGeneratorService {
       database: 'postgresql',
       auth: false,
       ui: 'tailwind',
-      deployment: 'vercel'
+      deployment: 'vercel',
+      mode: 'fullstack'
     },
     ecommerce: {
       name: 'E-commerce Store',
@@ -65,7 +71,8 @@ class FullstackGeneratorService {
       database: 'postgresql',
       auth: true,
       ui: 'tailwind',
-      deployment: 'vercel'
+      deployment: 'vercel',
+      mode: 'fullstack'
     },
     dashboard: {
       name: 'Admin Dashboard',
@@ -76,7 +83,8 @@ class FullstackGeneratorService {
       database: 'postgresql',
       auth: true,
       ui: 'shadcn',
-      deployment: 'vercel'
+      deployment: 'vercel',
+      mode: 'fullstack'
     },
     portfolio: {
       name: 'Portfolio Website',
@@ -87,7 +95,8 @@ class FullstackGeneratorService {
       database: 'none',
       auth: false,
       ui: 'tailwind',
-      deployment: 'netlify'
+      deployment: 'netlify',
+      mode: 'frontend'
     },
     crm: {
       name: 'CRM System',
@@ -98,7 +107,8 @@ class FullstackGeneratorService {
       database: 'postgresql',
       auth: true,
       ui: 'shadcn',
-      deployment: 'vercel'
+      deployment: 'vercel',
+      mode: 'fullstack'
     },
     chat: {
       name: 'Chat Application',
@@ -109,7 +119,8 @@ class FullstackGeneratorService {
       database: 'mongodb',
       auth: true,
       ui: 'tailwind',
-      deployment: 'railway'
+      deployment: 'railway',
+      mode: 'fullstack'
     },
     cms: {
       name: 'Content Management',
@@ -120,7 +131,80 @@ class FullstackGeneratorService {
       database: 'postgresql',
       auth: true,
       ui: 'shadcn',
-      deployment: 'railway'
+      deployment: 'railway',
+      mode: 'fullstack'
+    },
+    landing: {
+      name: 'Landing Page',
+      type: 'landing',
+      description: 'Marketing landing page with hero, features, pricing, and CTA',
+      features: ['Hero Section', 'Features Grid', 'Pricing Table', 'Testimonials', 'FAQ', 'Footer'],
+      pages: ['Home'],
+      database: 'none',
+      auth: false,
+      ui: 'tailwind',
+      deployment: 'netlify',
+      mode: 'frontend'
+    },
+    admin: {
+      name: 'Admin Panel',
+      type: 'admin',
+      description: 'Admin dashboard with sidebar, charts, and data tables',
+      features: ['Sidebar Navigation', 'Data Tables', 'Charts', 'User Management', 'Settings', 'Analytics'],
+      pages: ['Dashboard', 'Users', 'Settings', 'Reports', 'Activity', 'Analytics'],
+      database: 'none',
+      auth: false,
+      ui: 'tailwind',
+      deployment: 'vercel',
+      mode: 'frontend'
+    },
+    'ecommerce-ui': {
+      name: 'E-commerce UI',
+      type: 'ecommerce-ui',
+      description: 'Online store UI with product grid, cart, and checkout',
+      features: ['Product Grid', 'Product Detail', 'Shopping Cart', 'Checkout Form', 'User Account', 'Wishlist'],
+      pages: ['Home', 'Shop', 'Product', 'Cart', 'Checkout', 'Account'],
+      database: 'none',
+      auth: false,
+      ui: 'tailwind',
+      deployment: 'vercel',
+      mode: 'frontend'
+    },
+    'blog-ui': {
+      name: 'Blog UI',
+      type: 'blog-ui',
+      description: 'Blog interface with posts, categories, and comments',
+      features: ['Post Grid', 'Single Post', 'Categories', 'Comments', 'Author Profile', 'Newsletter'],
+      pages: ['Home', 'Blog', 'Post', 'Category', 'Author', 'Contact'],
+      database: 'none',
+      auth: false,
+      ui: 'tailwind',
+      deployment: 'netlify',
+      mode: 'frontend'
+    },
+    'portfolio-ui': {
+      name: 'Portfolio',
+      type: 'portfolio-ui',
+      description: 'Personal portfolio with projects, skills, and contact form',
+      features: ['Hero', 'Projects Gallery', 'Skills Section', 'About Me', 'Contact Form', 'Resume Download'],
+      pages: ['Home', 'About', 'Projects', 'Skills', 'Contact', 'Resume'],
+      database: 'none',
+      auth: false,
+      ui: 'tailwind',
+      deployment: 'netlify',
+      mode: 'frontend'
+    },
+    social: {
+      name: 'Social Feed',
+      type: 'social',
+      description: 'Social media feed with posts, likes, and comments',
+      features: ['Feed', 'Posts', 'Comments', 'Likes', 'User Profiles', 'Notifications'],
+      pages: ['Feed', 'Profile', 'Notifications', 'Messages', 'Search', 'Settings'],
+      database: 'none',
+      auth: false,
+      ui: 'tailwind',
+      deployment: 'vercel',
+      mode: 'frontend'
     },
     custom: {
       name: 'Custom Application',
@@ -131,7 +215,8 @@ class FullstackGeneratorService {
       database: 'postgresql',
       auth: true,
       ui: 'tailwind',
-      deployment: 'vercel'
+      deployment: 'vercel',
+      mode: 'fullstack'
     }
   };
 
@@ -141,7 +226,7 @@ class FullstackGeneratorService {
 
   async generateApp(spec: AppSpec): Promise<GeneratedApp> {
     const frontend = this.generateFrontend(spec);
-    const backend = spec.database !== 'none' ? await this.generateBackend(spec) : {};
+    const backend = (spec as any).mode !== 'frontend' && spec.database !== 'none' ? await this.generateBackend(spec) : {};
     const config = this.generateConfig(spec);
     const deployment = this.generateDeploymentConfig(spec);
 
@@ -168,7 +253,7 @@ class FullstackGeneratorService {
     files['tailwind.config.js'] = this.generateTailwindConfig();
     files['postcss.config.js'] = this.generatePostcssConfig();
 
-    spec.pages.forEach(page => {
+    (spec.pages || []).forEach(page => {
       files[`src/pages/${page.replace(/\s+/g, '')}.tsx`] = this.generatePage(spec, page);
     });
 
@@ -229,11 +314,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   }
 
   private generateAppTsx(spec: AppSpec): string {
-    const imports = spec.pages.map(p =>
+    const pages = spec.pages || [];
+    const imports = pages.map(p =>
       `import ${p.replace(/\s+/g, '')}Page from './pages/${p.replace(/\s+/g, '')}Page';`
     ).join('\n');
 
-    const routes = spec.pages.map(p => {
+    const routes = pages.map(p => {
       const path = p.toLowerCase().replace(/\s+/g, '-');
       return `    <Route path="/${path}" element={<${p.replace(/\s+/g, '')}Page />} />`;
     }).join('\n');
@@ -1350,7 +1436,8 @@ User request: ${prompt}`,
       database: content.database || 'postgresql',
       auth: content.auth !== false,
       ui: content.ui || 'tailwind',
-      deployment: content.deployment || 'vercel'
+      deployment: content.deployment || 'vercel',
+      mode: 'fullstack' as GeneratorMode
     };
   }
 }

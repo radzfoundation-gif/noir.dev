@@ -7,7 +7,6 @@ import { FigmaImport } from './FigmaImport';
 
 interface ChatInputProps {
     onGenerate: () => void;
-    onStop?: () => void;
     loading: boolean;
     image: string | null;
     setImage: (img: string | null) => void;
@@ -19,11 +18,12 @@ interface ChatInputProps {
     onClearContext?: () => void;
     framework?: 'html' | 'react' | 'astro';
     setFramework?: (f: 'html' | 'react' | 'astro') => void;
+    currentTask?: number;
+    totalTasks?: number;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
     onGenerate,
-    onStop,
     loading,
     image,
     setImage,
@@ -34,7 +34,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     context,
     onClearContext,
     framework,
-    setFramework
+    setFramework,
+    currentTask,
+    totalTasks
 }) => {
     const [showFrameworkDropdown, setShowFrameworkDropdown] = useState(false);
     const frameworkButtonRef = useRef<HTMLButtonElement>(null);
@@ -242,27 +244,26 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                         />
                     </div>
 
-                    {/* Generate/Stop Button */}
-                    <button
-                        onClick={loading && onStop ? onStop : onGenerate}
-                        disabled={(!image && !prompt.trim()) && !loading}
-                        className={`relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all ${loading
-                                ? 'bg-gradient-to-r from-red-500 to-red-400 hover:from-red-400 hover:to-red-300 text-white shadow-[0_0_15px_rgba(239,68,68,0.3)]'
-                                : 'bg-gradient-to-r from-lime-400 to-lime-300 hover:from-lime-300 hover:to-lime-200 disabled:opacity-40 disabled:cursor-not-allowed text-black shadow-[0_0_15px_rgba(163,230,53,0.3)]'
-                            } rounded-lg`}
-                    >
-                        {loading ? (
-                            <>
-                                <X size={14} />
-                                <span>Stop</span>
-                            </>
-                        ) : (
-                            <>
-                                <ArrowUp size={14} />
-                                <span>Generate</span>
-                            </>
-                        )}
-                    </button>
+                    {/* Generate Button / Task Progress */}
+                    {loading && currentTask && currentTask > 0 ? (
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-neutral-800 rounded-lg border border-neutral-700">
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse" />
+                                <span className="text-xs font-medium text-neutral-300">
+                                    {totalTasks && totalTasks > 0 ? `Task ${currentTask}/${totalTasks}` : `Task ${currentTask}`}
+                                </span>
+                            </div>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={onGenerate}
+                            disabled={!image && !prompt.trim()}
+                            className="relative flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-gradient-to-r from-lime-400 to-lime-300 hover:from-lime-300 hover:to-lime-200 disabled:opacity-40 disabled:cursor-not-allowed text-black shadow-[0_0_15px_rgba(163,230,53,0.3)] rounded-lg transition-all"
+                        >
+                            <ArrowUp size={14} />
+                            <span>Generate</span>
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

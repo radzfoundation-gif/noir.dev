@@ -3,7 +3,7 @@ import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { ChatInput } from './ChatInput';
-import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Redo, Camera, Save, LayoutGrid, History, Smartphone, MessageSquare, Palette, Server, KeyRound, Rocket, ShieldCheck, Sparkles, Zap, ChevronDown, Monitor, Tablet, Play, Layers, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
+import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Redo, Camera, Save, LayoutGrid, History, Smartphone, MessageSquare, Palette, Server, KeyRound, Rocket, ShieldCheck, Sparkles, Zap, ChevronDown, Monitor, Tablet, Play, Layers, ZoomIn, ZoomOut, Maximize, Calculator, Timer, Cloud, CheckSquare, Music } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { projectService } from '../lib/projectService';
 import { useAuth } from '../context/AuthContext';
@@ -22,6 +22,7 @@ import { ShareProjectModal } from './team/ShareProjectModal';
 import { CommentThread } from './comments/CommentThread';
 import { ResponsiveTestingPanel } from './responsive/ResponsiveTestingPanel';
 import { DesignSystemPicker } from './design-system/DesignSystemPicker';
+import type { DesignSystemLibrary } from '../lib/designSystemService';
 import { ActiveUsersList } from './presence/PresenceComponents';
 import { BackendGeneratorPanel } from './backend/BackendGeneratorPanel';
 import { MobileExportModal } from './mobile/MobileExportModal';
@@ -29,13 +30,15 @@ import { APIManager } from './api/APIManager';
 import { teamService, type Team, type TeamMember, type Comment } from '../lib/teamService';
 import { BrandSettingsModal } from './brand/BrandSettingsModal';
 import { brandService, defaultBrandIdentity, type BrandIdentity } from '../lib/brandService';
-import { AuditorPanel } from './auditor/AuditorPanel';
-import { type AuditResult } from '../lib/auditorService';
-import { DeploymentModal } from './deploy/DeploymentModal';
-import type { DesignSystemLibrary } from '../lib/designSystemService';
-import StreamingSteps from './streaming/StreamingSteps';
-import WorkingIndicator from './streaming/WorkingIndicator';
 import { fullstackGeneratorService } from '../lib/fullstackGeneratorService';
+import { AuditorPanel } from './auditor/AuditorPanel';
+import { DeploymentModal } from './deploy/DeploymentModal';
+import type { AuditResult } from '../lib/auditorService';
+import { StreamingSteps } from './streaming/StreamingSteps';
+import { WorkingIndicator } from './streaming/WorkingIndicator';
+import { TerminalPanel } from './streaming/TerminalPanel';
+import { webContainerService, type TerminalLine } from '../lib/webContainerService';
+import { FileExplorer } from './FileExplorer';
 
 type ViewMode = 'Preview' | 'Code' | 'Integrations' | 'APIs';
 type Device = 'mobile' | 'desktop' | 'tablet';
@@ -62,7 +65,7 @@ const DeviceMockup = ({ device, code, zoom, onScaleChange }: { device: Device; c
 
             const containerWidth = containerRef.current.clientWidth;
             const containerHeight = containerRef.current.clientHeight;
-            const padding = 40; // Space around the device
+            const padding = device === 'desktop' ? 0 : 40; // No padding for desktop (fullscreen)
 
             const availableWidth = Math.max(0, containerWidth - padding);
             const availableHeight = Math.max(0, containerHeight - padding);
@@ -70,10 +73,10 @@ const DeviceMockup = ({ device, code, zoom, onScaleChange }: { device: Device; c
             let targetWidth = config.width;
             let targetHeight = config.height;
 
-            // For desktop, allow it to be dynamic/responsive but min 1280x800
+            // For desktop, fill the entire container
             if (device === 'desktop') {
-                targetWidth = Math.max(availableWidth, 1280);
-                targetHeight = Math.max(availableHeight, 800);
+                targetWidth = containerWidth;
+                targetHeight = containerHeight;
             }
 
             setMockupSize({ width: targetWidth, height: targetHeight });
@@ -83,9 +86,9 @@ const DeviceMockup = ({ device, code, zoom, onScaleChange }: { device: Device; c
 
             let newScale = 1;
             if (zoom === 'fit') {
-                newScale = Math.min(scaleX, scaleY);
+                newScale = device === 'desktop' ? 1 : Math.min(scaleX, scaleY); // Desktop always 1 (no scaling)
             } else {
-                newScale = zoom;
+                newScale = device === 'desktop' ? 1 : zoom; // Desktop always 1
             }
 
             setScale(newScale);
@@ -97,48 +100,100 @@ const DeviceMockup = ({ device, code, zoom, onScaleChange }: { device: Device; c
         return () => window.removeEventListener('resize', handleResize);
     }, [device, config, zoom]);
 
+    // Desktop mode - fullscreen without device frame
+    if (device === 'desktop') {
+        return (
+            <motion.div
+                ref={containerRef}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="w-full h-full flex items-center justify-center overflow-hidden"
+            >
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
+                    className="relative w-full h-full bg-white overflow-hidden"
+                >
+                    <iframe
+                        srcDoc={code}
+                        className="w-full h-full border-0 block"
+                        title="Preview"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                    />
+                </motion.div>
+            </motion.div>
+        );
+    }
+
     return (
         <div
             ref={containerRef}
             className="w-full h-full flex items-center justify-center overflow-hidden"
         >
-            <div
-                className="relative bg-neutral-900 shadow-2xl transition-all duration-300 origin-center"
+            <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: scale, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                transition={{
+                    duration: 0.5,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                    layout: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }
+                }}
+                className="relative bg-neutral-900 shadow-2xl origin-center"
                 style={{
                     width: mockupSize.width,
                     height: mockupSize.height,
                     borderRadius: config.radius,
                     border: `${config.border}px solid #1a1a1a`,
-                    transform: `scale(${scale})`,
                 }}
             >
                 {/* Device Frame Details */}
-                {device === 'mobile' && (
-                    <>
-                        {/* Notch */}
-                        <div
-                            className="absolute top-0 left-1/2 -translate-x-1/2 bg-neutral-900 rounded-b-2xl z-20"
-                            style={{ width: 120, height: 28 }}
-                        />
-                        {/* Side Buttons */}
-                        <div className="absolute bg-neutral-800 rounded-l" style={{ left: -2, top: 120, width: 2, height: 30 }} />
-                        <div className="absolute bg-neutral-800 rounded-l" style={{ left: -2, top: 160, width: 2, height: 60 }} />
-                        <div className="absolute bg-neutral-800 rounded-r" style={{ right: -2, top: 140, width: 2, height: 80 }} />
-                    </>
-                )}
+                <AnimatePresence mode="wait">
+                    {device === 'mobile' && (
+                        <motion.div
+                            key="mobile-frame"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            {/* Notch */}
+                            <div
+                                className="absolute top-0 left-1/2 -translate-x-1/2 bg-neutral-900 rounded-b-2xl z-20"
+                                style={{ width: 120, height: 28 }}
+                            />
+                            {/* Side Buttons */}
+                            <div className="absolute bg-neutral-800 rounded-l" style={{ left: -2, top: 120, width: 2, height: 30 }} />
+                            <div className="absolute bg-neutral-800 rounded-l" style={{ left: -2, top: 160, width: 2, height: 60 }} />
+                            <div className="absolute bg-neutral-800 rounded-r" style={{ right: -2, top: 140, width: 2, height: 80 }} />
+                        </motion.div>
+                    )}
 
-                {device === 'tablet' && (
-                    <>
-                        {/* Camera */}
-                        <div className="absolute left-1/2 -translate-x-1/2 bg-neutral-800 rounded-full z-20" style={{ top: 12, width: 8, height: 8 }} />
-                        {/* Side Buttons */}
-                        <div className="absolute bg-neutral-800 rounded-l" style={{ left: -2, top: 100, width: 2, height: 40 }} />
-                        <div className="absolute bg-neutral-800 rounded-r" style={{ right: -2, top: 100, width: 2, height: 40 }} />
-                    </>
-                )}
+                    {device === 'tablet' && (
+                        <motion.div
+                            key="tablet-frame"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            {/* Camera */}
+                            <div className="absolute left-1/2 -translate-x-1/2 bg-neutral-800 rounded-full z-20" style={{ top: 12, width: 8, height: 8 }} />
+                            {/* Side Buttons */}
+                            <div className="absolute bg-neutral-800 rounded-l" style={{ left: -2, top: 100, width: 2, height: 40 }} />
+                            <div className="absolute bg-neutral-800 rounded-r" style={{ right: -2, top: 100, width: 2, height: 40 }} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Screen */}
-                <div
+                <motion.div
+                    layout
+                    transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="w-full h-full bg-white overflow-hidden"
                     style={{
                         borderRadius: device === 'mobile' ? 28 : device === 'tablet' ? 8 : 4,
@@ -150,19 +205,28 @@ const DeviceMockup = ({ device, code, zoom, onScaleChange }: { device: Device; c
                         title="Preview"
                         sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                     />
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </div>
     );
 };
 
-// Quick action templates like Vibecode
-const quickActions = [
+// Quick action templates for Web
+const quickActionsWeb = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
     { id: 'landing', label: 'Landing Page', icon: Sparkles },
     { id: 'auth', label: 'Auth Page', icon: Key },
     { id: 'ecommerce', label: 'E-commerce', icon: Zap },
     { id: 'blog', label: 'Blog', icon: FileCode },
+];
+
+// Quick action templates for App
+const quickActionsApp = [
+    { id: 'calculator', label: 'Calculator', icon: Calculator },
+    { id: 'timer', label: 'Timer', icon: Timer },
+    { id: 'weather', label: 'Weather', icon: Cloud },
+    { id: 'todo', label: 'To-Do List', icon: CheckSquare },
+    { id: 'music', label: 'Music Player', icon: Music },
 ];
 
 export const Workbench = () => {
@@ -184,7 +248,7 @@ export const Workbench = () => {
         };
     };
     const [device, setDevice] = useState<Device>(
-        location.state?.generationType === 'web' ? 'desktop' : 'mobile'
+        (location.state?.generationType || 'web') === 'web' ? 'desktop' : 'mobile'
     );
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: '', show: false });
@@ -203,8 +267,19 @@ export const Workbench = () => {
     const [currentPrompt, setCurrentPrompt] = useState<string>('');
     const [currentImage, setCurrentImage] = useState<string | null>(null);
     const [generatedSteps, setGeneratedSteps] = useState<{ title: string; desc: string }[]>([]);
+    const [currentTaskIndex, setCurrentTaskIndex] = useState<number>(0);
+    const [totalTasks, setTotalTasks] = useState<number>(0);
     const [isCodeVisible, setIsCodeVisible] = useState(true);
     const [framework, setFramework] = useState<'html' | 'react' | 'astro'>(location.state?.framework || 'html');
+
+    // Terminal state for WebContainer
+    const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
+    const [showTerminal, setShowTerminal] = useState(false);
+
+    // File Explorer state
+    const [generatedFiles, setGeneratedFiles] = useState<Record<string, string>>({});
+    const [selectedFile, setSelectedFile] = useState<string | null>(null);
+    const [activeCodeTab, setActiveCodeTab] = useState<'code' | 'files'>('code');
 
     // Modal States
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -247,6 +322,14 @@ export const Workbench = () => {
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     }, [isGenerating, thinking, analysis, streamingMessage, generatedSteps]);
+
+    // Subscribe to WebContainer terminal output
+    useEffect(() => {
+        const unsubscribe = webContainerService.subscribe((line) => {
+            setTerminalLines(prev => [...prev, line]);
+        });
+        return () => unsubscribe();
+    }, []);
 
     const runAudit = async () => {
         setIsAuditorOpen(true);
@@ -490,7 +573,18 @@ export const Workbench = () => {
         setThinking('');
         setAnalysis('');
         setGeneratedSteps([]);
+        setCurrentTaskIndex(0);
+        setTotalTasks(0);
         setIsCodeVisible(false);
+
+        // Initialize terminal and boot WebContainer
+        setTerminalLines([]);
+        setShowTerminal(true);
+
+        // Boot WebContainer sandbox (non-blocking, runs in background)
+        webContainerService.boot().catch(err => {
+            console.error('[WebContainer] Boot error:', err);
+        });
 
         let accumulatedStream = '';
         let accumulatedCode = '';
@@ -503,7 +597,15 @@ export const Workbench = () => {
             if (buildMode === 'fullstack') {
                 const spec = await fullstackGeneratorService.generateFromPrompt(promptToUse, model);
                 console.log('[DEBUG] Generated Spec:', spec);
-                // Further logic for fullstack generation would go here
+
+                if (generationType === 'app') {
+                    (spec as any).mode = 'mobile';
+                    (spec as any).platform = 'mobile';
+                    (spec as any).ui = 'native-base';
+                    (spec as any).deployment = 'expo';
+                }
+
+                console.log('[DEBUG] Final Spec for generation:', spec);
             }
 
             let fullPrompt = promptToUse;
@@ -513,10 +615,11 @@ export const Workbench = () => {
             if (context) {
                 fullPrompt = `Context:\n${context}\n\n${fullPrompt}`;
             }
+
             if (generationType === 'app') {
-                fullPrompt += '\n\nGenerate a mobile app UI with iOS-style design.';
+                fullPrompt += '\n\nGenerate a mobile app UI with iOS-style design using React Native components (View, Text, TouchableOpacity, StyleSheet, etc.). Use StyleSheet.create() for styling with flexbox layout.';
             } else {
-                fullPrompt += '\n\nGenerate a modern, responsive web page.';
+                fullPrompt += '\n\nGenerate a modern, responsive web page using HTML and Tailwind CSS.';
             }
             if (imageToSend) {
                 fullPrompt += '\n\nCRITICAL INSTRUCTION: First, perform a deep visual analysis of the attached screen. Describe the layout, colors, typography, and components in detail. Wrap this analysis in `/// ANALYSIS /// ... /// END ANALYSIS ///` tags. Then, implement the Functional Web Interface using HTML and Tailwind CSS. DO NOT just draw the screenshot as a static SVG or Image. Build the actual interactive DOM elements (buttons, inputs, cards, grids). Make it 100% PIXEL PERFECT to the reference layout.';
@@ -593,13 +696,30 @@ export const Workbench = () => {
                                     const analysisPart = accumulatedStream.split('/// ANALYSIS ///')[1]?.split('/// END ANALYSIS ///')[0] || '';
                                     if (analysisPart) setAnalysis(analysisPart.trim());
                                 }
-                                const stepRegex = /\/\/\/ STEP: ([\d].*?) \/\/\/([\s\S]*?)(?=(\/\/\/ STEP:|$|\/\/\/ CODE \/\/\/))/g;
+                                const stepRegex = /\/\/\/ STEP: ([\d\/].*?) \/\/\/([\s\S]*?)(?=(\/\/\/ STEP:|$|\/\/\/ CODE \/\/\/))/g;
                                 const newSteps = [];
                                 let match;
+                                let maxStepNum = 0;
+                                let totalStepCount = 0;
                                 while ((match = stepRegex.exec(accumulatedStream)) !== null) {
-                                    newSteps.push({ title: match[1].trim(), desc: match[2].trim() });
+                                    const title = match[1].trim();
+                                    newSteps.push({ title, desc: match[2].trim() });
+
+                                    // Parse step progress like "1/5" or "2/5"
+                                    const progressMatch = title.match(/(\d+)\/(\d+)/);
+                                    if (progressMatch) {
+                                        maxStepNum = Math.max(maxStepNum, parseInt(progressMatch[1]));
+                                        totalStepCount = parseInt(progressMatch[2]);
+                                    } else {
+                                        // Fallback: just count steps
+                                        maxStepNum = newSteps.length;
+                                    }
                                 }
-                                if (newSteps.length > 0) setGeneratedSteps(newSteps);
+                                if (newSteps.length > 0) {
+                                    setGeneratedSteps(newSteps);
+                                    setCurrentTaskIndex(maxStepNum);
+                                    setTotalTasks(totalStepCount);
+                                }
                                 if (accumulatedStream.includes('/// CODE ///')) {
                                     setIsCodeVisible(true);
                                     const parts = accumulatedStream.split('/// CODE ///');
@@ -641,6 +761,63 @@ export const Workbench = () => {
                 showToast("Code generated successfully!");
                 setIsRefreshing(true);
                 setTimeout(() => setIsRefreshing(false), 800);
+
+                // Sync with WebContainer sandbox
+                if (webContainerService.isRunning()) {
+                    try {
+                        // Determine file type based on framework
+                        const fileName = framework === 'react' ? 'App.jsx' :
+                            framework === 'astro' ? 'index.astro' : 'index.html';
+
+                        // Create basic package.json for React/Astro projects
+                        const files: Record<string, string> = {};
+                        files[fileName] = cleanCode;
+
+                        if (framework === 'react') {
+                            files['package.json'] = JSON.stringify({
+                                name: 'noir-generated',
+                                type: 'module',
+                                scripts: { dev: 'vite' },
+                                dependencies: { react: '^18.2.0', 'react-dom': '^18.2.0' },
+                                devDependencies: { vite: '^5.0.0', '@vitejs/plugin-react': '^4.0.0' }
+                            }, null, 2);
+                            files['vite.config.js'] = `
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+export default defineConfig({ plugins: [react()] });
+`;
+                            files['index.html'] = `<!DOCTYPE html>
+<html>
+<head><title>Noir App</title></head>
+<body><div id="root"></div><script type="module" src="/main.jsx"></script></body>
+</html>`;
+                            files['main.jsx'] = `
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+`;
+                        }
+
+                        // Update UI state with generated files
+                        setGeneratedFiles(files);
+                        // Auto-select the main file
+                        setSelectedFile(fileName);
+
+                        await webContainerService.writeFiles(files);
+
+                        // Only install deps for React/Astro (has package.json)
+                        if (framework !== 'html') {
+                            await webContainerService.installDependencies();
+                            const serverUrl = await webContainerService.startDevServer();
+                            if (serverUrl) {
+                                console.log('[WebContainer] Server running at:', serverUrl);
+                            }
+                        }
+                    } catch (err) {
+                        console.error('[WebContainer] Sync error:', err);
+                    }
+                }
             } else {
                 console.log('[DEBUG] ⚠️ No clean code generated');
             }
@@ -717,13 +894,25 @@ export const Workbench = () => {
     ];
 
     const handleQuickAction = (actionId: string) => {
-        const actionPrompts: Record<string, string> = {
+        // Web prompts
+        const webPrompts: Record<string, string> = {
             dashboard: 'Create a modern analytics dashboard with charts, stats cards, and sidebar navigation',
             landing: 'Create a beautiful landing page with hero section, features, testimonials, and CTA',
             auth: 'Create an authentication page with login and signup forms, modern design',
             ecommerce: 'Create an e-commerce product page with image gallery, pricing, and add to cart',
             blog: 'Create a blog post page with article content, author info, and related posts'
         };
+
+        // App prompts (mobile-specific)
+        const appPrompts: Record<string, string> = {
+            calculator: 'Create a mobile calculator app with numeric buttons (0-9), operators (+, -, ×, ÷), equals button, and display screen. Use React Native with View, Text, TouchableOpacity, and StyleSheet. Include dark theme styling with modern glassmorphism effect.',
+            timer: 'Create a mobile timer/stopwatch app with large time display, start/stop/reset buttons, and lap functionality. Use React Native with View, Text, TouchableOpacity, and StyleSheet. Include circular progress indicator and modern dark UI.',
+            weather: 'Create a mobile weather app showing current temperature, weather condition icon, 5-day forecast cards, and location info. Use React Native with View, Text, Image/Icon, ScrollView, and StyleSheet. Include gradient background matching weather condition.',
+            todo: 'Create a mobile to-do list app with add task input, task list with checkboxes, delete button, and filter options (All/Active/Completed). Use React Native with View, Text, TextInput, TouchableOpacity, ScrollView, and StyleSheet. Include smooth animations.',
+            music: 'Create a mobile music player app with album artwork placeholder, song title/artist, play/pause button, previous/next buttons, progress bar, and playlist view. Use React Native with View, Text, Image, TouchableOpacity, Slider, and StyleSheet. Include dark theme with gradient accents.'
+        };
+
+        const actionPrompts = generationType === 'web' ? webPrompts : appPrompts;
         setPrompt(actionPrompts[actionId] || '');
         setTimeout(() => handleGenerate(), 100);
     };
@@ -810,6 +999,7 @@ export const Workbench = () => {
                                                 onClick={() => {
                                                     setGenerationType('web');
                                                     setDevice('desktop');
+                                                    setShowConfigDropdown(false);
                                                 }}
                                                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-neutral-800 ${generationType === 'web' ? 'bg-white/5 text-white' : 'text-neutral-400'
                                                     }`}
@@ -822,6 +1012,7 @@ export const Workbench = () => {
                                                 onClick={() => {
                                                     setGenerationType('app');
                                                     setDevice('mobile');
+                                                    setShowConfigDropdown(false);
                                                 }}
                                                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-neutral-800 ${generationType === 'app' ? 'bg-white/5 text-white' : 'text-neutral-400'
                                                     }`}
@@ -1036,6 +1227,18 @@ export const Workbench = () => {
 
                     {/* Chat Input */}
 
+                    {/* Terminal Panel for WebContainer */}
+                    {showTerminal && terminalLines.length > 0 && (
+                        <div className="flex-shrink-0 p-4 border-b border-white/5">
+                            <TerminalPanel
+                                lines={terminalLines}
+                                isVisible={true}
+                                onClose={() => setShowTerminal(false)}
+                                title="Sandbox"
+                            />
+                        </div>
+                    )}
+
                     {/* Streaming Output Area - FIXED above input */}
                     {isGenerating && (
                         <div className="flex-shrink-0 flex flex-col">
@@ -1074,7 +1277,6 @@ export const Workbench = () => {
                         <div className="relative z-10">
                             <ChatInput
                                 onGenerate={handleGenerate}
-                                onStop={handleStop}
                                 loading={isGenerating}
                                 image={image}
                                 setImage={setImage}
@@ -1086,6 +1288,8 @@ export const Workbench = () => {
                                 onClearContext={() => setContext(null)}
                                 framework={framework}
                                 setFramework={setFramework}
+                                currentTask={currentTaskIndex > 0 ? currentTaskIndex : (generatedSteps.length > 0 ? generatedSteps.length : 0)}
+                                totalTasks={totalTasks}
                             />
                         </div>
                     </div>
@@ -1108,32 +1312,28 @@ export const Workbench = () => {
 
                                     <div className="h-4 w-px bg-white/10" />
 
-                                    {/* Device Selector */}
-                                    <div className="flex items-center bg-neutral-900 rounded-lg p-0.5">
-                                        <button
-                                            onClick={() => setDevice('mobile')}
-                                            className={`p-1.5 rounded transition-colors ${device === 'mobile' ? 'bg-white/10 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
-                                            title="Mobile"
-                                        >
-                                            <Smartphone size={14} />
-                                        </button>
-                                        <button
-                                            onClick={() => setDevice('tablet')}
-                                            className={`p-1.5 rounded transition-colors ${device === 'tablet' ? 'bg-white/10 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
-                                            title="Tablet"
-                                        >
-                                            <Tablet size={14} />
-                                        </button>
-                                        <button
-                                            onClick={() => setDevice('desktop')}
-                                            className={`p-1.5 rounded transition-colors ${device === 'desktop' ? 'bg-white/10 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
-                                            title="Desktop"
-                                        >
-                                            <Monitor size={14} />
-                                        </button>
-                                    </div>
-
-                                    <div className="h-4 w-px bg-white/10" />
+                                    {/* Device Selector - Show only when App mode */}
+                                    {generationType === 'app' && (
+                                        <>
+                                            <div className="flex items-center bg-neutral-900 rounded-lg p-0.5">
+                                                <button
+                                                    onClick={() => setDevice('mobile')}
+                                                    className={`p-1.5 rounded transition-colors ${device === 'mobile' ? 'bg-white/10 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
+                                                    title="Mobile"
+                                                >
+                                                    <Smartphone size={14} />
+                                                </button>
+                                                <button
+                                                    onClick={() => setDevice('tablet')}
+                                                    className={`p-1.5 rounded transition-colors ${device === 'tablet' ? 'bg-white/10 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
+                                                    title="Tablet"
+                                                >
+                                                    <Tablet size={14} />
+                                                </button>
+                                            </div>
+                                            <div className="h-4 w-px bg-white/10" />
+                                        </>
+                                    )}
 
                                     {/* Zoom Controls */}
                                     <div className="flex items-center bg-neutral-900 rounded-lg p-0.5">
@@ -1197,45 +1397,65 @@ export const Workbench = () => {
                                 id="preview-container"
                             >
                                 {!code ? (
-                                    /* Vibecode Style Hero Canvas with Gradient Background */
-                                    <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-auto relative">
+                                    /* Preview Mode with Device Mockup - Shows mobile/desktop toggle preview */
+                                    <div className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-auto relative">
                                         {/* Gradient Background Effects */}
                                         <div className="absolute inset-0 overflow-hidden">
-                                            {/* Primary gradient orbs */}
-                                            <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-purple-500/20 rounded-full blur-[120px] animate-pulse" />
-                                            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-500/15 rounded-full blur-[100px]" />
-                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/10 rounded-full blur-[150px]" />
-
-                                            {/* Secondary gradient orbs */}
-                                            <div className="absolute top-0 right-1/3 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[80px]" />
-                                            <div className="absolute bottom-0 left-1/3 w-[350px] h-[350px] bg-violet-500/15 rounded-full blur-[90px]" />
-
-                                            {/* Lime accent */}
-                                            <div className="absolute top-1/3 right-1/4 w-[300px] h-[300px] bg-lime-400/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-
-                                            {/* Mesh gradient overlay */}
-                                            <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-transparent to-black/50" />
-                                            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900/30 via-transparent to-transparent" />
+                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-gradient-to-br from-purple-500/5 via-blue-500/5 to-cyan-500/5 rounded-full blur-[120px]" />
+                                            <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-950/95 to-black" />
                                         </div>
 
-                                        <div className="text-center max-w-2xl mx-auto relative z-10">
-                                            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
-                                                {isGenerating ? 'Building your app...' : 'Bring your ideas to life.'}
-                                            </h2>
-                                            <p className="text-lg text-neutral-400 mb-8">
-                                                {isGenerating ? 'Analyzing requirements and generating code...' : 'Describe what you want to build and watch it come to life.'}
-                                            </p>
+                                        <div className="relative z-10 w-full h-full flex items-center justify-center">
+                                            {/* Device Mockup Preview - Shows even without code */}
+                                            <DeviceMockup
+                                                device={device}
+                                                code={`<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body class="bg-gradient-to-br from-neutral-900 to-black min-h-screen flex items-center justify-center p-6">
+    <div class="text-center">
+        <div class="w-16 h-16 bg-gradient-to-br from-lime-400 to-lime-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-lime-400/20">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+            </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-white mb-2">${generationType === 'app' ? 'Mobile App' : 'Web App'}</h1>
+        <p class="text-neutral-400 text-sm mb-6">Ready to build your ${generationType === 'app' ? 'mobile app' : 'web application'}</p>
+        <div class="flex flex-col gap-3">
+                            <button class="px-6 py-3 bg-lime-400 hover:bg-lime-300 text-black font-medium rounded-xl transition-all">
+                                Get Started
+                            </button>
+                            <button class="px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-medium rounded-xl transition-all">
+                                Learn More
+                            </button>
+                        </div>
+                        <div class="mt-8 flex justify-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-lime-400"></div>
+                            <div class="w-2 h-2 rounded-full bg-neutral-600"></div>
+                            <div class="w-2 h-2 rounded-full bg-neutral-600"></div>
+                        </div>
+                    </div>
+                </body>
+</html>`}
+                                                zoom={zoom}
+                                                onScaleChange={setCurrentScale}
+                                            />
+                                        </div>
 
-                                            {/* Quick Actions */}
-                                            {!isGenerating && (
-                                                <div className="flex flex-wrap justify-center gap-3">
-                                                    {quickActions.map((action) => {
+                                        {/* Quick Actions - Floating at bottom */}
+                                        {!isGenerating && (
+                                            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
+                                                <div className="flex flex-wrap justify-center gap-2">
+                                                    {(generationType === 'web' ? quickActionsWeb : quickActionsApp).map((action: { id: string; label: string; icon: React.ElementType }) => {
                                                         const Icon = action.icon;
                                                         return (
                                                             <button
                                                                 key={action.id}
                                                                 onClick={() => handleQuickAction(action.id)}
-                                                                className="flex items-center gap-2 px-4 py-2 bg-neutral-900/80 backdrop-blur-sm hover:bg-neutral-800/90 border border-neutral-800 hover:border-neutral-600 rounded-full text-sm text-neutral-300 hover:text-white transition-all shadow-lg shadow-black/20"
+                                                                className="flex items-center gap-2 px-4 py-2 bg-neutral-900/90 backdrop-blur-sm hover:bg-neutral-800 border border-neutral-700 hover:border-neutral-500 rounded-full text-sm text-neutral-300 hover:text-white transition-all shadow-lg shadow-black/30"
                                                             >
                                                                 <Icon size={14} />
                                                                 {action.label}
@@ -1243,8 +1463,8 @@ export const Workbench = () => {
                                                         );
                                                     })}
                                                 </div>
-                                            )}
-                                        </div>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : isRefreshing ? (
                                     <div className="flex-1 flex items-center justify-center relative">
@@ -1286,49 +1506,103 @@ export const Workbench = () => {
                                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[80px]" />
                                 <div className="absolute inset-0 bg-gradient-to-b from-black via-neutral-950/50 to-black" />
                             </div>
-                            <div className="max-w-5xl mx-auto relative z-10">
-                                <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
-                                    <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800">
-                                        <div className="flex items-center gap-3">
+
+                            <div className="max-w-6xl mx-auto h-[calc(100vh-140px)] flex gap-4 relative z-10">
+                                {/* File Explorer Sidebar (only when Files tab is active or just always visible in split view?) 
+                                    Let's stick to the plan: Tabs for "Code" vs "Files" 
+                                */}
+
+                                <div className="flex-1 bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden flex flex-col">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 bg-neutral-900/50">
+                                        <div className="flex items-center gap-4">
                                             <div className="flex gap-1.5">
                                                 <div className="w-3 h-3 rounded-full bg-red-500" />
                                                 <div className="w-3 h-3 rounded-full bg-yellow-500" />
                                                 <div className="w-3 h-3 rounded-full bg-green-500" />
                                             </div>
-                                            <span className="text-xs text-neutral-400 font-mono">index.html</span>
+
+                                            {/* Tabs */}
+                                            <div className="flex bg-black/40 rounded-lg p-1 ml-2">
+                                                <button
+                                                    onClick={() => setActiveCodeTab('code')}
+                                                    className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeCodeTab === 'code'
+                                                            ? 'bg-neutral-800 text-white shadow-sm'
+                                                            : 'text-neutral-500 hover:text-neutral-300'
+                                                        }`}
+                                                >
+                                                    Code
+                                                </button>
+                                                <button
+                                                    onClick={() => setActiveCodeTab('files')}
+                                                    className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeCodeTab === 'files'
+                                                            ? 'bg-neutral-800 text-white shadow-sm'
+                                                            : 'text-neutral-500 hover:text-neutral-300'
+                                                        }`}
+                                                >
+                                                    Files
+                                                </button>
+                                            </div>
+
+                                            <span className="text-xs text-neutral-400 font-mono ml-2">
+                                                {selectedFile || 'index.html'}
+                                            </span>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={handleAddToChat}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors"
-                                            >
-                                                <FileCode size={14} />
-                                                Add to Chat
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(code);
-                                                    showToast('Code copied!');
-                                                }}
-                                                className="p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors"
-                                            >
-                                                <Copy size={14} />
-                                            </button>
-                                        </div>
+
+                                        {activeCodeTab === 'code' && (
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={handleAddToChat}
+                                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors"
+                                                >
+                                                    <FileCode size={14} />
+                                                    Add to Chat
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(code);
+                                                        showToast('Code copied!');
+                                                    }}
+                                                    className="p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors"
+                                                >
+                                                    <Copy size={14} />
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="h-[calc(100vh-220px)] overflow-auto">
-                                        <Editor
-                                            value={code}
-                                            onValueChange={code => updateCode(code)}
-                                            highlight={code => Prism.highlight(code, Prism.languages.markup, 'markup')}
-                                            padding={24}
-                                            className="font-mono text-sm"
-                                            style={{
-                                                fontFamily: '"JetBrains Mono", monospace',
-                                                backgroundColor: 'transparent',
-                                                color: '#e4e4e7'
-                                            }}
-                                        />
+
+                                    <div className="flex-1 overflow-auto bg-[#0d0d0d]">
+                                        {activeCodeTab === 'code' ? (
+                                            <Editor
+                                                value={code}
+                                                onValueChange={code => updateCode(code)}
+                                                highlight={code => Prism.highlight(code, Prism.languages.markup, 'markup')}
+                                                padding={24}
+                                                className="font-mono text-sm"
+                                                style={{
+                                                    fontFamily: '"JetBrains Mono", monospace',
+                                                    backgroundColor: 'transparent',
+                                                    color: '#e4e4e7',
+                                                    minHeight: '100%'
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="flex h-full">
+                                                <div className="w-60 border-r border-white/5 bg-black/20">
+                                                    <FileExplorer
+                                                        files={generatedFiles}
+                                                        onSelectFile={(path, content) => {
+                                                            setSelectedFile(path);
+                                                            updateCode(content);
+                                                            setActiveCodeTab('code');
+                                                        }}
+                                                        selectedFile={selectedFile}
+                                                    />
+                                                </div>
+                                                <div className="flex-1 bg-neutral-900/50 flex items-center justify-center text-neutral-500 text-sm">
+                                                    Select a file to view content
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

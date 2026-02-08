@@ -9,6 +9,11 @@ export default defineConfig({
     hmr: {
       host: 'localhost',
     },
+    // WebContainer requires cross-origin isolation
+    headers: {
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Opener-Policy': 'same-origin',
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

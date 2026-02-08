@@ -192,7 +192,7 @@ export const PricingPage = () => {
               Build Faster for <span className="text-[#25f46a]">Less</span>
             </h1>
             <p className="text-slate-600 dark:text-slate-400 text-lg md:text-xl max-w-2xl mx-auto">
-              The most powerful screenshot-to-code engine is now even more accessible. Start for free, upgrade as you grow.
+              The most powerful Fullstack AI Web Generator is now even more accessible. Start for free, upgrade as you grow.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full items-stretch">

@@ -40,18 +40,18 @@ export const Hero: React.FC<HeroProps> = ({
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-lime-500/10 blur-[120px] rounded-full pointer-events-none opacity-30"></div>
 
             <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-500/30 bg-lime-500/10 text-lime-300 text-xs font-semibold tracking-wide mb-8">
-                    <Wand2 size={12} />
-                    V 2.0 Now Supporting Gemini 3 & Claude 4.5
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-lime-500/40 bg-gradient-to-r from-lime-500/20 to-emerald-500/20 text-lime-200 text-xs font-bold tracking-wide mb-8 backdrop-blur-sm shadow-[0_0_20px_rgba(132,204,22,0.15)]">
+                    <Zap size={12} className="text-lime-400" />
+                    V 2.0 Now Supporting Gemini 3 & Claude Opus 4.6
                 </div>
 
                 <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-6 leading-[1.1] drop-shadow-md">
-                    Turn <FlipWords words={["Screenshots", "Wireframes", "Mockups", "Designs"]} className="text-white drop-shadow-md" /> into <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-emerald-300 drop-shadow-sm">Clean Code</span>
+                    Turn <FlipWords words={["Ideas", "Prompts", "Wireframes", "Designs"]} className="text-white drop-shadow-md" /> into <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-300 to-emerald-300 drop-shadow-sm">Fullstack Apps</span>
                 </h1>
 
                 <p className="text-lg text-zinc-200/90 max-w-xl mx-auto mb-10 leading-relaxed font-light drop-shadow">
-                    Upload a design mock or screenshot. Our AI architect builds the frontend for you instantly.
+                    Describe your vision or upload a design. Our AI architect builds complete frontend, backend, and database for you instantly.
                 </p>
 
                 {/* App/Web Toggle with Smooth Animation */}

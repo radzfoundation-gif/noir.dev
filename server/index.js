@@ -34,6 +34,13 @@ const supabase = createClient(
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
+// WebContainer requires cross-origin isolation for SharedArrayBuffer
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    next();
+});
+
 const client = new OpenAI({
     baseURL: process.env.SUMOPOD_BASE_URL || "https://api.apifree.ai/v1",
     apiKey: process.env.SUMOPOD_API_KEY,
@@ -64,15 +71,128 @@ app.get('/api/diag', async (req, res) => {
 });
 
 app.post('/api/generate-fullstack', async (req, res) => {
-    const { prompt, appType, customSpec, mode = 'fullstack' } = req.body;
+    const { prompt, appType, customSpec, type, mode = 'fullstack', config } = req.body;
 
     try {
-        console.log(`[Fullstack] Generating ${mode} app from prompt`);
+        console.log(`[Fullstack] Generating ${mode} app`);
 
         let spec;
+
+        if (type) {
+            const templates = {
+                saas: {
+                    name: 'SaaS Application', type: 'saas', description: 'Full-featured SaaS with authentication, dashboard, and billing',
+                    features: ['Authentication', 'Dashboard', 'User Management', 'Settings', 'Billing', 'API Routes'],
+                    pages: ['Landing', 'Login', 'Register', 'Dashboard', 'Settings', 'Pricing'],
+                    database: 'postgresql', auth: true, ui: 'tailwind', deployment: 'vercel', mode: 'fullstack'
+                },
+                blog: {
+                    name: 'Blog Platform', type: 'blog', description: 'Content management system with posts, categories, and comments',
+                    features: ['Posts', 'Categories', 'Comments', 'Search', 'Tags', 'RSS Feed'],
+                    pages: ['Home', 'Blog', 'Post Detail', 'About', 'Contact', 'Categories'],
+                    database: 'postgresql', auth: false, ui: 'tailwind', deployment: 'vercel', mode: 'fullstack'
+                },
+                ecommerce: {
+                    name: 'E-commerce Store', type: 'ecommerce', description: 'Online store with products, cart, checkout, and payments',
+                    features: ['Products', 'Cart', 'Checkout', 'Payments', 'Orders', 'Inventory'],
+                    pages: ['Home', 'Shop', 'Product Detail', 'Cart', 'Checkout', 'Account'],
+                    database: 'postgresql', auth: true, ui: 'tailwind', deployment: 'vercel', mode: 'fullstack'
+                },
+                dashboard: {
+                    name: 'Admin Dashboard', type: 'dashboard', description: 'Analytics dashboard with charts, tables, and reports',
+                    features: ['Analytics', 'Charts', 'Tables', 'Reports', 'Export', 'Real-time Data'],
+                    pages: ['Dashboard', 'Analytics', 'Users', 'Settings', 'Reports', 'Activity'],
+                    database: 'postgresql', auth: true, ui: 'shadcn', deployment: 'vercel', mode: 'fullstack'
+                },
+                portfolio: {
+                    name: 'Portfolio Website', type: 'portfolio', description: 'Personal portfolio with projects, skills, and contact',
+                    features: ['Projects', 'Skills', 'Timeline', 'Contact Form', 'Resume', 'Testimonials'],
+                    pages: ['Home', 'About', 'Projects', 'Blog', 'Contact', 'Resume'],
+                    database: 'none', auth: false, ui: 'tailwind', deployment: 'netlify', mode: 'frontend'
+                },
+                crm: {
+                    name: 'CRM System', type: 'crm', description: 'Customer relationship management with contacts, deals, and tasks',
+                    features: ['Contacts', 'Deals', 'Tasks', 'Notes', 'Pipeline', 'Reports'],
+                    pages: ['Dashboard', 'Contacts', 'Deals', 'Tasks', 'Calendar', 'Reports'],
+                    database: 'postgresql', auth: true, ui: 'shadcn', deployment: 'vercel', mode: 'fullstack'
+                },
+                chat: {
+                    name: 'Chat Application', type: 'chat', description: 'Real-time messaging with channels, DMs, and notifications',
+                    features: ['Real-time Chat', 'Channels', 'Direct Messages', 'File Sharing', 'Notifications', 'Online Status'],
+                    pages: ['Login', 'Chat', 'Channels', 'Direct Messages', 'Settings', 'Profile'],
+                    database: 'mongodb', auth: true, ui: 'tailwind', deployment: 'railway', mode: 'fullstack'
+                },
+                cms: {
+                    name: 'Content Management', type: 'cms', description: 'Headless CMS with content types, media library, and API',
+                    features: ['Content Types', 'Media Library', 'API', 'Users', 'Roles', 'Versioning'],
+                    pages: ['Admin', 'Content', 'Media', 'Users', 'Settings', 'API Docs'],
+                    database: 'postgresql', auth: true, ui: 'shadcn', deployment: 'railway', mode: 'fullstack'
+                },
+                landing: {
+                    name: 'Landing Page', type: 'landing', description: 'Marketing landing page with hero, features, pricing, and CTA',
+                    features: ['Hero Section', 'Features Grid', 'Pricing Table', 'Testimonials', 'FAQ', 'Footer'],
+                    pages: ['Home'], database: 'none', auth: false, ui: 'tailwind', deployment: 'netlify', mode: 'frontend'
+                },
+                admin: {
+                    name: 'Admin Panel', type: 'admin', description: 'Admin dashboard with sidebar, charts, and data tables',
+                    features: ['Sidebar Navigation', 'Data Tables', 'Charts', 'User Management', 'Settings', 'Analytics'],
+                    pages: ['Dashboard', 'Users', 'Settings', 'Reports', 'Activity', 'Analytics'],
+                    database: 'none', auth: false, ui: 'tailwind', deployment: 'vercel', mode: 'frontend'
+                },
+                'ecommerce-ui': {
+                    name: 'E-commerce UI', type: 'ecommerce-ui', description: 'Online store UI with product grid, cart, and checkout',
+                    features: ['Product Grid', 'Product Detail', 'Shopping Cart', 'Checkout Form', 'User Account', 'Wishlist'],
+                    pages: ['Home', 'Shop', 'Product', 'Cart', 'Checkout', 'Account'],
+                    database: 'none', auth: false, ui: 'tailwind', deployment: 'vercel', mode: 'frontend'
+                },
+                'blog-ui': {
+                    name: 'Blog UI', type: 'blog-ui', description: 'Blog interface with posts, categories, and comments',
+                    features: ['Post Grid', 'Single Post', 'Categories', 'Comments', 'Author Profile', 'Newsletter'],
+                    pages: ['Home', 'Blog', 'Post', 'Category', 'Author', 'Contact'],
+                    database: 'none', auth: false, ui: 'tailwind', deployment: 'netlify', mode: 'frontend'
+                },
+                'portfolio-ui': {
+                    name: 'Portfolio', type: 'portfolio-ui', description: 'Personal portfolio with projects, skills, and contact form',
+                    features: ['Hero', 'Projects Gallery', 'Skills Section', 'About Me', 'Contact Form', 'Resume Download'],
+                    pages: ['Home', 'About', 'Projects', 'Skills', 'Contact', 'Resume'],
+                    database: 'none', auth: false, ui: 'tailwind', deployment: 'netlify', mode: 'frontend'
+                },
+                social: {
+                    name: 'Social Feed', type: 'social', description: 'Social media feed with posts, likes, and comments',
+                    features: ['Feed', 'Posts', 'Comments', 'Likes', 'User Profiles', 'Notifications'],
+                    pages: ['Feed', 'Profile', 'Notifications', 'Messages', 'Search', 'Settings'],
+                    database: 'none', auth: false, ui: 'tailwind', deployment: 'vercel', mode: 'frontend'
+                }
+            };
+
+            spec = templates[type];
+            if (!spec) {
+                return res.status(400).json({ error: 'Invalid template type' });
+            }
+
+            spec = { ...spec, mode };
+
+            if (mode === 'frontend') {
+                spec.database = 'none';
+                spec.auth = false;
+            } else if (mode === 'backend-only') {
+                spec.features = [];
+                spec.pages = [];
+            }
+
+            const generatorPath = path.join(__dirname, '../src/lib/fullstackGeneratorService.ts');
+            const generator = await import(generatorPath);
+            const generatedApp = await generator.fullstackGeneratorService.generateApp(spec);
+
+            return res.json({ success: true, spec, app: generatedApp, mode });
+        }
+
         if (customSpec) {
             spec = customSpec;
         } else if (prompt) {
+            res.setHeader('Content-Type', 'application/json');
+            res.write(JSON.stringify({ status: 'analyzing', message: 'Analyzing app requirements...' }) + '\n\n');
+
             const response = await client.chat.completions.create({
                 model: 'anthropic/claude-opus-4.5',
                 messages: [
@@ -98,36 +218,32 @@ Output JSON format (no markdown):
             });
             spec = JSON.parse(response.choices[0].message.content);
             spec.mode = mode;
+
+            if (mode === 'frontend') {
+                spec.database = 'none';
+                spec.auth = false;
+            } else if (mode === 'backend-only') {
+                spec.features = [];
+                spec.pages = [];
+            }
+
+            const generatorPath = path.join(__dirname, '../src/lib/fullstackGeneratorService.ts');
+            const generator = await import(generatorPath);
+            const generatorService = generator.fullstackGeneratorService;
+
+            res.write(JSON.stringify({ status: 'generating', message: 'Generating application files...' }) + '\n\n');
+
+            const generatedApp = await generatorService.generateApp(spec);
+
+            res.write(JSON.stringify({ status: 'complete', spec, filesCount: Object.keys(generatedApp.frontend || {}).length + Object.keys(generatedApp.backend || {}).length }) + '\n\n');
+            res.write(JSON.stringify({ data: generatedApp }) + '\n\n');
+
+            res.end();
+            console.log(`[Fullstack] Generated successfully`);
+            return;
         } else {
-            return res.status(400).json({ error: 'Prompt or customSpec is required' });
+            return res.status(400).json({ error: 'Prompt, type, or customSpec is required' });
         }
-
-        res.setHeader('Content-Type', 'application/json');
-        res.write(JSON.stringify({ status: 'analyzing', message: 'Analyzing app requirements...' }) + '\n\n');
-
-        const fs = await import('fs');
-        const generatorPath = path.join(__dirname, '../src/lib/fullstackGeneratorService.ts');
-        const generator = await import(generatorPath);
-
-        const generatorService = generator.fullstackGeneratorService;
-
-        if (spec.mode === 'frontend') {
-            spec.database = 'none';
-            spec.auth = false;
-        } else if (spec.mode === 'backend-only') {
-            spec.features = [];
-            spec.pages = [];
-        }
-
-        res.write(JSON.stringify({ status: 'generating', message: 'Generating application files...' }) + '\n\n');
-
-        const generatedApp = await generatorService.generateApp(spec);
-
-        res.write(JSON.stringify({ status: 'complete', spec, filesCount: Object.keys(generatedApp.frontend || {}).length + Object.keys(generatedApp.backend || {}).length }) + '\n\n');
-        res.write(JSON.stringify({ data: generatedApp }) + '\n\n');
-
-        res.end();
-        console.log(`[Fullstack] Generated successfully`);
 
     } catch (error) {
         console.error('[Fullstack] Error:', error);
@@ -357,40 +473,38 @@ app.post('/api/generate', async (req, res) => {
         const messages = [
             {
                 role: "system",
-                content: `You are NOIR AI, an expert web developer with vision capabilities.
+                content: `You are NOIR AI, an expert full-stack web architect and developer.
+
+GOAL: Transform the user's requirements (text prompts or design images) into a complete, high-quality fullstack application.
 
 WHEN YOU RECEIVE AN IMAGE:
-First, analyze the image in detail:
+First, analyze the design in detail:
 /// ANALYSIS ///
-1. Layout Structure: (describe the overall layout - header, sections, footer)
-2. Color Palette: (list main colors used)
-3. Typography: (describe font styles, sizes)
-4. Key Components: (list buttons, cards, forms, images, etc.)
-5. Style Theme: (modern, minimal, corporate, creative, etc.)
+1. Layout Structure: (describe the overall architecture)
+2. Color Palette & Typography: (identify style tokens)
+3. Key Components & Interactions: (list buttons, forms, dynamic elements)
+4. Full-stack Considerations: (identify necessary API endpoints and data models)
 /// END ANALYSIS ///
 
-Then generate the HTML code that replicates the design:
+Then generate the production-ready code:
 
 RULES:
-1. Include <script src="https://cdn.tailwindcss.com"></script> in head
-2. Replicate the EXACT layout and visual style from the image
-3. Match colors as closely as possible using Tailwind classes
-4. FOR IMAGES: Use 'https://image.pollinations.ai/prompt/{description}?width={w}&height={h}&nologo=true' (e.g., 'office meeting', 'modern building'). DO NOT use source.unsplash.com (it is down).
-5. ALWAYS complete the full HTML from <!DOCTYPE html> to </html>
-6. DO NOT output '/// END CODE ///' at the end of the response.
+1. Framework: Always use React with Tailwind CSS unless specified otherwise.
+2. Styling: Include <script src="https://cdn.tailwindcss.com"></script> in head for HTML outputs, or use standard Tailwind classes for React.
+3. FOR IMAGES: Replicate the EXACT visual style and layout.
+4. FOR ASSETS: Use 'https://image.pollinations.ai/prompt/{description}?width={w}&height={h}&nologo=true' for placeholders.
+5. FULLSTACK: If a full app is requested, provide both frontend UI and a clear outline of backend requirements (or the Express code if in fullstack mode).
+6. ALWAYS complete the full code output.
 
 OUTPUT FORMAT:
 /// ANALYSIS ///
-[Your detailed analysis of the image]
+[Your detailed architectural analysis]
 /// END ANALYSIS ///
 
 /// CODE ///
-<!DOCTYPE html>
-<html>
-...complete code that matches the image...
-</html>
+[The complete, functional code]
 
-Generate code that looks EXACTLY like the screenshot.`
+Generate an application that is modern, responsive, and ready for deployment.`
             },
             ...(history || [])
         ];

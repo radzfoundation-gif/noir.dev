@@ -80,7 +80,7 @@ export const WaitlistLandingPage = () => {
                         transition={{ duration: 0.8, delay: 0.1 }}
                         className="text-5xl md:text-7xl font-bold leading-tight tracking-tighter mb-8 max-w-4xl mx-auto"
                     >
-                        Turn <span className="text-primary font-bold">Screenshots</span> into Production Code
+                        Turn <span className="text-primary font-bold">Ideas</span> into Fullstack Applications
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0 }}
@@ -88,7 +88,7 @@ export const WaitlistLandingPage = () => {
                         transition={{ delay: 0.3 }}
                         className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light"
                     >
-                        NOIR AI bridges the gap between vision and reality. Join our waitlist to generate clean, accessible React and Tailwind code from mockups in seconds.
+                        NOIR AI bridges the gap between vision and reality. Join our waitlist to generate production-ready React frontends, Node.js backends, and database schemas in seconds.
                     </motion.p>
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -118,14 +118,14 @@ export const WaitlistLandingPage = () => {
                 </div>
             </section>
 
-            {/* Feature 1: Screenshot to Code */}
+            {/* Feature 1: Prompt to Fullstack */}
             <section id="features" className="py-24 px-6 lg:px-20 max-w-[1200px] mx-auto">
                 <div className="flex flex-col gap-4 mb-12">
                     <h2 className="text-3xl font-semibold flex items-center gap-3">
-                        <span className="material-symbols-outlined text-primary text-4xl">add_photo_alternate</span>
-                        Screenshot to Code
+                        <span className="material-symbols-outlined text-primary text-4xl">auto_awesome</span>
+                        Prompt to Fullstack
                     </h2>
-                    <p className="text-slate-400 font-light">Transform any image, mockup, or napkin sketch into functional UI components.</p>
+                    <p className="text-slate-400 font-light">Transform any idea, prompt, or design into functional fullstack applications with integrated backends.</p>
                 </div>
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
                     {/* Left: Upload Card */}
@@ -151,7 +151,7 @@ export const WaitlistLandingPage = () => {
                                 <div className="size-3 rounded-full bg-yellow-500/50"></div>
                                 <div className="size-3 rounded-full bg-green-500/50"></div>
                             </div>
-                            <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">Generated Output: React + Tailwind</span>
+                            <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">Generated Output: Fullstack App</span>
                         </div>
                         <div className="p-6 font-mono text-sm overflow-y-auto scanline-effect">
                             <pre className="text-slate-300">
@@ -209,9 +209,9 @@ export const WaitlistLandingPage = () => {
                 <div className="grid md:grid-cols-3 gap-8 relative">
                     <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent -translate-y-1/2 -z-10"></div>
                     {[
-                        { icon: 'input', title: '1. Input Design', desc: 'Upload a screenshot or paste a URL for the AI to analyze.' },
-                        { icon: 'psychology', title: '2. AI Analysis', desc: 'Our neural engine identifies patterns, layouts, and style tokens.' },
-                        { icon: 'code_blocks', title: '3. Export Code', desc: 'Get production-ready code blocks tailored to your framework.' }
+                        { icon: 'description', title: '1. Describe Idea', desc: 'Enter your application requirements or upload a design for reference.' },
+                        { icon: 'psychology', title: '2. AI Architecting', desc: 'Our neural engine designs the database, API endpoints, and UI hierarchy.' },
+                        { icon: 'inventory_2', title: '3. Fullstack Export', desc: 'Get production-ready code blocks tailored to your framework.' }
                     ].map((step, i) => (
                         <motion.div
                             key={i}
