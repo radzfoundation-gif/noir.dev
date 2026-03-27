@@ -284,7 +284,7 @@ export const Workbench = () => {
     const [searchParams] = useSearchParams();
     const [projectId, setProjectId] = useState<string | null>(searchParams.get('project'));
     const [isSaving, setIsSaving] = useState(false);
-    const { user } = useAuth();
+    const { user, session } = useAuth();
     const [model, setModel] = useState(location.state?.model || 'anthropic/claude-opus-4.5');
     const [prompt, setPrompt] = useState(location.state?.prompt || '');
     const [image, setImage] = useState<string | null>(location.state?.image || null);
@@ -333,7 +333,7 @@ export const Workbench = () => {
     const [brandIdentity, setBrandIdentity] = useState<BrandIdentity>(defaultBrandIdentity);
 
     // Chat history state
-    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+    const [_chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -341,6 +341,7 @@ export const Workbench = () => {
     const [isAuditorOpen, setIsAuditorOpen] = useState(false);
     const [auditResults, setAuditResults] = useState<AuditResult | null>(null);
     const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     // API Keys State (localStorage-backed)
     const [apiKeys, setApiKeys] = useState<{ name: string; key: string; created: string; lastUsed: string }[]>(() => {
@@ -706,7 +707,7 @@ export const Workbench = () => {
         if (promptToUse.trim() || image) {
             const userMessage: ChatMessage = {
                 id: '',
-                project_id: projectId,
+                project_id: projectId || '',
                 role: 'user',
                 content: imageToSend ? `[Image attached] ${promptToUse}` : promptToUse,
                 model: model,
@@ -715,10 +716,12 @@ export const Workbench = () => {
                 metadata: imageToSend ? { hasImage: true } : {}
             };
             setChatMessages(prev => [...prev, userMessage]);
-            await chatService.saveMessage(projectId, 'user', userMessage.content, {
-                model: model,
-                metadata: userMessage.metadata
-            });
+            if (projectId) {
+                await chatService.saveMessage(projectId, 'user', userMessage.content, {
+                    model: model,
+                    metadata: userMessage.metadata
+                });
+            }
         }
 
         // Clear terminal lines but don't show yet
@@ -995,7 +998,7 @@ export const Workbench = () => {
                 // Save assistant message to chat history
                 const assistantMessage: ChatMessage = {
                     id: '',
-                    project_id: projectId,
+                    project_id: projectId || '',
                     role: 'assistant',
                     content: cleanCode,
                     model: model,
@@ -1006,13 +1009,15 @@ export const Workbench = () => {
                     created_at: new Date().toISOString()
                 };
                 setChatMessages(prev => [...prev, assistantMessage]);
-                await chatService.saveMessage(projectId, 'assistant', cleanCode, {
-                    model: model,
-                    thinking: accumulatedThinking,
-                    analysis: analysis,
-                    steps: generatedSteps,
-                    code: cleanCode
-                });
+                if (projectId) {
+                    await chatService.saveMessage(projectId, 'assistant', cleanCode, {
+                        model: model,
+                        thinking: accumulatedThinking,
+                        analysis: analysis,
+                        steps: generatedSteps,
+                        code: cleanCode
+                    });
+                }
 
                 // Sync with WebContainer sandbox only after thinking is complete
                 if (isThinkingComplete && webContainerService.isRunning()) {
