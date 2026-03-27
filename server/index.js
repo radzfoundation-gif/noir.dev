@@ -50,6 +50,73 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
+// Credits Helper
+const checkUserCredits = async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return { allowed: false, error: 'Unauthorized: Missing token', status: 401 };
+        }
+        
+        const token = authHeader.replace('Bearer ', '');
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        
+        if (error || !user) {
+            return { allowed: false, error: 'Unauthorized: Invalid token', status: 401 };
+        }
+        
+        const { data: credits, error: creditError } = await supabase
+            .from('user_credits')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+            
+        let freeUsed = credits?.free_prompts_used || 0;
+        let paidAvailable = credits?.paid_prompts_available || 0;
+        
+        if (freeUsed >= 1 && paidAvailable <= 0) {
+            return { allowed: false, error: 'Payment Required. Please top up your prompts.', status: 402 };
+        }
+        
+        return { allowed: true, user: user, credits: credits || { free_prompts_used: 0, paid_prompts_available: 0 } };
+    } catch (err) {
+        console.error('[Credits] Exception:', err);
+        return { allowed: false, error: 'Server error verifying credits', status: 500 };
+    }
+};
+
+const deductCredit = async (userId, credits) => {
+    let freeUsed = credits.free_prompts_used || 0;
+    let paidAvailable = credits.paid_prompts_available || 0;
+    
+    if (freeUsed < 1) {
+        await supabase.from('user_credits').upsert({
+            user_id: userId,
+            free_prompts_used: freeUsed + 1,
+            paid_prompts_available: paidAvailable,
+            updated_at: new Date().toISOString()
+        });
+    } else if (paidAvailable > 0) {
+        await supabase.from('user_credits').upsert({
+            user_id: userId,
+            free_prompts_used: freeUsed,
+            paid_prompts_available: paidAvailable - 1,
+            updated_at: new Date().toISOString()
+        });
+    }
+};
+
+app.get('/api/credits', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Missing token' });
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) return res.status(401).json({ error: 'Invalid token' });
+
+    const { data: credits } = await supabase.from('user_credits').select('*').eq('user_id', user.id).single();
+    res.json({ credits: credits || { free_prompts_used: 0, paid_prompts_available: 0 } });
+});
+
 app.get('/api/diag', async (req, res) => {
     try {
         const { data, error, count } = await supabase
@@ -71,6 +138,14 @@ app.get('/api/diag', async (req, res) => {
 });
 
 app.post('/api/generate-fullstack', async (req, res) => {
+    const creditCheck = await checkUserCredits(req, res);
+    if (!creditCheck.allowed) {
+        return res.status(creditCheck.status || 401).json({ error: creditCheck.error });
+    }
+    
+    // Will deduct upon successful generation start
+    await deductCredit(creditCheck.user.id, creditCheck.credits);
+
     const { prompt, appType, customSpec, type, mode = 'fullstack', config } = req.body;
 
     try {
@@ -253,6 +328,12 @@ Output JSON format (no markdown):
 });
 
 app.post('/api/generate-template', async (req, res) => {
+    const creditCheck = await checkUserCredits(req, res);
+    if (!creditCheck.allowed) {
+        return res.status(creditCheck.status || 401).json({ error: creditCheck.error });
+    }
+    await deductCredit(creditCheck.user.id, creditCheck.credits);
+
     const { type, mode = 'fullstack', config } = req.body;
 
     const templates = {
@@ -458,6 +539,12 @@ app.post('/api/generate-template', async (req, res) => {
 });
 
 app.post('/api/generate', async (req, res) => {
+    const creditCheck = await checkUserCredits(req, res);
+    if (!creditCheck.allowed) {
+        return res.status(creditCheck.status || 401).json({ error: creditCheck.error });
+    }
+    await deductCredit(creditCheck.user.id, creditCheck.credits);
+
     const { prompt, model, history, image } = req.body;
 
     if (!prompt && !image) return res.status(400).json({ error: 'Prompt or image is required' });
@@ -980,6 +1067,46 @@ app.post('/api/xendit/create-invoice', async (req, res) => {
     }
 });
 
+app.post('/api/xendit/prompt-invoice', async (req, res) => {
+    try {
+        const { email, name, userId } = req.body;
+
+        if (!email || !userId) {
+            return res.status(400).json({ error: 'Email and UserId are required' });
+        }
+
+        const invoiceExternalId = `noir_prompt_${userId}_${Date.now()}`;
+
+        const invoiceParams = {
+            externalId: invoiceExternalId,
+            amount: 25000,
+            currency: 'IDR',
+            customer: {
+                givenNames: name || 'Noir User',
+                email: email,
+            },
+            description: `Prompt Top-up (2x Prompts)`,
+            callbackUrl: `${process.env.VITE_API_URL}/api/xendit/callback`,
+            successUrl: `${process.env.VITE_API_URL}/payment-success?external_id=${invoiceExternalId}`,
+            failureUrl: `${process.env.VITE_API_URL}/payment-failure`,
+            shouldSendEmail: true,
+            paymentMethods: ['BANK_TRANSFER', 'CREDIT_CARD', 'EWALLET', 'OVO', 'DANA', 'LINKAJA', 'SHOPEEPAY', 'QRIS'],
+        };
+
+        const invoice = await Invoice.createInvoice({ data: invoiceParams });
+
+        res.json({
+            success: true,
+            invoiceId: invoice.id,
+            invoiceUrl: invoice.invoiceUrl,
+            externalId: invoiceExternalId,
+        });
+    } catch (error) {
+        console.error('Xendit create prompt invoice error:', error);
+        res.status(500).json({ error: 'Failed to create invoice' });
+    }
+});
+
 app.post('/api/xendit/callback', async (req, res) => {
     try {
         const { external_id, status, payment_method, paid_at } = req.body;
@@ -988,6 +1115,28 @@ app.post('/api/xendit/callback', async (req, res) => {
 
         if (status === 'PAID') {
             console.log(`Payment successful for invoice: ${external_id}`);
+            
+            // Check if this is a prompt top-up
+            if (external_id.startsWith('noir_prompt_')) {
+                const userId = external_id.split('_')[2];
+                if (userId) {
+                    // Fetch existing credits
+                    const { data: credits } = await supabase
+                        .from('user_credits')
+                        .select('paid_prompts_available')
+                        .eq('user_id', userId)
+                        .single();
+                        
+                    const currentAvailable = credits?.paid_prompts_available || 0;
+                    
+                    await supabase.from('user_credits').upsert({
+                        user_id: userId,
+                        paid_prompts_available: currentAvailable + 2,
+                        updated_at: new Date().toISOString()
+                    });
+                    console.log(`[Xendit] Added 2 paid prompts to user ${userId}`);
+                }
+            }
         }
 
         res.json({ received: true });

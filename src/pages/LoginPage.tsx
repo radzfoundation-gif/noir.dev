@@ -36,7 +36,7 @@ export const LoginPage = () => {
                     }
                 });
             } else {
-                navigate('/editor');
+                navigate('/workspace');
             }
         }
     };
@@ -48,7 +48,7 @@ export const LoginPage = () => {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/editor`
+                    redirectTo: `${window.location.origin}/workspace`
                 }
             });
             if (error) throw error;

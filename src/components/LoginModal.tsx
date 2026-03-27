@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { RegisterModal } from './RegisterModal';
@@ -11,6 +12,7 @@ interface LoginModalProps {
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
+    const navigate = useNavigate();
     const { signIn } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -41,6 +43,20 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             setError(authError.message);
             setIsLoading(false);
         } else {
+            // Check for pending generation from landing page
+            const pendingData = sessionStorage.getItem('pendingGeneration');
+            if (pendingData) {
+                const generation = JSON.parse(pendingData);
+                sessionStorage.removeItem('pendingGeneration');
+                navigate('/editor', {
+                    state: {
+                        ...generation,
+                        autoGenerate: true
+                    }
+                });
+            } else {
+                navigate('/workspace');
+            }
             onClose();
         }
     };
@@ -51,7 +67,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/editor`
+                    redirectTo: `${window.location.origin}/workspace`
                 }
             });
             if (error) throw error;

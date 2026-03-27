@@ -20,18 +20,34 @@ export const LandingPage = () => {
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
     const [generationType, setGenerationType] = useState<'web' | 'app'>('web');
-    const [framework, setFramework] = useState<'html' | 'react' | 'astro'>('html');
+    const [framework] = useState<'html' | 'react' | 'astro'>('html');
     const [recentProjects, setRecentProjects] = useState<Project[]>([]);
     const [showLoginModal, setShowLoginModal] = useState(false);
 
     // Fetch recent projects if user is logged in
     useEffect(() => {
         if (user) {
+            // Check for pending generation from landing page
+            const pendingData = sessionStorage.getItem('pendingGeneration');
+            if (pendingData) {
+                const generation = JSON.parse(pendingData);
+                sessionStorage.removeItem('pendingGeneration');
+                navigate('/editor', {
+                    state: {
+                        ...generation,
+                        autoGenerate: true
+                    }
+                });
+            } else {
+                // If logged in and no pending generation, go to workspace
+                navigate('/workspace');
+            }
+            
             projectService.getProjects()
                 .then(projects => setRecentProjects(projects.slice(0, 3)))
                 .catch(console.error);
         }
-    }, [user]);
+    }, [user, navigate]);
 
     const handleGenerate = () => {
         if (!user) {
@@ -55,7 +71,7 @@ export const LandingPage = () => {
                 model,
                 generationType,
                 framework,
-                autoGenerate: true // Flag to trigger generation on load
+                autoGenerate: true
             }
         });
     };
@@ -91,8 +107,6 @@ export const LandingPage = () => {
                             setPrompt={setPrompt}
                             generationType={generationType}
                             setGenerationType={setGenerationType}
-                            framework={framework}
-                            setFramework={setFramework}
                         />
                     </motion.div>
                 </div>

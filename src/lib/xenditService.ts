@@ -61,8 +61,29 @@ export const xenditService = {
   async getInvoiceStatus(externalId: string): Promise<InvoiceStatus> {
     const response = await fetch(`${API_URL}/api/xendit/invoice/${externalId}`);
     if (!response.ok) {
-      throw new Error('Failed to get invoice status');
+        throw new Error('Failed to get invoice status');
     }
+    return response.json();
+  },
+
+  async createPromptInvoice(
+    email: string,
+    name: string,
+    userId: string
+  ): Promise<XenditInvoiceResponse> {
+    const response = await fetch(`${API_URL}/api/xendit/prompt-invoice`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, name, userId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create prompt invoice');
+    }
+
     return response.json();
   },
 

@@ -7,6 +7,9 @@ export interface Project {
     code: string;
     generation_type: 'web' | 'app';
     prompt: string | null;
+    is_public?: boolean;
+    metadata?: any;
+    thumbnail_url?: string | null;
     created_at: string;
     updated_at: string;
 }

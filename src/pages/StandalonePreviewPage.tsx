@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Project } from '../lib/projectService';
+import { ensureTailwindCDN } from '../lib/codeUtils';
 
 export const StandalonePreviewPage = () => {
     const { projectId } = useParams();
@@ -54,10 +55,11 @@ export const StandalonePreviewPage = () => {
     return (
         <div className="w-screen h-screen bg-white m-0 p-0 overflow-hidden">
             <iframe
-                srcDoc={project.code}
+                srcDoc={ensureTailwindCDN(project.code)}
                 className="w-full h-full border-none"
                 title={project.name}
                 sandbox="allow-scripts allow-modals allow-forms allow-popups allow-same-origin allow-top-navigation-by-user-activation allow-downloads-without-user-activation"
+                referrerPolicy="no-referrer-when-downgrade"
             />
         </div>
     );

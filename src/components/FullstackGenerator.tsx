@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Code2, Sparkles, Download, Layout, Server, Database, Globe, Layers, Zap, ChevronRight, X, Check, Monitor, Cpu, ShoppingCart, Users, User, MessageCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { PromptPaymentModal } from './PromptPaymentModal';
 
 interface FullstackGeneratorProps {
   onGenerate?: (app: any) => void;
@@ -55,6 +57,8 @@ const uis = [
 ];
 
 export default function FullstackGenerator({ onGenerate }: FullstackGeneratorProps) {
+  const { user, session } = useAuth();
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [mode, setMode] = useState<GeneratorMode>('fullstack');
   const [step, setStep] = useState<'mode' | 'template' | 'configure' | 'prompt' | 'generating' | 'complete'>('mode');
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -87,15 +91,26 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
     setProgress('Analyzing requirements...');
 
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
       const response = await fetch('/api/generate-fullstack', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           type: selectedType,
           mode,
           config: mode === 'frontend' ? { framework: config.framework, ui: config.ui } : config
         })
       });
+
+      if (response.status === 402) {
+        setShowPaymentModal(true);
+        setStep('configure');
+        return;
+      }
 
       const result = await response.json();
 
@@ -122,11 +137,22 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
     setProgress('Analyzing your idea...');
 
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
       const response = await fetch('/api/generate-fullstack', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ prompt, mode })
       });
+
+      if (response.status === 402) {
+        setShowPaymentModal(true);
+        setStep('prompt');
+        return;
+      }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -705,6 +731,15 @@ export default function FullstackGenerator({ onGenerate }: FullstackGeneratorPro
             </motion.div>
           )}
         </AnimatePresence>
+        {user && (
+          <PromptPaymentModal 
+            isOpen={showPaymentModal} 
+            onClose={() => setShowPaymentModal(false)} 
+            userEmail={user.email || ''} 
+            userName={user.user_metadata?.name || 'Noir User'} 
+            userId={user.id} 
+          />
+        )}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { ChatInput } from './ChatInput';
 import { Copy, Key, Trash2, Plus, FileCode, RefreshCw, Download, Undo, Redo, Camera, Save, LayoutGrid, History, Smartphone, MessageSquare, Palette, Server, KeyRound, Rocket, ShieldCheck, Sparkles, Zap, ChevronDown, Monitor, Tablet, Play, Layers, ZoomIn, ZoomOut, Maximize, Calculator, Timer, Cloud, CheckSquare, Music } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { projectService } from '../lib/projectService';
+import { chatService, type ChatMessage } from '../lib/chatService';
 import { useAuth } from '../context/AuthContext';
 import Editor from 'react-simple-code-editor';
 import Prism from 'prismjs';
@@ -33,31 +34,50 @@ import { brandService, defaultBrandIdentity, type BrandIdentity } from '../lib/b
 import { fullstackGeneratorService } from '../lib/fullstackGeneratorService';
 import { AuditorPanel } from './auditor/AuditorPanel';
 import { DeploymentModal } from './deploy/DeploymentModal';
-import type { AuditResult } from '../lib/auditorService';
+import { auditorService, type AuditResult } from '../lib/auditorService';
 import { StreamingSteps } from './streaming/StreamingSteps';
 import { WorkingIndicator } from './streaming/WorkingIndicator';
 import { TerminalPanel } from './streaming/TerminalPanel';
 import { webContainerService, type TerminalLine } from '../lib/webContainerService';
 import { FileExplorer } from './FileExplorer';
+import { ensureTailwindCDN, prepareCodeForPreview } from '../lib/codeUtils';
+import { PromptPaymentModal } from './PromptPaymentModal';
 
 type ViewMode = 'Preview' | 'Code' | 'Integrations' | 'APIs';
 type Device = 'mobile' | 'desktop' | 'tablet';
 
 // Device Mockup Component
+const deviceConfig = {
+    mobile: { width: 375, height: 812, radius: 40, border: 12 },
+    tablet: { width: 768, height: 1024, radius: 24, border: 14 },
+    desktop: { width: 1280, height: 800, radius: 8, border: 0 }, // Fixed desktop size
+};
+
+// Device Mockup Component
 const DeviceMockup = ({ device, code, zoom, onScaleChange }: { device: Device; code: string; zoom: number | 'fit'; onScaleChange?: (scale: number) => void }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(1);
-
-    // Fixed dimensions for devices
-    const deviceConfig = {
-        mobile: { width: 375, height: 812, radius: 40, border: 12 },
-        tablet: { width: 768, height: 1024, radius: 24, border: 14 },
-        desktop: { width: 1280, height: 800, radius: 8, border: 0 }, // Fixed desktop size
-    };
-
     const [mockupSize, setMockupSize] = useState({ width: deviceConfig[device].width, height: deviceConfig[device].height });
+    const [blobUrl, setBlobUrl] = useState<string>('');
 
     const config = deviceConfig[device];
+
+    // Create Blob URL whenever code changes
+    useEffect(() => {
+        if (!code) {
+            setBlobUrl('');
+            return;
+        }
+        // Process code for preview (strips problematic CDN scripts)
+        const processedCode = prepareCodeForPreview(code);
+        const blob = new Blob([processedCode], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        setBlobUrl(url);
+
+        return () => {
+            URL.revokeObjectURL(url);
+        };
+    }, [code]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -91,14 +111,17 @@ const DeviceMockup = ({ device, code, zoom, onScaleChange }: { device: Device; c
                 newScale = device === 'desktop' ? 1 : zoom; // Desktop always 1
             }
 
-            setScale(newScale);
-            if (onScaleChange) onScaleChange(newScale);
+            // Only update state if scale actually changed significantly to avoid loops
+            if (Math.abs(newScale - scale) > 0.001) {
+                setScale(newScale);
+                if (onScaleChange) onScaleChange(newScale);
+            }
         };
 
         handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [device, config, zoom]);
+    }, [device, zoom, config]); // Removed 'scale' dependency which likely caused loop
 
     // Desktop mode - fullscreen without device frame
     if (device === 'desktop') {
@@ -117,12 +140,15 @@ const DeviceMockup = ({ device, code, zoom, onScaleChange }: { device: Device; c
                     transition={{ duration: 0.3, delay: 0.1 }}
                     className="relative w-full h-full bg-white overflow-hidden"
                 >
-                    <iframe
-                        srcDoc={code}
-                        className="w-full h-full border-0 block"
-                        title="Preview"
-                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                    />
+                    {blobUrl && (
+                        <iframe
+                            src={blobUrl}
+                            className="w-full h-full border-0 block"
+                            title="Preview"
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation-by-user-activation allow-downloads"
+                            referrerPolicy="no-referrer-when-downgrade"
+                        />
+                    )}
                 </motion.div>
             </motion.div>
         );
@@ -199,12 +225,15 @@ const DeviceMockup = ({ device, code, zoom, onScaleChange }: { device: Device; c
                         borderRadius: device === 'mobile' ? 28 : device === 'tablet' ? 8 : 4,
                     }}
                 >
-                    <iframe
-                        srcDoc={code}
-                        className="w-full h-full border-0 block"
-                        title="Preview"
-                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                    />
+                    {blobUrl && (
+                        <iframe
+                            src={blobUrl}
+                            className="w-full h-full border-0 block"
+                            title="Preview"
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation-by-user-activation allow-downloads"
+                            referrerPolicy="no-referrer-when-downgrade"
+                        />
+                    )}
                 </motion.div>
             </motion.div>
         </div>
@@ -270,7 +299,8 @@ export const Workbench = () => {
     const [currentTaskIndex, setCurrentTaskIndex] = useState<number>(0);
     const [totalTasks, setTotalTasks] = useState<number>(0);
     const [isCodeVisible, setIsCodeVisible] = useState(true);
-    const [framework, setFramework] = useState<'html' | 'react' | 'astro'>(location.state?.framework || 'html');
+    const [isThinkingComplete, setIsThinkingComplete] = useState(false);
+    const [framework] = useState<'html' | 'react' | 'astro'>(location.state?.framework || 'html');
 
     // Terminal state for WebContainer
     const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
@@ -280,6 +310,8 @@ export const Workbench = () => {
     const [generatedFiles, setGeneratedFiles] = useState<Record<string, string>>({});
     const [selectedFile, setSelectedFile] = useState<string | null>(null);
     const [activeCodeTab, setActiveCodeTab] = useState<'code' | 'files'>('code');
+    const [hasFullstackFiles, setHasFullstackFiles] = useState(false);
+    const [fullstackFileCount, setFullstackFileCount] = useState(0);
 
     // Modal States
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -299,13 +331,32 @@ export const Workbench = () => {
     const [isDesignSystemPickerOpen, setIsDesignSystemPickerOpen] = useState(false);
     const [isResponsivePanelOpen, setIsResponsivePanelOpen] = useState(false);
     const [brandIdentity, setBrandIdentity] = useState<BrandIdentity>(defaultBrandIdentity);
+
+    // Chat history state
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
 
     // AI Auditor State
     const [isAuditorOpen, setIsAuditorOpen] = useState(false);
-    const [auditResults] = useState<AuditResult | null>(null);
+    const [auditResults, setAuditResults] = useState<AuditResult | null>(null);
     const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
+
+    // API Keys State (localStorage-backed)
+    const [apiKeys, setApiKeys] = useState<{ name: string; key: string; created: string; lastUsed: string }[]>(() => {
+        try {
+            const saved = localStorage.getItem('noir_api_keys');
+            return saved ? JSON.parse(saved) : [];
+        } catch { return []; }
+    });
+
+    // Integrations connection state (localStorage-backed)
+    const [connectedIntegrations, setConnectedIntegrations] = useState<Record<string, boolean>>(() => {
+        try {
+            const saved = localStorage.getItem('noir_integrations');
+            return saved ? JSON.parse(saved) : {};
+        } catch { return {}; }
+    });
 
     // Backend & Mobile
     const [isBackendPanelOpen, setIsBackendPanelOpen] = useState(false);
@@ -332,7 +383,40 @@ export const Workbench = () => {
     }, []);
 
     const runAudit = async () => {
+        setAuditResults(null);
         setIsAuditorOpen(true);
+        try {
+            const results = await auditorService.auditCode(code);
+            setAuditResults(results);
+        } catch (err) {
+            console.error('Audit failed:', err);
+            showToast('Audit failed');
+        }
+    };
+
+    const handleCreateApiKey = () => {
+        const name = `Key ${apiKeys.length + 1}`;
+        const randomKey = 'sk-noir_' + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('');
+        const newKey = { name, key: randomKey, created: 'Just now', lastUsed: 'Never' };
+        const updated = [...apiKeys, newKey];
+        setApiKeys(updated);
+        localStorage.setItem('noir_api_keys', JSON.stringify(updated));
+        showToast('API key created!');
+    };
+
+    const handleDeleteApiKey = (keyToDelete: string) => {
+        const updated = apiKeys.filter(k => k.key !== keyToDelete);
+        setApiKeys(updated);
+        localStorage.setItem('noir_api_keys', JSON.stringify(updated));
+        showToast('API key deleted');
+    };
+
+    const handleToggleIntegration = (name: string) => {
+        const isConnected = connectedIntegrations[name];
+        const updated = { ...connectedIntegrations, [name]: !isConnected };
+        setConnectedIntegrations(updated);
+        localStorage.setItem('noir_integrations', JSON.stringify(updated));
+        showToast(isConnected ? `${name} disconnected` : `${name} connected!`);
     };
 
 
@@ -354,27 +438,23 @@ export const Workbench = () => {
         }
     }, [user]);
 
-    // Auto-generate on mount when navigating from LandingPage with autoGenerate flag
+    const autoGenerateRef = useRef(location.state?.autoGenerate);
     const hasAutoGenerated = useRef(false);
     useEffect(() => {
-        console.log('[DEBUG] Auto-generate useEffect triggered');
-        console.log('[DEBUG] location.state?.autoGenerate:', location.state?.autoGenerate);
-        console.log('[DEBUG] hasAutoGenerated.current:', hasAutoGenerated.current);
-        console.log('[DEBUG] isGenerating:', isGenerating);
-
-        if (location.state?.autoGenerate && !hasAutoGenerated.current && !isGenerating) {
-            console.log('[DEBUG] ✅ Auto-generate conditions met, triggering handleGenerate in 100ms');
+        if (autoGenerateRef.current && !hasAutoGenerated.current && !isGenerating) {
             hasAutoGenerated.current = true;
-            // Small timeout to ensure component is fully mounted
             const timer = setTimeout(() => {
-                console.log('[DEBUG] ✅ Auto-generate timer fired, calling handleGenerate');
                 handleGenerate();
             }, 100);
             return () => clearTimeout(timer);
-        } else {
-            console.log('[DEBUG] ℹ️ Auto-generate conditions NOT met');
         }
-    }, [location.state?.autoGenerate]);
+    }, []);
+
+    // Reset fullstack files state when build mode or generation type changes
+    useEffect(() => {
+        setHasFullstackFiles(false);
+        setFullstackFileCount(0);
+    }, [buildMode, generationType]);
 
     const loadUserTeams = async () => {
         try {
@@ -426,22 +506,7 @@ export const Workbench = () => {
         }
     };
 
-    const ensureTailwindCDN = (htmlCode: string): string => {
-        if (!htmlCode || htmlCode.includes('tailwindcss') || htmlCode.includes('tailwind.css')) {
-            return htmlCode;
-        }
-        const hasTailwindClasses = /class="[^"]*(?:flex|grid|text-|bg-|p-\d|m-\d|rounded|shadow|border|w-|h-|gap-|space-|items-|justify-)[^"]*"/.test(htmlCode);
-        if (!hasTailwindClasses) return htmlCode;
 
-        let result = htmlCode;
-        const tailwindCDN = '<script src="https://cdn.tailwindcss.com"></script>';
-        if (result.includes('</head>')) {
-            result = result.replace('</head>', `${tailwindCDN}\n</head>`);
-        } else if (result.includes('<head>')) {
-            result = result.replace('<head>', `<head>\n${tailwindCDN}`);
-        }
-        return result;
-    };
 
     const loadProject = async (id: string) => {
         try {
@@ -449,7 +514,20 @@ export const Workbench = () => {
             if (project) {
                 const enhancedCode = ensureTailwindCDN(project.code);
                 setCode(enhancedCode);
+
+                // Sync generation type and device from project metadata
+                const meta = project.metadata as any;
+                if (meta?.generationType) {
+                    setGenerationType(meta.generationType);
+                    setDevice(meta.generationType === 'app' ? 'mobile' : 'desktop');
+                }
+
                 if (project.prompt) setPrompt(project.prompt);
+
+                // Load chat history
+                const messages = await chatService.getMessages(id);
+                setChatMessages(messages);
+
                 showToast(`Loaded: ${project.name}`);
             }
         } catch (err) {
@@ -469,7 +547,10 @@ export const Workbench = () => {
                 name: previewAppName || 'Untitled Project',
                 code,
                 generation_type: generationType,
-                prompt: prompt || null
+                prompt: prompt || null,
+                metadata: {
+                    generationType: generationType
+                }
             });
             setProjectId(project.id);
             showToast(projectId ? 'Project saved!' : 'Project created!');
@@ -541,6 +622,41 @@ export const Workbench = () => {
         showToast('Generation stopped');
     };
 
+    const handleExportFullstack = async () => {
+        if (!hasFullstackFiles || Object.keys(generatedFiles).length === 0) {
+            showToast('No fullstack files to export');
+            return;
+        }
+
+        try {
+            const { default: JSZip } = await import('jszip');
+            const zip = new JSZip();
+
+            // Add all generated files to zip
+            Object.entries(generatedFiles).forEach(([path, content]) => {
+                zip.file(path, content);
+            });
+
+            // Generate zip blob
+            const blob = await zip.generateAsync({ type: 'blob' });
+
+            // Download
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${previewAppName.replace(/\s+/g, '-').toLowerCase()}-fullstack.zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showToast(`Fullstack app exported! ${Object.keys(generatedFiles).length} files downloaded`);
+        } catch (error) {
+            console.error('Export failed:', error);
+            showToast('Export failed. Please try again.');
+        }
+    };
+
     const handleGenerate = async () => {
         console.log('[DEBUG] ====== handleGenerate CALLED ======');
         console.log('[DEBUG] prompt state:', prompt);
@@ -560,11 +676,12 @@ export const Workbench = () => {
 
         console.log('[DEBUG] ✅ Starting generation process...');
         setIsGenerating(true);
+        setHasFullstackFiles(false);
+        setFullstackFileCount(0);
         abortControllerRef.current = new AbortController();
         setActiveTab('Preview');
         setCurrentPrompt(promptToUse);
         const imageToSend = image;
-        setCurrentImage(imageToSend);
         setCurrentImage(imageToSend);
         setPrompt('');
         setImage(null);
@@ -576,15 +693,37 @@ export const Workbench = () => {
         setCurrentTaskIndex(0);
         setTotalTasks(0);
         setIsCodeVisible(false);
+        setIsThinkingComplete(false);
 
-        // Initialize terminal and boot WebContainer
+        // Boot WebContainer in background but don't show terminal yet
         setTerminalLines([]);
-        setShowTerminal(true);
-
-        // Boot WebContainer sandbox (non-blocking, runs in background)
+        setShowTerminal(false);
         webContainerService.boot().catch(err => {
             console.error('[WebContainer] Boot error:', err);
         });
+
+        // Save user message to chat history
+        if (promptToUse.trim() || image) {
+            const userMessage: ChatMessage = {
+                id: '',
+                project_id: projectId,
+                role: 'user',
+                content: imageToSend ? `[Image attached] ${promptToUse}` : promptToUse,
+                model: model,
+                created_at: new Date().toISOString(),
+                steps: [],
+                metadata: imageToSend ? { hasImage: true } : {}
+            };
+            setChatMessages(prev => [...prev, userMessage]);
+            await chatService.saveMessage(projectId, 'user', userMessage.content, {
+                model: model,
+                metadata: userMessage.metadata
+            });
+        }
+
+        // Clear terminal lines but don't show yet
+        setTerminalLines([]);
+        setShowTerminal(false);
 
         let accumulatedStream = '';
         let accumulatedCode = '';
@@ -593,6 +732,8 @@ export const Workbench = () => {
         try {
             const apiUrl = import.meta.env.VITE_API_URL || '';
             console.log('[DEBUG] API URL:', apiUrl || '(relative)');
+
+            let fullstackApp: any = null;
 
             if (buildMode === 'fullstack') {
                 const spec = await fullstackGeneratorService.generateFromPrompt(promptToUse, model);
@@ -603,9 +744,69 @@ export const Workbench = () => {
                     (spec as any).platform = 'mobile';
                     (spec as any).ui = 'native-base';
                     (spec as any).deployment = 'expo';
+                    (spec as any).framework = 'react-native';
                 }
 
                 console.log('[DEBUG] Final Spec for generation:', spec);
+
+                // Generate fullstack app (React Native + Backend)
+                console.log('[DEBUG] Generating fullstack app...');
+                fullstackApp = await fullstackGeneratorService.generateApp(spec);
+                console.log('[DEBUG] Fullstack app generated:', Object.keys(fullstackApp.frontend || {}).length, 'frontend files,', Object.keys(fullstackApp.backend || {}).length, 'backend files');
+
+                // Store fullstack files for export
+                if (fullstackApp) {
+                    const allFiles: Record<string, string> = {};
+
+                    // Add frontend files (React Native)
+                    if (fullstackApp.frontend) {
+                        Object.entries(fullstackApp.frontend as Record<string, string>).forEach(([path, content]) => {
+                            allFiles[`frontend/${path}`] = content;
+                        });
+                    }
+
+                    // Add backend files
+                    if (fullstackApp.backend) {
+                        Object.entries(fullstackApp.backend as Record<string, string>).forEach(([path, content]) => {
+                            allFiles[`backend/${path}`] = content;
+                        });
+                    }
+
+                    // Add config files
+                    if (fullstackApp.config) {
+                        allFiles['config/package.json'] = fullstackApp.config.packageJson as string;
+                        allFiles['config/.env.example'] = fullstackApp.config.envExample as string;
+                        allFiles['config/README.md'] = fullstackApp.config.readme as string;
+                        if (fullstackApp.config.tailwindConfig) {
+                            allFiles['config/tailwind.config.js'] = fullstackApp.config.tailwindConfig as string;
+                        }
+                        if (fullstackApp.config.tsConfig) {
+                            allFiles['config/tsconfig.json'] = fullstackApp.config.tsConfig as string;
+                        }
+                        if (fullstackApp.config.dockerfile) {
+                            allFiles['config/Dockerfile'] = fullstackApp.config.dockerfile as string;
+                        }
+                    }
+
+                    // Add deployment configs
+                    if (fullstackApp.deployment) {
+                        if (fullstackApp.deployment.vercel) {
+                            Object.entries(fullstackApp.deployment.vercel as Record<string, string>).forEach(([path, content]) => {
+                                allFiles[`deployment/vercel/${path}`] = content;
+                            });
+                        }
+                        if (fullstackApp.deployment.netlify) {
+                            Object.entries(fullstackApp.deployment.netlify as Record<string, string>).forEach(([path, content]) => {
+                                allFiles[`deployment/netlify/${path}`] = content;
+                            });
+                        }
+                    }
+
+                    setGeneratedFiles(prev => ({ ...prev, ...allFiles }));
+                    setHasFullstackFiles(true);
+                    setFullstackFileCount(Object.keys(allFiles).length);
+                    showToast(`Fullstack app generated! ${Object.keys(allFiles).length} files ready for export`);
+                }
             }
 
             let fullPrompt = promptToUse;
@@ -617,7 +818,7 @@ export const Workbench = () => {
             }
 
             if (generationType === 'app') {
-                fullPrompt += '\n\nGenerate a mobile app UI with iOS-style design using React Native components (View, Text, TouchableOpacity, StyleSheet, etc.). Use StyleSheet.create() for styling with flexbox layout.';
+                fullPrompt += '\n\nGenerate a mobile app UI. IMPORTANT: Use HTML and Tailwind CSS for the implementation so it can be previewed in a web browser. Design it specifically for a mobile screen (vertical layout, mobile-friendly navigation, touch-friendly buttons). Use mobile-first design principles.';
             } else {
                 fullPrompt += '\n\nGenerate a modern, responsive web page using HTML and Tailwind CSS.';
             }
@@ -628,9 +829,14 @@ export const Workbench = () => {
             console.log('[DEBUG] Making fetch request to:', `${apiUrl}/api/generate`);
             console.log('[DEBUG] Request body:', { model, hasImage: !!imageToSend, framework, promptLength: fullPrompt.length });
 
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (session?.access_token) {
+                headers['Authorization'] = `Bearer ${session.access_token}`;
+            }
+
             const response = await fetch(`${apiUrl}/api/generate`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 signal: abortControllerRef.current?.signal,
                 body: JSON.stringify({
                     prompt: fullPrompt,
@@ -645,8 +851,14 @@ export const Workbench = () => {
             console.log('[DEBUG] Response ok:', response.ok);
 
             if (!response.ok) {
+                if (response.status === 402) {
+                    setShowPaymentModal(true);
+                    setIsGenerating(false);
+                    return;
+                }
+                const errorData = await response.json().catch(() => null);
                 console.log('[DEBUG] ❌ Response not OK, throwing error');
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(errorData?.error || errorData?.message || `HTTP error! status: ${response.status}`);
             }
 
             const reader = response.body?.getReader();
@@ -685,16 +897,34 @@ export const Workbench = () => {
                             if (parsed.thinking) {
                                 accumulatedThinking += parsed.thinking;
                                 setThinking(accumulatedThinking);
+                                setIsThinkingComplete(false);
                             }
                             if (parsed.content) {
                                 accumulatedStream += parsed.content;
                                 if (accumulatedStream.includes('/// THINKING ///')) {
                                     const thinkingPart = accumulatedStream.split('/// THINKING ///')[1]?.split('/// STEP')[0]?.split('/// ANALYSIS')[0]?.split('/// CODE')[0] || '';
-                                    if (thinkingPart) setThinking(thinkingPart.trim());
+                                    if (thinkingPart) {
+                                        setThinking(thinkingPart.trim());
+                                        setIsThinkingComplete(false);
+                                    }
                                 }
                                 if (accumulatedStream.includes('/// ANALYSIS ///')) {
                                     const analysisPart = accumulatedStream.split('/// ANALYSIS ///')[1]?.split('/// END ANALYSIS ///')[0] || '';
-                                    if (analysisPart) setAnalysis(analysisPart.trim());
+                                    if (analysisPart) {
+                                        setAnalysis(analysisPart.trim());
+                                        if (!isThinkingComplete) {
+                                            setIsThinkingComplete(true);
+                                            setShowTerminal(true);
+                                            webContainerService.boot().catch(err => console.error('[WebContainer] Boot error:', err));
+                                        }
+                                    }
+                                }
+                                if (accumulatedStream.includes('/// STEP:')) {
+                                    if (!isThinkingComplete) {
+                                        setIsThinkingComplete(true);
+                                        setShowTerminal(true);
+                                        webContainerService.boot().catch(err => console.error('[WebContainer] Boot error:', err));
+                                    }
                                 }
                                 const stepRegex = /\/\/\/ STEP: ([\d\/].*?) \/\/\/([\s\S]*?)(?=(\/\/\/ STEP:|$|\/\/\/ CODE \/\/\/))/g;
                                 const newSteps = [];
@@ -704,14 +934,11 @@ export const Workbench = () => {
                                 while ((match = stepRegex.exec(accumulatedStream)) !== null) {
                                     const title = match[1].trim();
                                     newSteps.push({ title, desc: match[2].trim() });
-
-                                    // Parse step progress like "1/5" or "2/5"
                                     const progressMatch = title.match(/(\d+)\/(\d+)/);
                                     if (progressMatch) {
                                         maxStepNum = Math.max(maxStepNum, parseInt(progressMatch[1]));
                                         totalStepCount = parseInt(progressMatch[2]);
                                     } else {
-                                        // Fallback: just count steps
                                         maxStepNum = newSteps.length;
                                     }
                                 }
@@ -722,6 +949,11 @@ export const Workbench = () => {
                                 }
                                 if (accumulatedStream.includes('/// CODE ///')) {
                                     setIsCodeVisible(true);
+                                    if (!isThinkingComplete) {
+                                        setIsThinkingComplete(true);
+                                        setShowTerminal(true);
+                                        webContainerService.boot().catch(err => console.error('[WebContainer] Boot error:', err));
+                                    }
                                     const parts = accumulatedStream.split('/// CODE ///');
                                     let codePart = parts[1] || '';
                                     if (codePart.includes('```html')) {
@@ -729,8 +961,6 @@ export const Workbench = () => {
                                     }
                                     codePart = codePart.replace(/(\s*\/\/\/ END CODE \/\/\/|\s*\/\/\/ END CODE)/g, '');
                                     accumulatedCode = codePart;
-                                    setCode(accumulatedCode);
-                                    setStreamingMessage(accumulatedCode);
                                 }
                             }
                             if (parsed.error) {
@@ -762,8 +992,30 @@ export const Workbench = () => {
                 setIsRefreshing(true);
                 setTimeout(() => setIsRefreshing(false), 800);
 
-                // Sync with WebContainer sandbox
-                if (webContainerService.isRunning()) {
+                // Save assistant message to chat history
+                const assistantMessage: ChatMessage = {
+                    id: '',
+                    project_id: projectId,
+                    role: 'assistant',
+                    content: cleanCode,
+                    model: model,
+                    thinking: accumulatedThinking,
+                    analysis: analysis,
+                    steps: generatedSteps,
+                    code: cleanCode,
+                    created_at: new Date().toISOString()
+                };
+                setChatMessages(prev => [...prev, assistantMessage]);
+                await chatService.saveMessage(projectId, 'assistant', cleanCode, {
+                    model: model,
+                    thinking: accumulatedThinking,
+                    analysis: analysis,
+                    steps: generatedSteps,
+                    code: cleanCode
+                });
+
+                // Sync with WebContainer sandbox only after thinking is complete
+                if (isThinkingComplete && webContainerService.isRunning()) {
                     try {
                         // Determine file type based on framework
                         const fileName = framework === 'react' ? 'App.jsx' :
@@ -880,18 +1132,15 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 
     // Integrations data
     const integrations = [
-        { name: 'OpenAI', icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg', connected: true },
-        { name: 'Google Gemini', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg', connected: true },
-        { name: 'Anthropic', icon: 'https://upload.wikimedia.org/wikipedia/commons/7/78/Anthropic_logo.svg', connected: false },
-        { name: 'Vercel', icon: 'https://assets.vercel.com/image/upload/v1588805858/repositories/vercel/logo.png', connected: true },
-        { name: 'Supabase', icon: 'https://seeklogo.com/images/S/supabase-logo-DCC676FFE2-seeklogo.com.png', connected: false },
-        { name: 'Stripe', icon: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg', connected: false },
+        { name: 'OpenAI', icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg', connected: !!connectedIntegrations['OpenAI'] },
+        { name: 'Google Gemini', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg', connected: !!connectedIntegrations['Google Gemini'] },
+        { name: 'Anthropic', icon: 'https://upload.wikimedia.org/wikipedia/commons/7/78/Anthropic_logo.svg', connected: !!connectedIntegrations['Anthropic'] },
+        { name: 'Vercel', icon: 'https://assets.vercel.com/image/upload/v1588805858/repositories/vercel/logo.png', connected: !!connectedIntegrations['Vercel'] },
+        { name: 'Supabase', icon: 'https://seeklogo.com/images/S/supabase-logo-DCC676FFE2-seeklogo.com.png', connected: !!connectedIntegrations['Supabase'] },
+        { name: 'Stripe', icon: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg', connected: !!connectedIntegrations['Stripe'] },
     ];
 
-    const apiKeys = [
-        { name: 'Production Key', key: 'sk-prod_...9s2A', created: '2 days ago', lastUsed: 'Just now' },
-        { name: 'Development Key', key: 'sk-dev_...8xL1', created: '1 week ago', lastUsed: '5 hours ago' },
-    ];
+    // apiKeys is now managed via state (see useState above)
 
     const handleQuickAction = (actionId: string) => {
         // Web prompts
@@ -952,6 +1201,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
                             <span className="text-sm text-neutral-400 hover:text-white cursor-pointer transition-colors">
                                 {previewAppName}
                             </span>
+                            {buildMode === 'fullstack' && generationType === 'app' && (
+                                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-purple-500/20 text-purple-400 rounded-full border border-purple-500/30">
+                                    Fullstack
+                                </span>
+                            )}
                             <ChevronDown size={14} className="text-neutral-600" />
                         </div>
 
@@ -1136,6 +1390,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
                             icon={<Download size={14} />}
                             variant="primary"
                             items={[
+                                ...(hasFullstackFiles ? [
+                                    {
+                                        id: 'export-fullstack',
+                                        label: `Export Fullstack (${fullstackFileCount} files)`,
+                                        icon: <Layers size={14} className="text-purple-400" />,
+                                        onClick: handleExportFullstack
+                                    }
+                                ] : []),
                                 { id: 'export-code', label: 'Export Code', icon: <Download size={14} />, onClick: () => setIsExportModalOpen(true) },
                                 { id: 'design-system', label: 'Design System', icon: <Palette size={14} />, onClick: () => setIsDesignSystemPickerOpen(true) },
                                 { id: 'separator-1', label: '', icon: null, onClick: () => { }, disabled: true },
@@ -1286,8 +1548,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
                                 setPrompt={setPrompt}
                                 context={context}
                                 onClearContext={() => setContext(null)}
-                                framework={framework}
-                                setFramework={setFramework}
                                 currentTask={currentTaskIndex > 0 ? currentTaskIndex : (generatedSteps.length > 0 ? generatedSteps.length : 0)}
                                 totalTasks={totalTasks}
                             />
@@ -1412,33 +1672,28 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
                                                 code={`<!DOCTYPE html>
 <html>
 <head>
-    <script src="https://cdn.tailwindcss.com"><\/script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>body{font-family:'Inter',sans-serif}</style>
 </head>
-<body class="bg-gradient-to-br from-neutral-900 to-black min-h-screen flex items-center justify-center p-6">
-    <div class="text-center">
-        <div class="w-16 h-16 bg-gradient-to-br from-lime-400 to-lime-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-lime-400/20">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-            </svg>
+<body class="bg-black min-h-screen flex items-center justify-center p-6 overflow-hidden">
+    <div class="text-center w-full max-w-sm">
+        <div class="mb-8 relative mx-auto w-48 h-32 bg-neutral-900/50 border border-white/10 rounded-xl overflow-hidden flex flex-col shadow-2xl">
+            <div class="h-8 border-b border-white/5 flex items-center px-3 gap-1.5 bg-white/5">
+                <div class="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+            </div>
+            <div class="p-3 space-y-2 opacity-50">
+                <div class="w-8 h-8 bg-white/10 rounded-lg mb-3"></div>
+                <div class="h-2 w-3/4 bg-white/10 rounded-full"></div>
+                <div class="h-2 w-1/2 bg-white/10 rounded-full"></div>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
         </div>
-        <h1 class="text-2xl font-bold text-white mb-2">${generationType === 'app' ? 'Mobile App' : 'Web App'}</h1>
-        <p class="text-neutral-400 text-sm mb-6">Ready to build your ${generationType === 'app' ? 'mobile app' : 'web application'}</p>
-        <div class="flex flex-col gap-3">
-                            <button class="px-6 py-3 bg-lime-400 hover:bg-lime-300 text-black font-medium rounded-xl transition-all">
-                                Get Started
-                            </button>
-                            <button class="px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-medium rounded-xl transition-all">
-                                Learn More
-                            </button>
-                        </div>
-                        <div class="mt-8 flex justify-center gap-2">
-                            <div class="w-2 h-2 rounded-full bg-lime-400"></div>
-                            <div class="w-2 h-2 rounded-full bg-neutral-600"></div>
-                            <div class="w-2 h-2 rounded-full bg-neutral-600"></div>
-                        </div>
-                    </div>
-                </body>
+        <p class="text-neutral-500 font-medium tracking-wide text-sm">Your app will appear here</p>
+    </div>
+</body>
 </html>`}
                                                 zoom={zoom}
                                                 onScaleChange={setCurrentScale}
@@ -1526,20 +1781,25 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
                                                 <button
                                                     onClick={() => setActiveCodeTab('code')}
                                                     className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeCodeTab === 'code'
-                                                            ? 'bg-neutral-800 text-white shadow-sm'
-                                                            : 'text-neutral-500 hover:text-neutral-300'
+                                                        ? 'bg-neutral-800 text-white shadow-sm'
+                                                        : 'text-neutral-500 hover:text-neutral-300'
                                                         }`}
                                                 >
                                                     Code
                                                 </button>
                                                 <button
                                                     onClick={() => setActiveCodeTab('files')}
-                                                    className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeCodeTab === 'files'
-                                                            ? 'bg-neutral-800 text-white shadow-sm'
-                                                            : 'text-neutral-500 hover:text-neutral-300'
+                                                    className={`px-3 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 ${activeCodeTab === 'files'
+                                                        ? 'bg-neutral-800 text-white shadow-sm'
+                                                        : 'text-neutral-500 hover:text-neutral-300'
                                                         }`}
                                                 >
                                                     Files
+                                                    {hasFullstackFiles && (
+                                                        <span className="px-1.5 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded-full">
+                                                            {fullstackFileCount}
+                                                        </span>
+                                                    )}
                                                 </button>
                                             </div>
 
@@ -1631,12 +1891,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
                                                 <p className="text-xs text-neutral-500">{app.connected ? 'Connected' : 'Not connected'}</p>
                                             </div>
                                             <button
+                                                onClick={() => handleToggleIntegration(app.name)}
                                                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${app.connected
                                                     ? 'bg-neutral-800 text-neutral-400 hover:text-white'
                                                     : 'bg-lime-400 text-black hover:bg-lime-300'
                                                     }`}
                                             >
-                                                {app.connected ? 'Manage' : 'Connect'}
+                                                {app.connected ? 'Disconnect' : 'Connect'}
                                             </button>
                                         </div>
                                     ))}
@@ -1659,7 +1920,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
                                         <h1 className="text-2xl font-semibold mb-1">API Keys</h1>
                                         <p className="text-neutral-500">Manage your API keys and access tokens.</p>
                                     </div>
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-lime-400 text-black rounded-lg font-medium hover:bg-lime-300 transition-colors">
+                                    <button onClick={handleCreateApiKey} className="flex items-center gap-2 px-4 py-2 bg-lime-400 text-black rounded-lg font-medium hover:bg-lime-300 transition-colors">
                                         <Plus size={16} />
                                         Create Key
                                     </button>
@@ -1677,7 +1938,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-neutral-800">
-                                            {apiKeys.map((key) => (
+                                            {apiKeys.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={5} className="p-8 text-center text-neutral-500 text-sm">
+                                                        No API keys yet. Click "Create Key" to generate one.
+                                                    </td>
+                                                </tr>
+                                            ) : apiKeys.map((key) => (
                                                 <tr key={key.key} className="hover:bg-neutral-800/50 transition-colors">
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-3">
@@ -1687,11 +1954,19 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
                                                             <span className="font-medium text-white">{key.name}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="p-4 font-mono text-xs text-neutral-500">{key.key}</td>
+                                                    <td className="p-4 font-mono text-xs text-neutral-500">
+                                                        <button
+                                                            onClick={() => { navigator.clipboard.writeText(key.key); showToast('Key copied!'); }}
+                                                            className="hover:text-white transition-colors cursor-pointer"
+                                                            title="Click to copy"
+                                                        >
+                                                            {key.key.slice(0, 12)}...{key.key.slice(-4)}
+                                                        </button>
+                                                    </td>
                                                     <td className="p-4 text-sm text-neutral-500">{key.created}</td>
                                                     <td className="p-4 text-sm text-neutral-500">{key.lastUsed}</td>
                                                     <td className="p-4">
-                                                        <button className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                                                        <button onClick={() => handleDeleteApiKey(key.key)} className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
                                                             <Trash2 size={14} />
                                                         </button>
                                                     </td>
@@ -1752,6 +2027,15 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);
             <BrandSettingsModal isOpen={isBrandModalOpen} onClose={() => setIsBrandModalOpen(false)} projectId={projectId} currentIdentity={brandIdentity} onSave={setBrandIdentity} />
             <AuditorPanel isOpen={isAuditorOpen} onClose={() => setIsAuditorOpen(false)} results={auditResults} />
             <DeploymentModal isOpen={isDeployModalOpen} onClose={() => setIsDeployModalOpen(false)} code={code} projectName={previewAppName} />
+            {user && (
+                <PromptPaymentModal 
+                    isOpen={showPaymentModal} 
+                    onClose={() => setShowPaymentModal(false)} 
+                    userEmail={user.email || ''} 
+                    userName={user.user_metadata?.name || 'Noir User'} 
+                    userId={user.id} 
+                />
+            )}
         </div >
     );
 };
